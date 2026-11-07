@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where Is My Train (GATI-SETU Dynamic ML Edition)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="flex justify-center min-h-screen bg-slate-950 text-slate-100 sm:p-4">
+
+  <!-- Mobile Screen Shell -->
+  <div class="w-full max-w-md bg-slate-900 border border-slate-800 sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col h-screen sm:h-[860px]">
+
+    <!-- App Top Bar (Authentic WIMT styling) -->
+    <div class="bg-teal-700 px-4 pt-3 pb-2 text-white shadow-md">
+      <div class="flex justify-between items-center text-xs opacity-90 pb-2">
+        <span class="mono">GATI-SETU ML ENGINE</span>
+        <div class="flex items-center gap-2">
+          <span><i class="fa-solid fa-signal"></i> Cell Tower</span>
+          <span><i class="fa-solid fa-wifi"></i> Online</span>
+        </div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <button onclick="history.back()" class="text-white hover:opacity-80"><i class="fa-solid fa-arrow-left text-base"></i></button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="trainNoHeader" class="font-extrabold text-base tracking-wide mono">12951</span>
+              <span class="text-xs bg-teal-800/80 px-1.5 py-0.5 rounded text-teal-200">TEJAS RAJ</span>
+            </div>
+            <div id="trainNameHeader" class="text-xs text-teal-100 truncate max-w-[220px]">Mumbai Central - New Delhi Tejas Rajdhani Express</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="refreshData()" class="p-1.5 rounded-full hover:bg-teal-600 transition"><i class="fa-solid fa-rotate text-sm"></i></button>
+        </div>
+      </div>
+
+      <!-- Coach Bar -->
+      <div class="mt-2.5 pt-2 border-t border-teal-600/60 flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-1.5 overflow-x-auto py-0.5 pr-2 no-scrollbar" id="coachStrip">
+          <span class="px-1.5 py-0.5 rounded bg-teal-900 font-mono text-[10px]">ENG</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">LPR</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">BE1</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">B1</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">B2</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">B3</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">PC</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">H1</span>
+          <span class="px-1.5 py-0.5 rounded bg-teal-800 font-mono text-[10px]">A1</span>
+        </div>
+        <span class="text-[10px] text-teal-200 font-bold whitespace-nowrap pl-1" id="coachCount">22 COA</span>
+      </div>
+    </div>
+
+    <!-- ALGORITHM COMPARISON SWITCHER (The Core Feature) -->
+    <div class="bg-slate-800 p-2.5 border-b border-slate-700 flex flex-col gap-1.5">
+      <div class="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider text-slate-400">
+        <span>ETA Prediction Mode</span>
+        <span id="activeAlgoBadge" class="text-emerald-400">GATI-SETU ML (ACTIVE)</span>
+      </div>
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-700/60">
+        <button id="btnOldAlgo" onclick="switchAlgorithm('OLD')" class="py-1.5 px-2 rounded text-xs font-semibold text-slate-400 hover:text-white transition">
+          Old Static (STA + Delay)
+        </button>
+        <button id="btnNewAlgo" onclick="switchAlgorithm('NEW')" class="py-1.5 px-2 rounded text-xs font-bold bg-emerald-600 text-white shadow transition">
+          GATI-SETU Dynamic ML
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Ribbon -->
+    <div class="bg-slate-950 px-4 py-2 border-b border-slate-800/80 flex justify-between items-center text-xs">
+      <div class="flex items-center gap-2">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+        <div>
+          <span class="text-slate-400">Speed:</span>
+          <span id="speedVal" class="text-white font-bold mono ml-0.5">53 km/h</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div>
+          <span class="text-slate-400">Loco:</span>
+          <span id="locoVal" class="text-amber-400 font-bold mono ml-0.5">#39214</span>
+        </div>
+        <div id="signalBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+          CLEAR SIGNAL
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithm Explanation Banner -->
+    <div id="algoBanner" class="bg-emerald-950/40 border-b border-emerald-800/40 px-3.5 py-2 text-[11px] text-emerald-300 flex items-start gap-2">
+      <i class="fa-solid fa-brain mt-0.5 text-emerald-400"></i>
+      <div>
+        <strong class="font-bold">GATI-SETU AI Active:</strong> Predicting real dynamic delay using spatial headway, 6000 HP traction inertia & WTT slack recovery.
+      </div>
+    </div>
+
+    <!-- Scrollable Station Route Timeline -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" id="stationTimeline">
+      <!-- Station cards rendered dynamically -->
+    </div>
+
+    <!-- Bottom Action Ribbon -->
+    <div class="bg-slate-900 border-t border-slate-800 px-4 py-3 flex justify-between items-center text-xs text-slate-400">
+      <div class="flex items-center gap-1.5">
+        <i class="fa-solid fa-tower-cell text-emerald-400"></i>
+        <span>Offline Cell Triangulation Active</span>
+      </div>
+      <div class="text-[10px] text-slate-500 mono">PS 26028 | SIH 2026</div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentMode = 'NEW';
+    let globalData = null;
+
+    async function loadData() {
+      try {
+        const resp = await fetch('/wimt_relay/running_status?trainNo=12951');
+        globalData = await resp.json();
+        renderView();
+      } catch (e) {
+        console.error("Failed to load WIMT data:", e);
+      }
+    }
+
+    function switchAlgorithm(mode) {
+      currentMode = mode;
+      const btnOld = document.getElementById('btnOldAlgo');
+      const btnNew = document.getElementById('btnNewAlgo');
+      const badge = document.getElementById('activeAlgoBadge');
+      const banner = document.getElementById('algoBanner');
+
+      if (mode === 'OLD') {
+        btnOld.className = 'py-1.5 px-2 rounded text-xs font-bold bg-rose-600 text-white shadow transition';
+        btnNew.className = 'py-1.5 px-2 rounded text-xs font-semibold text-slate-400 hover:text-white transition';
+        badge.innerText = 'OLD STATIC WIMT (FLAWED)';
+        badge.className = 'text-rose-400';
+        banner.className = 'bg-rose-950/40 border-b border-rose-800/40 px-3.5 py-2 text-[11px] text-rose-300 flex items-start gap-2';
+        banner.innerHTML = `
+          <i class="fa-solid fa-triangle-exclamation mt-0.5 text-rose-400"></i>
+          <div><strong class="font-bold">Old Static Model Active:</strong> Naive (STA + Current Delay). Ignores downstream traffic & speed restrictions.</div>
+        `;
+      } else {
+        btnNew.className = 'py-1.5 px-2 rounded text-xs font-bold bg-emerald-600 text-white shadow transition';
+        btnOld.className = 'py-1.5 px-2 rounded text-xs font-semibold text-slate-400 hover:text-white transition';
+        badge.innerText = 'GATI-SETU ML (ACCURATE)';
+        badge.className = 'text-emerald-400';
+        banner.className = 'bg-emerald-950/40 border-b border-emerald-800/40 px-3.5 py-2 text-[11px] text-emerald-300 flex items-start gap-2';
+        banner.innerHTML = `
+          <i class="fa-solid fa-brain mt-0.5 text-emerald-400"></i>
+          <div><strong class="font-bold">GATI-SETU AI Active:</strong> Predicting real dynamic delay using spatial headway, 6000 HP traction inertia & WTT slack recovery.</div>
+        `;
+      }
+      renderView();
+    }
+
+    function renderView() {
+      if (!globalData || globalData.status !== 'success') return;
+
+      document.getElementById('trainNoHeader').innerText = globalData.train_number;
+      document.getElementById('trainNameHeader').innerText = globalData.train_name;
+      document.getElementById('speedVal').innerText = `${globalData.speed_kmph} km/h`;
+      document.getElementById('locoVal').innerText = `#${globalData.locomotive_serial}`;
+      document.getElementById('coachCount').innerText = `${globalData.coach_composition.length} COACHES`;
+
+      const stations = currentMode === 'OLD' 
+        ? globalData.legacy_static_algorithm_result 
+        : globalData.gatisetu_dynamic_ml_result;
+
+      const container = document.getElementById('stationTimeline');
+      container.innerHTML = '';
+
+      stations.forEach((stn, idx) => {
+        const item = document.createElement('div');
+        item.className = 'relative flex items-start gap-3';
+
+        const isDelayed = stn.delay_minutes > 5;
+        const delayBadgeClass = isDelayed 
+          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' 
+          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
+
+        const dotColor = isDelayed ? 'bg-amber-500' : 'bg-teal-500';
+
+        item.innerHTML = `
+          <!-- Timeline Line & Node -->
+          <div class="flex flex-col items-center">
+            <div class="w-3.5 h-3.5 rounded-full ${dotColor} border-2 border-slate-900 z-10"></div>
+            ${idx < stations.length - 1 ? '<div class="w-0.5 h-16 bg-slate-800"></div>' : ''}
+          </div>
+
+          <!-- Station Content Card -->
+          <div class="flex-1 bg-slate-900/80 border border-slate-800 rounded-xl p-3 -mt-1 shadow-sm">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-white text-sm">${stn.station_code} - ${stn.station_name}</span>
+                <div class="text-[11px] text-slate-400 mono">${stn.distance_km} km | Platform ${stn.platform}</div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold mono ${delayBadgeClass}">
+                +${stn.delay_minutes} MIN
+              </span>
+            </div>
+
+            <!-- Arrival Comparison -->
+            <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex justify-between items-center text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase">Scheduled</span>
+                <span class="text-slate-300 mono text-[11px]">${stn.scheduled_arrival_time.slice(11)}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] ${currentMode === 'OLD' ? 'text-rose-400' : 'text-emerald-400'} block uppercase font-semibold">
+                  ${currentMode === 'OLD' ? 'Old Static ETA' : 'Dynamic ML ETA'}
+                </span>
+                <span class="font-bold mono text-sm ${currentMode === 'OLD' ? 'text-white' : 'text-emerald-400'}">
+                  ${stn.actual_or_predicted_arrival_time.slice(11)}
+                </span>
+              </div>
+            </div>
+
+            ${currentMode === 'NEW' ? `
+              <div class="mt-2 text-[10px] text-slate-400 flex justify-between items-center bg-slate-950/40 px-2 py-1 rounded">
+                <span>Confidence: [${stn.confidence_interval_p10_p90[0].slice(11)} - ${stn.confidence_interval_p10_p90[1].slice(11)}]</span>
+                <span class="text-amber-400 font-bold font-mono">Correction: +${stn.eta_correction_vs_legacy_min}m</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    window.onload = () => {
+      loadData();
+    };
+  </script>
+</body>
+</html>
+

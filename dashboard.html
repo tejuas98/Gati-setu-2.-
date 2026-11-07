@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GATI-SETU | Section Controller & Radar Dashboard (PS 26028)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Leaflet GIS Map Assets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #030712; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+      background: #0f172a !important;
+      color: #f8fafc !important;
+      border: 1px solid #334155 !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3">
+    <div class="max-w-[1720px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-extrabold text-lg">
+          <i class="fa-solid fa-radar text-emerald-400 text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg text-white tracking-wide">GATI-SETU : SECTION CONTROLLER & RADAR DESK</h1>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold mono">PS 26028 | SMART AUTOMATION</span>
+          </div>
+          <p class="text-xs text-slate-400">Dynamic Train ETA Forecasting, Locomotive Physics, Weather Speed Caps & AI Precedence Advisor</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <div class="flex items-center bg-slate-800/90 border border-slate-700/80 rounded-lg px-2.5 py-1.5 gap-2">
+          <span class="text-xs text-slate-400 font-medium">Train:</span>
+          <input type="text" id="trainInput" value="12951" class="bg-transparent border-0 text-sm font-bold text-white focus:outline-none w-20 mono">
+        </div>
+        <button onclick="updateAllViews()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-900/20">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Track</span>
+        </button>
+        <div class="h-6 w-px bg-slate-800 hidden sm:block"></div>
+        <div class="flex items-center gap-2 text-xs text-slate-400 mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>COA LIVE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-[1720px] mx-auto w-full p-4 space-y-4">
+
+    <!-- Top Split: Interactive GIS Radar Map & AI Section Controller Control Desk -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+      <!-- Map Radar (7 cols) -->
+      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex flex-col h-[520px]">
+        <div class="px-4 py-2.5 border-b border-slate-800 bg-slate-900/90 flex justify-between items-center text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-white uppercase tracking-wider mono text-[11px]"><i class="fa-solid fa-map-location-dot text-emerald-400 mr-1.5"></i>Indian Railways GIS Radar Map</span>
+            <span id="mapTrainCount" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 mono">Active Trains: Loading...</span>
+          </div>
+          <!-- Weather Layer Toggles -->
+          <div class="flex items-center gap-2 text-[10px]">
+            <label class="flex items-center gap-1 cursor-pointer text-slate-300">
+              <input type="checkbox" id="toggleFog" checked onchange="toggleWeatherLayers()" class="rounded bg-slate-800 text-emerald-500">
+              <span>Fog Belt</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer text-slate-300">
+              <input type="checkbox" id="toggleRain" checked onchange="toggleWeatherLayers()" class="rounded bg-slate-800 text-emerald-500">
+              <span>Monsoon</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer text-slate-300">
+              <input type="checkbox" id="toggleHeat" checked onchange="toggleWeatherLayers()" class="rounded bg-slate-800 text-emerald-500">
+              <span>Heat TSR</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="radarMap" class="flex-1 w-full h-full bg-slate-950 z-0"></div>
+
+        <div class="px-4 py-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400 mono">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> On Time (&lt;15m)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Delayed (15-45m)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Severe Delay (&gt;45m)</span>
+          </div>
+          <span class="text-cyan-400">Cyan Polyline: Active Track Corridor</span>
+        </div>
+      </div>
+
+      <!-- Section Controller Control Desk (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- AI Train Precedence & Loop Line Dispatch Advisor -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl">
+          <div class="flex justify-between items-start mb-2.5">
+            <div>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-400 mono">Section Controller AI Advisor</span>
+              <h2 class="text-base font-bold text-white">Dynamic Precedence & Loop Line Order</h2>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold mono">ACTIVE SECTION</span>
+          </div>
+
+          <div id="precedenceAdvisorCard" class="bg-slate-950/70 border border-slate-800 rounded-lg p-3 text-xs space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Downstream Corridor Headway:</span>
+              <span id="headwayDistDisplay" class="font-bold text-white mono">10.4 km (Clear Signal)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Preceding Train:</span>
+              <span id="precedingTrainDisplay" class="font-bold text-amber-300 mono truncate max-w-[210px]">59040 - Vapi Passenger</span>
+            </div>
+            <div class="p-2.5 rounded bg-emerald-950/30 border border-emerald-800/40 text-emerald-300">
+              <div class="font-bold flex items-center gap-1.5 mb-1 text-[11px]">
+                <i class="fa-solid fa-bolt text-emerald-400"></i>
+                <span>Actionable Section Controller Recommendation:</span>
+              </div>
+              <p id="advisorRecommendationText" class="text-[11px] leading-relaxed text-slate-300">
+                Evaluating section corridor dynamics...
+              </p>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+              <span class="text-slate-400 text-[11px]">Potential Cascading Delay Avoided:</span>
+              <span id="delaySavingsDisplay" class="font-bold text-emerald-400 mono text-xs">+16.4 minutes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Train Telemetry, Physics & Weather Restrictions -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex-1 flex flex-col justify-between">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mono">Train Physics & Weather Telemetry</span>
+              <h2 id="cardTrainName" class="text-sm font-bold text-white truncate max-w-[280px]">12951 - Tejas Rajdhani Express</h2>
+            </div>
+            <span id="cardSpeedBadge" class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 text-xs font-bold mono">53 km/h</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase">Tractive Effort & Power</div>
+              <div id="locoPhysicsText" class="font-bold text-amber-400 mono mt-0.5">WAP-7 (6000 HP)</div>
+              <div id="tractiveEffortText" class="text-[10px] text-slate-400">325 kN continuous</div>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase">Trailing Rake Mass</div>
+              <div id="trailingMassText" class="font-bold text-white mono mt-0.5">1,056 tons</div>
+              <div class="text-[10px] text-slate-400">22 LHB Coaches</div>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase">Davis Train Resistance</div>
+              <div id="davisResistanceText" class="font-bold text-cyan-400 mono mt-0.5">0.06 kN</div>
+              <div class="text-[10px] text-slate-400">Aerodynamic + Rolling</div>
+            </div>
+            <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase">Service Braking Distance</div>
+              <div id="brakingDistText" class="font-bold text-white mono mt-0.5">166.4 m</div>
+              <div class="text-[10px] text-slate-400">Decel @ -0.65 m/s²</div>
+            </div>
+          </div>
+
+          <!-- Weather Alert Strip -->
+          <div id="weatherAlertStrip" class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-cloud-sun text-amber-400"></i>
+              <span id="currentWeatherName" class="text-slate-200 font-medium">Extreme Heat Track Buckling Zone (MPS Capped: 100 km/h)</span>
+            </div>
+            <span class="text-[10px] text-amber-400 font-bold mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">TSR ENFORCED</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Core Dynamic Forecast & Weather Penalty Breakdown Table -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+      <div class="px-5 py-3.5 border-b border-slate-800 flex justify-between items-center flex-wrap gap-2">
+        <div>
+          <h2 class="font-bold text-white text-base">Station-by-Station Dynamic ETA Forecast & Weather Penalty Matrix</h2>
+          <p class="text-xs text-slate-400">Calculates cascading delays across dense fog, summer heat buckling TSRs, junction holding & WTT slack recovery</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs mono">
+          <span class="text-slate-400">Green Line: Dynamic Expected Arrival (P50)</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-800/60 text-slate-300 text-xs uppercase tracking-wider mono border-b border-slate-700/50">
+            <tr>
+              <th class="py-3 px-4">Station</th>
+              <th class="py-3 px-4">Distance</th>
+              <th class="py-3 px-4">Scheduled (STA)</th>
+              <th class="py-3 px-4 text-slate-400">Naive NTES ETA</th>
+              <th class="py-3 px-4 text-emerald-400 font-bold bg-emerald-950/20">GATI-SETU Dynamic ETA (P50)</th>
+              <th class="py-3 px-4 text-slate-300">Confidence [P10 - P90]</th>
+              <th class="py-3 px-4 text-amber-400">Weather & Speed Cap</th>
+              <th class="py-3 px-4 text-cyan-400">Compounded Delay</th>
+              <th class="py-3 px-4">Platform</th>
+            </tr>
+          </thead>
+          <tbody id="forecastTableBody" class="divide-y divide-slate-800/80">
+            <tr>
+              <td colspan="9" class="text-center py-10 text-slate-500 mono">Loading dynamic station telemetry...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let map = null;
+    let trackPolyline = null;
+    let trainMarkersLayer = null;
+    let weatherLayerGroup = null;
+
+    // Initialize Map
+    function initMap() {
+      map = L.map('radarMap', {
+        center: [22.5, 78.5],
+        zoom: 5,
+        zoomControl: true
+      });
+
+      // Dark CartoDB Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      trainMarkersLayer = L.layerGroup().addTo(map);
+      weatherLayerGroup = L.layerGroup().addTo(map);
+
+      drawWeatherZones();
+    }
+
+    // Draw Weather Zones
+    function drawWeatherZones() {
+      weatherLayerGroup.clearLayers();
+
+      const showFog = document.getElementById('toggleFog').checked;
+      const showRain = document.getElementById('toggleRain').checked;
+      const showHeat = document.getElementById('toggleHeat').checked;
+
+      // Northern Fog Belt (Delhi/UP/Bihar)
+      if (showFog) {
+        const fogPolygon = L.polygon([
+          [30.5, 75.0], [30.0, 80.5], [26.0, 85.5], [24.5, 83.0], [27.0, 77.0], [28.8, 76.0]
+        ], {
+          color: '#94a3b8',
+          fillColor: '#64748b',
+          fillOpacity: 0.22,
+          weight: 1.5,
+          dashArray: '4, 4'
+        }).bindTooltip("<b>Dense Fog Belt (Northern Railway)</b><br>Visibility &lt; 150m | FOG-PASS Active<br>Speed Capped: 60 km/h", {sticky: true});
+        weatherLayerGroup.addLayer(fogPolygon);
+      }
+
+      // Western Ghats Monsoon Zone
+      if (showRain) {
+        const rainPolygon = L.polygon([
+          [19.8, 72.5], [19.8, 73.8], [15.0, 74.5], [14.8, 73.5], [18.0, 72.8]
+        ], {
+          color: '#38bdf8',
+          fillColor: '#0284c7',
+          fillOpacity: 0.20,
+          weight: 1.5
+        }).bindTooltip("<b>Western Monsoon Zone (Konkan / Ghats)</b><br>Waterlogging Precaution<br>Speed Capped: 50 km/h", {sticky: true});
+        weatherLayerGroup.addLayer(rainPolygon);
+      }
+
+      // Central Heat Wave TSR Zone (Rajasthan/MP)
+      if (showHeat) {
+        const heatPolygon = L.polygon([
+          [26.5, 74.0], [26.0, 78.5], [21.5, 78.0], [22.0, 74.5]
+        ], {
+          color: '#f97316',
+          fillColor: '#ea580c',
+          fillOpacity: 0.18,
+          weight: 1.5,
+          dashArray: '3, 3'
+        }).bindTooltip("<b>Extreme Heat Wave (&gt;43°C)</b><br>Track Buckling TSR Active<br>Speed Capped: 100 km/h", {sticky: true});
+        weatherLayerGroup.addLayer(heatPolygon);
+      }
+    }
+
+    function toggleWeatherLayers() {
+      drawWeatherZones();
+    }
+
+    // Fetch Nationwide Live Radar Trains
+    async function loadRadarTrains() {
+      try {
+        const resp = await fetch('/api/v1/radar/live-trains?limit=250');
+        const data = await resp.json();
+        document.getElementById('mapTrainCount').innerText = `Active Trains: ${data.total_active_nationwide.toLocaleString()} nationwide (${data.returned_count} plotted)`;
+
+        trainMarkersLayer.clearLayers();
+
+        data.trains.forEach(t => {
+          if (!t.lat || !t.lng) return;
+
+          let color = '#10b981'; // Green
+          if (t.delay_minutes > 45) color = '#f43f5e'; // Red
+          else if (t.delay_minutes > 15) color = '#f59e0b'; // Amber
+
+          const marker = L.circleMarker([t.lat, t.lng], {
+            radius: t.train_number === document.getElementById('trainInput').value ? 7 : 4,
+            fillColor: color,
+            color: '#ffffff',
+            weight: t.train_number === document.getElementById('trainInput').value ? 2 : 0.8,
+            opacity: 1,
+            fillOpacity: 0.85
+          });
+
+          marker.bindPopup(`
+            <div class="text-xs">
+              <div class="font-bold text-sm text-white mb-1 mono">Train #${t.train_number}</div>
+              <div>Speed: <b>${t.speed_kmh} km/h</b></div>
+              <div>Delay: <b style="color:${color}">${t.delay_minutes} min</b></div>
+              <div class="text-slate-400 mt-1">Section: ${t.last_station} &rarr; ${t.next_station}</div>
+            </div>
+          `);
+
+          trainMarkersLayer.addLayer(marker);
+        });
+      } catch (e) {
+        console.error("Failed to load radar trains:", e);
+      }
+    }
+
+    // Load GIS Track Geometry for Target Train
+    async function loadRouteTrack(trainNo) {
+      try {
+        const resp = await fetch(`/api/v1/radar/route-track/${trainNo}`);
+        const data = await resp.json();
+
+        if (trackPolyline) {
+          map.removeLayer(trackPolyline);
+        }
+
+        // Convert [lng, lat] to [lat, lng] for Leaflet
+        const latLngs = data.coordinates.map(pt => [pt[1], pt[0]]);
+        trackPolyline = L.polyline(latLngs, {
+          color: '#06b6d4', // Cyan
+          weight: 3.5,
+          opacity: 0.85,
+          dashArray: '6, 6'
+        }).addTo(map);
+
+        if (latLngs.length > 0) {
+          map.fitBounds(trackPolyline.getBounds(), { padding: [30, 30] });
+        }
+      } catch (e) {
+        console.error("Failed to load route track:", e);
+      }
+    }
+
+    // Load Dynamic Forecast & Telemetry for Selected Train
+    async function loadForecast(trainNo) {
+      const tbody = document.getElementById('forecastTableBody');
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-10 text-slate-400 mono">Computing multi-factor dynamic forecast for Train #${trainNo}...</td></tr>`;
+
+      try {
+        const resp = await fetch(`/api/v1/forecast/${trainNo}`);
+        const data = await resp.json();
+
+        if (!data.success) {
+          tbody.innerHTML = `<tr><td colspan="9" class="text-center py-10 text-rose-400">${data.error}</td></tr>`;
+          return;
+        }
+
+        // Update Controller Desk Cards
+        document.getElementById('cardTrainName').innerText = `${data.train_number} - ${data.train_name}`;
+        document.getElementById('cardSpeedBadge').innerText = `${data.locomotive_telemetry.loco_speed_kmh} km/h`;
+
+        const phys = data.train_physics;
+        document.getElementById('locoPhysicsText').innerText = phys.locomotive_type;
+        document.getElementById('tractiveEffortText').innerText = `${phys.continuous_tractive_effort_kn} kN effort | ${data.locomotive_telemetry.power_hp} HP`;
+        document.getElementById('trailingMassText').innerText = `${phys.trailing_rake_mass_tons} tons`;
+        document.getElementById('davisResistanceText').innerText = `${phys.davis_train_resistance_kn} kN`;
+        document.getElementById('brakingDistText').innerText = `${phys.service_braking_distance_m} m`;
+
+        // Precedence Advisor
+        document.getElementById('headwayDistDisplay').innerText = `${data.downstream_corridor.spatial_headway_km} km (${data.downstream_corridor.signal_aspect.replace('_', ' ')})`;
+        document.getElementById('precedingTrainDisplay').innerText = data.downstream_corridor.preceding_train;
+
+        if (data.section_controller_advisor) {
+          document.getElementById('advisorRecommendationText').innerText = data.section_controller_advisor.recommendation_text;
+          document.getElementById('delaySavingsDisplay').innerText = `+${data.section_controller_advisor.potential_delay_savings_min} min saved`;
+        } else {
+          document.getElementById('advisorRecommendationText').innerText = "Corridor is clear ahead. Maintain maximum section permissible speed (MPS).";
+          document.getElementById('delaySavingsDisplay').innerText = "0 min conflict";
+        }
+
+        // Render Forecast Table Rows
+        tbody.innerHTML = '';
+        data.upcoming_stations.forEach(stn => {
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-slate-800/40 transition';
+
+          const weatherBadge = stn.weather.is_adverse 
+            ? `<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 font-semibold">${stn.weather.condition} (Cap: ${stn.weather.speed_cap_kmh} km/h)</span>`
+            : `<span class="text-slate-400 text-xs">Clear (130 km/h)</span>`;
+
+          const varianceSign = stn.eta_correction_min > 0 ? `+${stn.eta_correction_min}m (Underestimated)` : `${stn.eta_correction_min}m (Recovered)`;
+
+          row.innerHTML = `
+            <td class="py-3 px-4 font-bold text-white">
+              ${stn.station_code} - ${stn.station_name}
+            </td>
+            <td class="py-3 px-4 text-slate-400 mono text-xs">${stn.distance_km} km</td>
+            <td class="py-3 px-4 text-slate-300 mono text-xs">${stn.scheduled_arrival}</td>
+            <td class="py-3 px-4 text-slate-400 mono text-xs line-through opacity-70">${stn.naive_ntes_eta}</td>
+            <td class="py-3 px-4 font-bold text-emerald-400 mono bg-emerald-950/20 text-sm">${stn.dynamic_forecast_p50}</td>
+            <td class="py-3 px-4 text-xs text-slate-300 mono">[${stn.optimistic_eta_p10.slice(11)} - ${stn.pessimistic_eta_p90.slice(11)}]</td>
+            <td class="py-3 px-4 text-xs">${weatherBadge}</td>
+            <td class="py-3 px-4 font-bold mono text-xs text-amber-400">+${stn.dynamic_delay_min}m <span class="text-[10px] text-slate-400 block">${varianceSign}</span></td>
+            <td class="py-3 px-4 text-slate-300 mono text-xs font-semibold">PF ${stn.platform || '1'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-10 text-rose-400">Failed to load forecast: ${e.message}</td></tr>`;
+      }
+    }
+
+    function updateAllViews() {
+      const trainNo = document.getElementById('trainInput').value.trim() || '12951';
+      loadRouteTrack(trainNo);
+      loadForecast(trainNo);
+      loadRadarTrains();
+    }
+
+    // Auto load on start
+    window.onload = () => {
+      initMap();
+      updateAllViews();
+      // Auto refresh radar positions every 30s
+      setInterval(loadRadarTrains, 30000);
+    };
+  </script>
+</body>
+</html>
