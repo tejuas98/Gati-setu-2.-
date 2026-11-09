@@ -242,7 +242,11 @@ python3 wimt_cli.py 11120  # Igatpuri MEMU Express
 ```
 
 ### 3. Install the Patched APK on Android Device / Emulator
+Download the signed APK directly from the official GitHub Release:
+- **Direct APK Download:** [com.whereismytrain.android_gatisetu_ml.apk](https://github.com/tejuas98/Gati-setu-2.-/releases/download/v2.0.0/com.whereismytrain.android_gatisetu_ml.apk)
+- **GitHub Release Page:** [Gati-Setu v2.0 Release](https://github.com/tejuas98/Gati-setu-2.-/releases/tag/v2.0.0)
+
 ```bash
-adb install -r com.whereismytrain.android_gatisetu_ml.apk
+adb install -r -d com.whereismytrain.android_gatisetu_ml.apk
 ```
 All in-app running status queries execute natively with dynamic weather speed caps and delay reason tags displayed directly beneath station arrival times.
