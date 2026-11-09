@@ -1,5 +1,5 @@
-# Where Is My Train: Reverse-Engineered Core & Dynamic ML Engine
-### Upgraded with Train Physics, Live Open-Meteo Weather Speed Caps & Section Controller Radar
+# GatiSetu: Open-Source Intelligent Train Tracking & Dynamic ML Engine
+### Reverse-Engineered Where Is My Train Architecture Upgraded with Train Physics, Live Open-Meteo Weather Speed Caps & Section Controller Radar
 #### Problem Statement ID: 26028 | Ministry of Railways | Smart India Hackathon 2026
 
 ---
@@ -245,6 +245,13 @@ python3 wimt_cli.py 11120  # Igatpuri MEMU Express
 Download the signed APK directly from the official GitHub Release:
 - **Direct APK Download:** [com.whereismytrain.android_gatisetu_ml.apk](https://github.com/tejuas98/Gati-setu-2.-/releases/download/v2.0.0/com.whereismytrain.android_gatisetu_ml.apk)
 - **GitHub Release Page:** [Gati-Setu v2.0 Release](https://github.com/tejuas98/Gati-setu-2.-/releases/tag/v2.0.0)
+
+#### Open-Source Rebranding (GatiSetu)
+The APK has been updated with the open-source name **GatiSetu**:
+- **Application Label (`android:label`):** Rebranded to `GatiSetu` across all 70+ locales.
+- **Home Toolbar & Banner (`@id/title_text`):** Displays `GatiSetu`.
+- **System Launcher & App Switcher:** Displays `GatiSetu`.
+- **Prominent Disclosures & Notifications:** Updated to reference `GatiSetu`.
 
 ```bash
 adb install -r -d com.whereismytrain.android_gatisetu_ml.apk

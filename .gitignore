@@ -3,4 +3,7 @@ __pycache__/
 *.apk
 *.idsig
 .DS_Store
+apktool.jar
+wimt_res_only/
+
 
