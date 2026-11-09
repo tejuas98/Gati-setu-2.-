@@ -328,3 +328,10 @@ The APK has been updated with the open-source name **GatiSetu**:
 adb install -r -d com.whereismytrain.android_gatisetu_ml.apk
 ```
 All in-app running status queries execute natively with dynamic weather speed caps and delay reason tags displayed directly beneath station arrival times.
+
+### 4. Continuous 5-to-10 Hour Real-Time Benchmark Logger
+To empirically monitor and log an active train run continuously from origin to destination across 5 to 10 hours:
+```bash
+python3 continuous_benchmark_logger.py 22661
+```
+This automatically polls every 120 seconds, logging live GPS coordinates, Open-Meteo weather parameters, Static Google predictions, and GatiSetu Dynamic predictions directly into `benchmark_telemetry_log_22661.csv`.

@@ -5,5 +5,7 @@ __pycache__/
 .DS_Store
 apktool.jar
 wimt_res_only/
+*.csv
+
 
 
