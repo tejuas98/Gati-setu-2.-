@@ -335,3 +335,13 @@ To empirically monitor and log an active train run continuously from origin to d
 python3 continuous_benchmark_logger.py 22661
 ```
 This automatically polls every 120 seconds, logging live GPS coordinates, Open-Meteo weather parameters, Static Google predictions, and GatiSetu Dynamic predictions directly into `benchmark_telemetry_log_22661.csv`.
+
+### 5. All-India National Fleet Concurrent Engine
+To monitor and benchmark the entire Indian Railways network simultaneously across all active trains:
+```bash
+python3 fleet_tracker.py 100   # Scans 100 trains concurrently
+python3 fleet_tracker.py 1000  # Full divisional network scan
+```
+- **Concurrency:** Multi-threaded non-blocking worker pool with 25-50 threads.
+- **Spatial Weather Caching:** 15-minute TTL caching across railway divisions to avoid API throttling.
+- **Network-Wide KPIs:** Computes real-time On-Time Rate (%), average network delay, and weather-restricted runs, exporting live snapshots to `national_fleet_telemetry.json`.

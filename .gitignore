@@ -6,6 +6,8 @@ __pycache__/
 apktool.jar
 wimt_res_only/
 *.csv
+national_fleet_telemetry.json
+
 
 
 
