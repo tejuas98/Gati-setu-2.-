@@ -7,6 +7,9 @@ apktool.jar
 wimt_res_only/
 *.csv
 national_fleet_telemetry.json
+national_scanner_heartbeat.json
+national_scanner_report.json
+
 
 
 
