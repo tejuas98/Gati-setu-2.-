@@ -16,7 +16,7 @@ import time
 import json
 import csv
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, List
 
@@ -30,7 +30,7 @@ class NationalFleetPipeline:
         "wimt_res_only", "assets", "databases", "whereismytrain.db"
     )
 
-    def __init__(self, max_workers: int = 40):
+    def __init__(self, max_workers: int = 10):
         self.max_workers = max_workers
         self.client = RailRadarClient()
         self.engine = DynamicETAEngine()
@@ -112,6 +112,7 @@ class NationalFleetPipeline:
         return w
 
     def evaluate_train(self, train: Dict[str, str], sweep_cycle: int) -> Dict[str, Any]:
+        time.sleep(0.05)
         t_no = train["train_no"]
         try:
             res = self.client.get_live_status(t_no)
@@ -135,36 +136,60 @@ class NationalFleetPipeline:
             is_adverse = w.get("is_adverse", False)
             speed_cap = w.get("speed_cap_kmh", 130)
 
-            # Next halt details
-            next_halt = data.get("nextHalt", {})
-            next_code = next_halt.get("stationCode", "TERM")
-            next_name = next_halt.get("stationName", "Terminus")
+            # Next halt details & robust schedule extraction
+            next_code = None
+            next_name = None
+            sched_time_str = "N/A"
+            nxt_sch_dt = None
 
-            sched_time = "N/A"
             for stn in data.get("route", []):
-                if stn.get("stationCode") == next_code:
-                    sched_time = stn.get("scheduledArrival") or stn.get("scheduledDeparture") or "N/A"
+                if stn.get("isHalt") and stn.get("status") != "departed":
+                    next_code = stn.get("stationCode")
+                    next_name = stn.get("stationName")
+                    raw_time = stn.get("scheduledArrival") or stn.get("scheduledDeparture")
+                    if raw_time:
+                        clean_time = raw_time.split("+")[0]
+                        try:
+                            nxt_sch_dt = datetime.fromisoformat(clean_time)
+                            sched_time_str = nxt_sch_dt.strftime("%H:%M")
+                        except Exception:
+                            pass
                     break
 
-            # Dynamic ETA Engine evaluation
-            forecast = self.engine.forecast_train_eta(t_no)
-            gati_eta = "N/A"
+            if not next_code:
+                next_halt = data.get("nextHalt", {})
+                next_code = next_halt.get("stationCode", "TERM")
+                next_name = next_halt.get("stationName", "Terminus")
+
             static_eta = "N/A"
+            gati_eta = "N/A"
             correction_min = 0.0
             reason_tag = "Normal Running"
 
-            if is_adverse:
-                reason_tag = f"Weather Cap ({speed_cap}km/h)"
-            elif cur_delay > 60:
-                reason_tag = "Cumulative Congestion"
+            if nxt_sch_dt:
+                static_dt = nxt_sch_dt + timedelta(minutes=cur_delay)
+                static_eta = static_dt.strftime("%H:%M")
+                
+                # Dynamic Physics & Weather penalty
+                weather_pen = 0.0
+                if is_adverse and speed_cap < 110:
+                    weather_pen = ((110.0 / speed_cap) - 1.0) * 18.0
+                elif vis_km < 4.0:
+                    weather_pen = 12.0
+                elif precip > 0.2:
+                    weather_pen = 8.0
+                    
+                bn = self.engine.JUNCTION_BOTTLENECK_SCORES.get(next_code, 2.0)
+                correction_min = round(weather_pen + (bn * 0.4), 1)
+                gati_dt = static_dt + timedelta(minutes=correction_min)
+                gati_eta = gati_dt.strftime("%H:%M")
 
-            if forecast.get("success"):
-                for up in forecast.get("upcoming_stations", []):
-                    if up.get("station_code") == next_code:
-                        gati_eta = up.get("dynamic_forecast_p50", "N/A")
-                        static_eta = up.get("naive_ntes_eta", "N/A")
-                        correction_min = up.get("eta_correction_min", 0.0)
-                        break
+                if weather_pen > 0:
+                    reason_tag = f"Weather Cap ({speed_cap}km/h)"
+                elif bn >= 10.0:
+                    reason_tag = f"Junction Bottleneck ({next_code})"
+                elif cur_delay > 60:
+                    reason_tag = "Cumulative Congestion"
 
             return {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -185,7 +210,7 @@ class NationalFleetPipeline:
                 "is_weather_restricted": is_adverse,
                 "next_halt_code": next_code,
                 "next_halt_name": next_name,
-                "scheduled_arrival": sched_time,
+                "scheduled_arrival": sched_time_str,
                 "static_google_eta": static_eta,
                 "gatisetu_p50_eta": gati_eta,
                 "gatisetu_correction_min": correction_min,
@@ -311,3 +336,4 @@ if __name__ == "__main__":
     hours = float(sys.argv[1]) if len(sys.argv) > 1 else 8.0
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else None
     run_continuous_fleet_monitor(max_hours=hours, sweep_interval_min=5, sample_trains=limit)
+

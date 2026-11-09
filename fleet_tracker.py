@@ -175,3 +175,4 @@ if __name__ == "__main__":
         print(f"#{t['train_no']:7s} {t['train_name'][:24]:25s} {t['current_station_name'][:17]:18s} +{t['delay_minutes']}m     {t['weather_condition'][:14]:15s}")
     print("=" * 65)
     print(f"Full live JSON snapshot exported to national_fleet_telemetry.json")
+

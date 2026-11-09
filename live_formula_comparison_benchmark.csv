@@ -1,0 +1,13 @@
+timestamp,train_no,train_name,current_station,current_delay_min,next_halt_name,next_halt_code,scheduled_arrival,static_google_eta,gatisetu_physics_eta,delta_difference_min,weather_condition,visibility_km,precipitation_mm,operational_cause_tag
+2026-11-10 01:02:23,12779,Goa Express,Sithouli,27,Gwalior Jn,GWL,00:18,00:45,00:45,0.8,"Clear Weather (21.5°C, Vis 7km)",7.9,0.0,Normal Running
+2026-11-10 01:02:25,22661,Sethu SF Express,Devakottai Road,13,Sivaganga,SVGA,01:18,01:31,01:44,13.3,Live Heavy Rain (0.7 mm/h),3.4,0.7,Weather Cap (65.0km/h)
+2026-11-10 01:02:26,12951,Mumbai Central - New Delhi Tejas Rajdhani Express,Runkhera,12,Nagda Jn,NAD,01:08,01:20,01:20,0.8,"Clear Weather (20.2°C, Vis 11km)",11.4,0.0,Normal Running
+2026-11-10 01:02:28,12138,Punjab Mail,Tarsod,58,Jalgaon Jn,JL,00:01,00:59,00:59,0.8,"Clear Weather (23.1°C, Vis 11km)",11.2,0.0,Normal Running
+2026-11-10 01:02:30,12361,Mumbai CSMT SF Express,Nepanagar,235,Bhusaval Jn,BSL,22:15,02:10,02:10,0.8,"Clear Weather (22.7°C, Vis 12km)",12.8,0.0,Cumulative Congestion
+2026-11-10 01:02:31,12623,Thiruvananthapuram Central Mail,Cauvery,9,Erode Jn,ED,00:50,00:59,00:59,0.8,"Clear Weather (24.1°C, Vis 9km)",9.0,0.0,Normal Running
+2026-11-10 01:02:33,12626,Kerala Express,Singarayakonda,21,Nellore,NLR,01:53,02:14,02:14,0.8,"Clear Weather (24.8°C, Vis 10km)",10.5,0.0,Normal Running
+2026-11-10 01:02:35,12424,New Delhi - Dibrugarh Rajdhani Express,Jamguri,15,Furkating Jn,FKG,00:58,01:13,01:13,0.8,"Clear Weather (19.5°C, Vis 15km)",15.5,0.0,Normal Running
+2026-11-10 01:02:37,12302,New Delhi - Howrah Rajdhani Express,Mirzapur,12,Pt. Deen Dayal Upadhyaya Jn,DDU,01:33,01:45,01:52,7.2,"Clear Weather (19.7°C, Vis 6km)",6.6,0.0,Junction Bottleneck (DDU)
+2026-11-10 01:02:39,12861,Mahbubnagar SF Express,Gangineni,18,Khammam,KMT,01:44,02:02,02:02,0.8,"Clear Weather (19.9°C, Vis 11km)",11.3,0.0,Normal Running
+2026-11-10 01:02:40,14114,Subedarganj Express,Kaurara,27,Etawah Jn,ETW,01:05,01:32,01:32,0.8,"Clear Weather (19.5°C, Vis 6km)",6.6,0.0,Normal Running
+2026-11-10 01:02:42,15014,Ranikhet Express,Moradabad,36,Moradabad,MB,23:45,00:21,00:21,0.8,"Clear Weather (19.7°C, Vis 6km)",6.5,0.0,Normal Running

@@ -142,3 +142,4 @@ def run_continuous_logger(train_number: str, interval_seconds: int = 120, max_ho
 if __name__ == "__main__":
     t_no = sys.argv[1] if len(sys.argv) > 1 else "22661"
     run_continuous_logger(t_no, interval_seconds=120, max_hours=10.0)
+
