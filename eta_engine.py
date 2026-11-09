@@ -155,24 +155,41 @@ class DynamicETAEngine:
         self._ml_model.fit(np.array(X_train), np.array(y_residual))
 
     def evaluate_weather(self, station_code: str) -> Dict[str, Any]:
-        """Evaluates localized weather conditions and speed restrictions for a station."""
-        stn = station_code.upper().strip()
-        for zone_key, zone in self.WEATHER_ZONES.items():
-            if stn in zone["regions"]:
-                return {
-                    "condition": zone["name"],
-                    "speed_cap_kmh": zone["speed_cap_kmh"],
-                    "safety_protocol": zone["safety_protocol"],
-                    "penalty_factor": zone["penalty_factor"],
-                    "is_adverse": True
-                }
-        return {
-            "condition": "Clear / Normal Operations",
-            "speed_cap_kmh": 130.0,
-            "safety_protocol": "Standard MPS",
-            "penalty_factor": 1.0,
-            "is_adverse": False
-        }
+        """Evaluates localized weather conditions and speed restrictions for a station using live Open-Meteo API."""
+        try:
+            from wimt_core.weather_engine import WeatherSafetyEngine
+            w = WeatherSafetyEngine.evaluate_station_weather(station_code)
+            return {
+                "condition": w.condition_name,
+                "speed_cap_kmh": w.speed_cap_kmh,
+                "safety_protocol": w.safety_protocol,
+                "penalty_factor": w.penalty_multiplier,
+                "is_adverse": w.is_adverse,
+                "source": w.source,
+                "visibility_meters": w.visibility_meters,
+                "temperature_celsius": w.temperature_celsius,
+                "precipitation_mm": w.precipitation_mm
+            }
+        except Exception:
+            stn = station_code.upper().strip()
+            for zone_key, zone in self.WEATHER_ZONES.items():
+                if stn in zone["regions"]:
+                    return {
+                        "condition": zone["name"],
+                        "speed_cap_kmh": zone["speed_cap_kmh"],
+                        "safety_protocol": zone["safety_protocol"],
+                        "penalty_factor": zone["penalty_factor"],
+                        "is_adverse": True,
+                        "source": "IR Safety Manual Fallback"
+                    }
+            return {
+                "condition": "Clear / Normal Operations",
+                "speed_cap_kmh": 130.0,
+                "safety_protocol": "Standard MPS",
+                "penalty_factor": 1.0,
+                "is_adverse": False,
+                "source": "Default Clear Section"
+            }
 
     def compute_train_physics(self, loco_profile: Dict[str, Any], coach_count: int, speed_kmh: float) -> Dict[str, Any]:
         """

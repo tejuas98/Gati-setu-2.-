@@ -208,6 +208,82 @@ def get_active_weather_zones():
     }
 
 
+@app.get("/api/v1/weather/live/{station_code}")
+def get_station_live_weather(station_code: str):
+    """
+    Returns live Open-Meteo weather observations (visibility, temperature, precipitation)
+    and Indian Railways G&SR safety speed cap for any station.
+    """
+    stn = station_code.upper().strip()
+    from wimt_core.weather_engine import WeatherSafetyEngine
+    w = WeatherSafetyEngine.evaluate_station_weather(stn)
+    coords = WeatherSafetyEngine.get_coordinates_for_station(stn)
+    return {
+        "station_code": stn,
+        "coordinates": {"lat": coords[0], "lng": coords[1]} if coords else None,
+        "condition": w.condition_name,
+        "speed_cap_kmh": w.speed_cap_kmh,
+        "safety_protocol": w.safety_protocol,
+        "penalty_multiplier": w.penalty_multiplier,
+        "is_adverse": w.is_adverse,
+        "risk_level": w.risk_level,
+        "source": w.source,
+        "visibility_meters": w.visibility_meters,
+        "temperature_celsius": w.temperature_celsius,
+        "precipitation_mm": w.precipitation_mm,
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/api/v1/search/trains-between")
+def search_trains_between_stations(
+    from_station: str = Query(..., description="Origin station code, e.g. BSL or MMCT"),
+    to_station: str = Query(..., description="Destination station code, e.g. NK or NDLS"),
+    date: Optional[str] = Query(None, description="Travel date in YYYY-MM-DD")
+):
+    """
+    Finds all Indian Railways trains running between two stations.
+    """
+    stn_from = from_station.upper().strip()
+    stn_to = to_station.upper().strip()
+    travel_date = date or datetime.now().strftime("%Y-%m-%d")
+
+    res = rr_client.get_trains_between(stn_from, stn_to, travel_date)
+    if not res.get("success"):
+        raise HTTPException(status_code=404, detail=f"No trains found between {stn_from} and {stn_to}")
+
+    trains = res.get("data", {}).get("trains", [])
+    output_list = []
+    for t in trains:
+        tr = t.get("train", {})
+        fr = t.get("from", {})
+        to = t.get("to", {})
+        output_list.append({
+            "train_number": tr.get("number"),
+            "train_name": tr.get("name"),
+            "train_type": tr.get("type"),
+            "running_days": tr.get("runDays", []),
+            "from_station": fr.get("code"),
+            "from_station_name": fr.get("name"),
+            "departure_time": fr.get("departure"),
+            "to_station": to.get("code"),
+            "to_station_name": to.get("name"),
+            "arrival_time": to.get("arrival"),
+            "distance_km": t.get("distance"),
+            "duration_minutes": t.get("duration"),
+            "total_halts": t.get("totalHaltsBetween")
+        })
+
+    return {
+        "success": True,
+        "from_station": stn_from,
+        "to_station": stn_to,
+        "date": travel_date,
+        "total_trains": len(output_list),
+        "trains": output_list
+    }
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 def serve_dashboard():
     """Serves the Section Controller and Passenger Web Dashboard."""

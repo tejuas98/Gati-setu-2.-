@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
 from .train_physics import TrainPhysicsEngine, LocomotiveProfile
-from .weather_engine import WeatherSafetyEngine, WeatherCondition
+from .weather_engine import WeatherSafetyEngine, WeatherCondition, OpenMeteoClient
 from .asset_database import WIMTAssetDatabase
 
 # Ingestion clients from parent directory
@@ -71,6 +71,16 @@ class WIMTDynamicETAService:
         stations_output = []
         cumulative_delay = cur_delay_min
 
+        # Batch prefetch live weather for all upcoming stations in a single network call
+        prefetch_coords = []
+        for stn in route_schedule:
+            sc = stn.get("stationCode", "")
+            meta = self.asset_db.get_station_info(sc)
+            if meta and meta.get("latitude") and meta.get("longitude"):
+                prefetch_coords.append((meta["latitude"], meta["longitude"]))
+        if prefetch_coords:
+            OpenMeteoClient.batch_prefetch_weather(prefetch_coords)
+
         for stn in route_schedule:
             stn_code = stn.get("stationCode", "")
             stn_name = stn.get("stationName", "")
@@ -94,8 +104,15 @@ class WIMTDynamicETAService:
             old_static_eta = sched_arr_dt + timedelta(minutes=cur_delay_min)
 
             # New GATI-SETU Dynamic Calculation:
-            # A. Evaluate Weather Restrictions (Fog, Monsoon, Heat TSR)
-            weather_cond = WeatherSafetyEngine.evaluate_station_weather(stn_code)
+            # A. Evaluate Weather Restrictions (Open-Meteo Live API + G&SR Safety Fallback)
+            stn_meta = self.asset_db.get_station_info(stn_code) or {}
+            stn_lat = stn_meta.get("latitude")
+            stn_lng = stn_meta.get("longitude")
+            weather_cond = WeatherSafetyEngine.evaluate_station_weather(
+                station_code=stn_code,
+                latitude=stn_lat,
+                longitude=stn_lng
+            )
             scheduled_seg_min = 35.0
             if stations_output:
                 prev_dt = stations_output[-1]["_dt"]
@@ -131,8 +148,12 @@ class WIMTDynamicETAService:
                 "predicted_delay_min": round(cumulative_delay, 1),
                 "confidence_bounds_p10_p90": [p10_eta.strftime("%Y-%m-%d %H:%M"), p90_eta.strftime("%Y-%m-%d %H:%M")],
                 "weather_condition": weather_cond.condition_name,
+                "weather_source": weather_cond.source,
                 "weather_speed_cap_kmh": weather_cond.speed_cap_kmh,
                 "weather_delay_penalty_min": weather_penalty,
+                "visibility_meters": weather_cond.visibility_meters,
+                "temperature_celsius": weather_cond.temperature_celsius,
+                "precipitation_mm": weather_cond.precipitation_mm,
                 # Legacy comparison metadata for verification
                 "superseded_static_eta": old_static_eta.strftime("%Y-%m-%d %H:%M"),
                 "superseded_static_delay_min": round(cur_delay_min, 1),

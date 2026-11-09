@@ -1,4 +1,4 @@
-# Where Is My Train: Reverse-Engineered Core & Dynamic ML Engine
+\# Where Is My Train: Reverse-Engineered Core & Dynamic ML Engine
 ### Upgraded with Train Physics, Adverse Weather Speed Restrictions & Section Controller Radar
 #### Problem Statement ID: 26028 | Ministry of Railways | Smart India Hackathon 2026
 
@@ -33,20 +33,22 @@ When Train 12951 (Mumbai Central - New Delhi Tejas Rajdhani Express) departs ori
 ```
 rail-reverse-engine/
 ├── wimt_core/                         # Reverse-Engineered Where Is My Train Core Package
-│   ├── __init__.py
+│   ├── GatiSetuEngine.smali           # Injected Dalvik bytecode engine for Android APK
 │   ├── train_physics.py              # Davis resistance, tractive effort & rake inertia
-│   ├── weather_engine.py             # Dense fog, monsoon & heat rail buckling speed caps
+│   ├── weather_engine.py             # Open-Meteo live API & G&SR safety speed caps
 │   ├── cell_tower_engine.py          # Offline GSM base station triangulation & S2 geometry
-│   ├── asset_database.py             # SQLite reader for 13,550 trains & 13,201 coach formations
+│   ├── asset_database.py             # SQLite reader for 13,550 trains & 10,083 stations
 │   └── dynamic_eta_service.py        # Dynamic ETA engine replacing old static addition
 ├── wimt_cli.py                        # Terminal CLI to track any train with physics & weather
-├── api_server.py                      # FastAPI server with /dashboard and /wimt_relay endpoints
+├── api_server.py                      # FastAPI server with /dashboard, /forecast, and /search
+├── eta_engine.py                      # Spatio-temporal residual ML model & dispatch heuristics
 ├── dashboard.html                     # Section Controller & GIS Radar Map Dashboard
 ├── wimt_interactive_app.html          # Mobile Where Is My Train UI with Old vs New comparison
-├── patch_wimt_apk.py                  # Byte-level DEX patcher and signer for APK
+├── patch_wimt_apk.py                  # Automated smali patcher and APK rebuilder
 ├── com.whereismytrain.android_gatisetu_ml.apk # Patched and signed Android APK
 ├── railradar_client.py                # Telemetry ingestion client
 ├── railjournal_client.py              # Locomotive telemetry & WTT client
+├── REVERSE_ENGINEERING_DEEP_DIVE.md   # Complete system architecture and disassembly report
 ├── whereismytrain_analysis.md         # Full reverse-engineering teardown report
 └── SIH_SOLUTION_PROPOSAL.md           # Official Problem Statement 26028 proposal
 ```
