@@ -6,9 +6,17 @@ __pycache__/
 apktool.jar
 wimt_res_only/
 *.csv
+!national_13550_train_telemetry_comparison_master.csv
+kaggle_dataset/*.csv
+*.log
+*.zip
+whereismytrain.db
+official_24hr_scanner_heartbeat.json
 national_fleet_telemetry.json
 national_scanner_heartbeat.json
 national_scanner_report.json
+
+
 
 
 

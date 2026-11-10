@@ -363,7 +363,16 @@ class Official24HrNationalPipeline:
 
         start_time = time.time()
         max_duration_sec = max_hours * 3600
+        
+        # Resume from next cycle if heartbeat exists
         cycle = 1
+        if os.path.exists(self.heartbeat_path):
+            try:
+                with open(self.heartbeat_path, "r", encoding="utf-8") as f:
+                    hb = json.load(f)
+                    cycle = hb.get("sweep_cycle", 0) + 1
+            except Exception:
+                pass
 
         while (time.time() - start_time) < max_duration_sec:
             try:

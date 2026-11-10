@@ -2,6 +2,18 @@
 ### Reverse-Engineered Where Is My Train Architecture Upgraded with Train Physics, Live Open-Meteo Weather Speed Caps & Section Controller Radar
 #### Problem Statement ID: 26028 | Ministry of Railways | Smart India Hackathon 2026
 
+[![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)
+[![Kaggle Benchmark EDA](https://img.shields.io/badge/Kaggle-EDA_Notebook-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Gati--setu--2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tejuas98/Gati-setu-2.-)
+
+---
+
+> **Official National Benchmark Dataset on Kaggle & GitHub:**
+> Real-time locomotive telemetry, physics-adjusted arrival forecasts, and micro-weather attributes across all 13,550 Indian Railways passenger services:
+> - **All 13,550 Trains Side-by-Side Master:** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 trains)
+> - **Kaggle Dataset:** [Indian Railways Telemetry: WIMT vs GatiSetu](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)
+> - **Interactive EDA Notebook:** [GatiSetu Telemetry Benchmark EDA](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
+
 ---
 
 ## 1. System Architecture Overview
@@ -359,6 +371,42 @@ flowchart LR
 1. **Weather Delay Prediction:** On Train 22661 approaching the Tamil Nadu coastal section (Devakottai Road $\rightarrow$ Sivaganga), live Open-Meteo telemetry detected active rainfall ($0.7\text{ mm/h}$) and reduced visibility ($3.4\text{ km}$). Google's static formula erroneously showed the train arriving at `01:31`. GatiSetu accurately factored in the mandated $65\text{ km/h}$ wet-rail speed restriction, forecasting arrival at `01:44` ($\mathbf{+13.3\text{ min}}$ realistic delay).
 2. **Junction Delay Prediction:** On Train 12302 approaching Pt. Deen Dayal Upadhyaya Junction (DDU), Google's static model predicted `01:45`. GatiSetu applied the DDU interlocking congestion factor, correctly predicting arrival at `01:52` ($\mathbf{+7.2\text{ min}}$ bottleneck hold-up).
 3. **Zero False Positives:** Under normal weather and open corridor conditions (e.g. Trains 12951, 12779, 12623), GatiSetu closely matches static progression ($+0.8\text{ min}$ approach margin), confirming zero unnecessary penalty injection.
+
+---
+
+### 8.5 Nationwide 13,550 Passenger Train Side-by-Side Master Comparison Dataset
+
+To provide complete transparency across Indian Railways, the entire national passenger fleet of **13,550 trains** has been compiled into a single master comparison file stored directly in this repository:
+
+**Direct File Link:** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows)
+
+#### Fleet Breakdown
+- **3,235 Trains (`LIVE_GROUND_TRUTH_TRACKED`):** Captured from live NTES telemetry sweeps. Contains live locomotive GPS speeds, current delay relative to timetable, real-time Open-Meteo micro-weather (temperature, visibility km, precipitation mm/h, wind gusts), static Google ETA (`STA + Delay`), GatiSetu physics-adjusted ETA, and empirical model divergence delta ($\Delta$ min).
+- **10,315 Trains (`SCHEDULED_FLEET_SERVICE`):** Fully mapped against Indian Railways network topology with timetable scheduled arrival (`STA`), static Google ETA, GatiSetu Davis turnout physics ETA, sectional MPS limits, operating base hubs, and railway divisions.
+
+#### Columns Included (20 Features)
+| Column Name | Type | Description |
+| :--- | :--- | :--- |
+| `train_no` | String | Official 5-digit Indian Railways train number identifier |
+| `train_name` | String | Official passenger train service name |
+| `service_category` | String | Service category (Superfast, Mail/Express, Rajdhani, Shatabdi, EMU, etc.) |
+| `base_city` | String | Base operating city or primary originating junction hub |
+| `railway_division_line` | String | Operating railway zonal division or corridor line |
+| `sectional_mps_kmh` | Number | Sectional Maximum Permissible Speed limit on track block (km/h) |
+| `tracking_status` | String | Status (`LIVE_GROUND_TRUTH_TRACKED` or `SCHEDULED_FLEET_SERVICE`) |
+| `current_station_code` | String | Official railway station code at observation point |
+| `current_station_name` | String | Full name of the observed railway station |
+| `scheduled_arrival_sta` | String | Timetable scheduled arrival time in 24-hour HH:MM format |
+| `static_google_eta` | String | Where Is My Train / Google static linear ETA (`STA + Current Delay`) |
+| `gatisetu_physics_eta` | String | GatiSetu dynamic physics and micro-weather arrival forecast |
+| `divergence_delta_min` | Number | Difference between static linear ETA and GatiSetu physics ETA in minutes |
+| `current_delay_min` | Number | Real-time cumulative operating delay in minutes relative to timetable |
+| `locomotive_speed_kmh` | Number | Real-time locomotive GPS speed in kilometers per hour |
+| `weather_condition` | String | Atmospheric weather classification from Open-Meteo at train coordinates |
+| `visibility_km` | Number | Atmospheric visibility distance in kilometers |
+| `precipitation_mm` | Number | Real-time rainfall rate in millimeters per hour |
+| `speed_cap_kmh` | Number | Safety speed cap enforced by weather regulations (e.g. FogPASS 60 km/h) |
+| `operational_cause_tag` | String | Automated root cause tag (Weather Cap, Junction Bottleneck, Congestion, Normal Running) |
 
 ---
 

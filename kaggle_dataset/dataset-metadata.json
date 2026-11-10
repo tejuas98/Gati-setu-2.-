@@ -1,9 +1,423 @@
 {
-  "title": "Indian Railways Live Telemetry: Google WIMT vs GatiSetu Benchmark",
-  "id": "tejuas98/indian-railways-live-telemetry-gatisetu-benchmark",
+  "title": "Indian Railways Telemetry: WIMT vs GatiSetu",
+  "subtitle": "Google Static Linear ETA vs GatiSetu Physics & Micro-Weather Model",
+  "id": "rudraa11/indian-railways-live-telemetry-gatisetu-benchmark",
+  "description": "# Indian Railways Live Telemetry: Google WIMT vs. GatiSetu Benchmark\n\n[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=flat&logo=github&logoColor=white)](https://github.com/tejuas98/Gati-setu-2.-)\n[![Kaggle Benchmark EDA](https://img.shields.io/badge/Kaggle-EDA_Notebook-20BEFF?style=flat&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)\n[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg?style=flat)](https://creativecommons.org/publicdomain/zero/1.0/)\n\nA nationwide empirical dataset benchmarking the **Official Where Is My Train / Google Static Algorithm** against the **GatiSetu Dynamic Physics & Weather Engine** across all 13,550 passenger services on Indian Railways.\n\nDeveloped for **Smart India Hackathon (SIH 2026)** - Ministry of Railways - Problem Statement 26028.\n\n---\n\n## 1. Background & Problem Statement\n\nCommercial train tracking applications (e.g. Where Is My Train / Google) compute future arrival times using a naive linear extrapolation formula:\n\n```text\nETA_static = Scheduled Arrival (STA) + Current Cumulative Delay\n```\n\nThis static formula assumes future track segments will be traversed under ideal conditions, ignoring:\n1. **Adverse Weather:** Dense winter fog (< 100 m visibility) legally enforces a maximum speed of 60 km/h under Indian Railways FogPASS operating rules. Heavy monsoon rainfall (> 0.2 mm/h) and coastal winds reduce steel rail adhesion, requiring extended braking distances.\n2. **Junction Turnout Queuing:** Interlocking bottlenecks at major railway junctions (e.g., Pt. Deen Dayal Upadhyaya Jn [DDU], Kanpur Central [CNB], Bhusaval [BSL], Itarsi [ET]).\n\nThe **GatiSetu AI Engine** combines live locomotive telemetry, Davis train resistance physics, and real-time micro-weather telemetry from Open-Meteo to compute dynamic arrival forecasts:\n\n```text\nETA_gatisetu = STA + Current Delay + Δt(weather_cap) + Δt(junction_bottleneck) + Δt(adhesion_braking)\n```\n\n---\n\n## 2. Master Files in this Dataset\n\n1. **`national_13550_train_telemetry_comparison_master.csv`** (2.8 MB, 13,550 rows):\n   - Comprehensive side-by-side comparison for **every single train** in Indian Railways.\n   - For every train, shows: Scheduled STA, Static Google ETA, GatiSetu Physics ETA, divergence delta in minutes, live locomotive GPS speed, weather metrics, and operational root-cause tags.\n   - Covers 100% of the passenger fleet: 3,235 trains with live ground-truth telemetry observations and 10,315 trains with scheduled fleet physics profiles.\n\n2. **`official_24hr_national_benchmark.csv`** (1.7 MB, 8,176 rows):\n   - Multi-cycle longitudinal ground-truth telemetry collected across 18 continuous nationwide sweeps.\n   - Includes real-time locomotive GPS speed, next halt ETAs, destination ETAs, Open-Meteo weather parameters, and automated root-cause classifications.\n\n3. **`all_13550_fleet_master.csv`** (2.5 MB, 13,550 rows):\n   - Master passenger fleet catalog detailing train categories, speed tiers, sectional MPS limits, base cities, coach compositions, and GatiSetu physics model assignments.\n\n---\n\n## 3. Dataset Provenance and Collection Methodology\n\n- **Locomotive Telemetry Source:** Indian Railways National Train Enquiry System (NTES) unauthenticated application gateway.\n- **Weather Telemetry Source:** Open-Meteo High-Resolution Atmospheric Weather API (sampling localized visibility, precipitation, and wind gusts at locomotive coordinate blocks).\n- **Fleet Schedule Database:** Where Is My Train offline SQLite railway network topology (13,550 trains, 10,083 stations).\n- **Sampling Frequency:** Automated multi-cycle nationwide sweeps every ~15 minutes running on an asynchronous multi-threaded pipeline.\n- **Source Code & Engine Repository:** [https://github.com/tejuas98/Gati-setu-2.-](https://github.com/tejuas98/Gati-setu-2.-)",
   "licenses": [
     {
       "name": "CC0-1.0"
+    }
+  ],
+  "keywords": [
+    "transportation",
+    "india",
+    "physics",
+    "travel"
+  ],
+  "expectedUpdateFrequency": "daily",
+  "userSpecifiedSources": "https://github.com/tejuas98/Gati-setu-2.- | Indian Railways NTES & Open-Meteo API",
+  "resources": [
+    {
+      "path": "national_13550_train_telemetry_comparison_master.csv",
+      "description": "Unified nationwide master comparison dataset covering all 13,550 passenger trains in Indian Railways, displaying side-by-side static Google ETAs versus GatiSetu physics-adjusted ETAs, divergence deltas, locomotive speeds, and micro-weather attributes.",
+      "schema": {
+        "fields": [
+          {
+            "name": "train_no",
+            "title": "Train Number (5-digit)",
+            "type": "string",
+            "description": "Official 5-digit Indian Railways train number identifier"
+          },
+          {
+            "name": "train_name",
+            "title": "Train Service Name",
+            "type": "string",
+            "description": "Official passenger train service name"
+          },
+          {
+            "name": "service_category",
+            "title": "Service Category",
+            "type": "string",
+            "description": "Commercial passenger service classification (Superfast, Mail/Express, Rajdhani, etc.)"
+          },
+          {
+            "name": "base_city",
+            "title": "Base Hub / Origin City",
+            "type": "string",
+            "description": "Base operating city or primary originating junction hub"
+          },
+          {
+            "name": "railway_division_line",
+            "title": "Railway Division / Trunk Line",
+            "type": "string",
+            "description": "Operating railway zonal division or corridor line"
+          },
+          {
+            "name": "sectional_mps_kmh",
+            "title": "Sectional Speed Limit (km/h)",
+            "type": "number",
+            "description": "Sectional Maximum Permissible Speed limit on track block"
+          },
+          {
+            "name": "tracking_status",
+            "title": "Telemetry Tracking Status",
+            "type": "string",
+            "description": "Status indicator (LIVE_GROUND_TRUTH_TRACKED or SCHEDULED_FLEET_SERVICE)"
+          },
+          {
+            "name": "current_station_code",
+            "title": "Observed Station Code",
+            "type": "string",
+            "description": "Official railway station code at observation point"
+          },
+          {
+            "name": "current_station_name",
+            "title": "Observed Station Name",
+            "type": "string",
+            "description": "Full name of the observed railway station"
+          },
+          {
+            "name": "scheduled_arrival_sta",
+            "title": "Scheduled Arrival Time STA (HH:MM)",
+            "type": "string",
+            "description": "Timetable scheduled arrival time in 24-hour HH:MM format"
+          },
+          {
+            "name": "static_google_eta",
+            "title": "Google / WIMT Static ETA (HH:MM)",
+            "type": "string",
+            "description": "Static linear extrapolation prediction (STA + Delay)"
+          },
+          {
+            "name": "gatisetu_physics_eta",
+            "title": "GatiSetu Dynamic Physics ETA (HH:MM)",
+            "type": "string",
+            "description": "Physics and micro-weather informed dynamic arrival forecast"
+          },
+          {
+            "name": "divergence_delta_min",
+            "title": "ETA Divergence Delta (Minutes)",
+            "type": "number",
+            "description": "Difference between static linear ETA and GatiSetu physics ETA in minutes"
+          },
+          {
+            "name": "current_delay_min",
+            "title": "Cumulative Delay (Minutes)",
+            "type": "number",
+            "description": "Real-time cumulative operating delay in minutes relative to timetable"
+          },
+          {
+            "name": "locomotive_speed_kmh",
+            "title": "Locomotive GPS Speed (km/h)",
+            "type": "number",
+            "description": "Live GPS locomotive speed in kilometers per hour"
+          },
+          {
+            "name": "weather_condition",
+            "title": "Localized Weather Condition",
+            "type": "string",
+            "description": "Atmospheric weather classification at locomotive coordinates from Open-Meteo"
+          },
+          {
+            "name": "visibility_km",
+            "title": "Horizontal Visibility (km)",
+            "type": "number",
+            "description": "Atmospheric visibility distance in kilometers"
+          },
+          {
+            "name": "precipitation_mm",
+            "title": "Precipitation Rate (mm/h)",
+            "type": "number",
+            "description": "Real-time rainfall rate in millimeters per hour"
+          },
+          {
+            "name": "speed_cap_kmh",
+            "title": "Enforced Speed Cap (km/h)",
+            "type": "number",
+            "description": "Safety speed cap enforced by weather regulations (e.g. FogPASS 60 km/h)"
+          },
+          {
+            "name": "operational_cause_tag",
+            "title": "Operational Root Cause Tag",
+            "type": "string",
+            "description": "Automated root cause classification (Weather Cap, Junction Bottleneck, Congestion, Normal Running)"
+          }
+        ]
+      }
+    },
+    {
+      "path": "official_24hr_national_benchmark.csv",
+      "description": "Multi-cycle ground-truth empirical telemetry benchmark comparing Google / Where Is My Train static linear ETAs against GatiSetu physics/weather ETAs across nationwide passenger routes.",
+      "schema": {
+        "fields": [
+          {
+            "name": "record_timestamp",
+            "title": "Record Timestamp (UTC)",
+            "type": "datetime",
+            "description": "Timestamp of telemetry observation in YYYY-MM-DD HH:MM:SS format"
+          },
+          {
+            "name": "sweep_cycle",
+            "title": "Sweep Cycle Number",
+            "type": "integer",
+            "description": "Iteration cycle of the continuous nationwide fleet sweep"
+          },
+          {
+            "name": "journey_start_date",
+            "title": "Journey Origin Date",
+            "type": "date",
+            "description": "Scheduled departure date of the train journey from originating station"
+          },
+          {
+            "name": "train_no",
+            "title": "Train Service Number",
+            "type": "string",
+            "description": "Official 5-digit Indian Railways train number identifier"
+          },
+          {
+            "name": "train_name",
+            "title": "Official Train Name",
+            "type": "string",
+            "description": "Official passenger service name"
+          },
+          {
+            "name": "train_type",
+            "title": "Train Category Code",
+            "type": "string",
+            "description": "Category code (SUF, MEX, RAJ, GBR, PAS, EMU, DRNT, SHT)"
+          },
+          {
+            "name": "current_station_code",
+            "title": "Current Station Code",
+            "type": "string",
+            "description": "Station code where train was observed or tracked"
+          },
+          {
+            "name": "current_station_name",
+            "title": "Current Station Name",
+            "type": "string",
+            "description": "Station name where train was observed or tracked"
+          },
+          {
+            "name": "current_delay_min",
+            "title": "Current Delay (Minutes)",
+            "type": "number",
+            "description": "Real-time cumulative delay relative to timetable in minutes"
+          },
+          {
+            "name": "speed_kmh",
+            "title": "Locomotive GPS Speed (km/h)",
+            "type": "number",
+            "description": "Real-time locomotive GPS speed in kilometers per hour"
+          },
+          {
+            "name": "weather_condition",
+            "title": "Localized Weather Condition",
+            "type": "string",
+            "description": "Real-time atmospheric weather classification from Open-Meteo API"
+          },
+          {
+            "name": "visibility_km",
+            "title": "Horizontal Visibility (km)",
+            "type": "number",
+            "description": "Atmospheric horizontal visibility distance in kilometers"
+          },
+          {
+            "name": "precipitation_mm",
+            "title": "Precipitation Rate (mm/h)",
+            "type": "number",
+            "description": "Real-time rainfall and precipitation intensity in millimeters per hour"
+          },
+          {
+            "name": "wind_gusts_kmh",
+            "title": "Peak Wind Gusts (km/h)",
+            "type": "number",
+            "description": "Peak atmospheric wind gust velocity in kilometers per hour"
+          },
+          {
+            "name": "speed_cap_kmh",
+            "title": "Regulatory Speed Cap (km/h)",
+            "type": "number",
+            "description": "Legally mandated maximum speed limit under local weather conditions (FogPASS 60 km/h)"
+          },
+          {
+            "name": "is_weather_restricted",
+            "title": "Weather Restriction Flag",
+            "type": "boolean",
+            "description": "Boolean indicator (true if weather enforces a speed cap below track MPS)"
+          },
+          {
+            "name": "next_halt_name",
+            "title": "Next Scheduled Halt Station Name",
+            "type": "string",
+            "description": "Immediate upcoming commercial passenger halt station name"
+          },
+          {
+            "name": "next_halt_code",
+            "title": "Next Scheduled Halt Station Code",
+            "type": "string",
+            "description": "Immediate upcoming commercial passenger halt station code"
+          },
+          {
+            "name": "next_halt_sta",
+            "title": "Scheduled Arrival Time at Next Halt (HH:MM)",
+            "type": "string",
+            "description": "Official timetable scheduled arrival time at next commercial halt"
+          },
+          {
+            "name": "next_halt_google_eta",
+            "title": "Static Linear ETA at Next Halt (HH:MM)",
+            "type": "string",
+            "description": "Commercial static prediction (Where Is My Train / Google: STA + Delay)"
+          },
+          {
+            "name": "next_halt_gatisetu_eta",
+            "title": "Dynamic GatiSetu ETA at Next Halt (HH:MM)",
+            "type": "string",
+            "description": "GatiSetu physics-adjusted arrival prediction incorporating speed restrictions"
+          },
+          {
+            "name": "next_halt_delta_min",
+            "title": "ETA Divergence at Next Halt (Minutes)",
+            "type": "number",
+            "description": "Divergence between static and physics arrival models in minutes"
+          },
+          {
+            "name": "destination_name",
+            "title": "Trip Terminus Station Name",
+            "type": "string",
+            "description": "Final destination terminus station name of train service"
+          },
+          {
+            "name": "destination_code",
+            "title": "Trip Terminus Station Code",
+            "type": "string",
+            "description": "Final destination terminus station code of train service"
+          },
+          {
+            "name": "destination_sta",
+            "title": "Scheduled Terminus Arrival Time (HH:MM)",
+            "type": "string",
+            "description": "Official timetable scheduled arrival time at destination terminus"
+          },
+          {
+            "name": "destination_google_eta",
+            "title": "Static Linear Terminus ETA (HH:MM)",
+            "type": "string",
+            "description": "Commercial static arrival prediction at destination terminus (STA + Delay)"
+          },
+          {
+            "name": "destination_gatisetu_eta",
+            "title": "Dynamic GatiSetu Terminus ETA (HH:MM)",
+            "type": "string",
+            "description": "GatiSetu dynamic physics and micro-weather predicted arrival time at terminus"
+          },
+          {
+            "name": "destination_delta_min",
+            "title": "Cumulative Terminus ETA Divergence (Minutes)",
+            "type": "number",
+            "description": "Cumulative prediction divergence at final terminus in minutes"
+          },
+          {
+            "name": "operational_cause_tag",
+            "title": "Operational Root-Cause Classification",
+            "type": "string",
+            "description": "Classified root-cause (Weather Cap, Junction Bottleneck, Cumulative Congestion, Normal Running)"
+          }
+        ]
+      }
+    },
+    {
+      "path": "all_13550_fleet_master.csv",
+      "description": "Comprehensive national directory of all 13,550 passenger services across Indian Railways, detailing train categories, speed classes, sectional MPS limits, base cities, and GatiSetu tractive/braking physics profiles.",
+      "schema": {
+        "fields": [
+          {
+            "name": "train_no",
+            "title": "Train Service Number (5-digit)",
+            "type": "string",
+            "description": "Official 5-digit Indian Railways train number identifier"
+          },
+          {
+            "name": "train_name",
+            "title": "Official Train Service Name",
+            "type": "string",
+            "description": "Official passenger service name"
+          },
+          {
+            "name": "train_type",
+            "title": "Train Category Code",
+            "type": "string",
+            "description": "Category code (EMU, MEX, SUF, PAS, RAJ, etc.)"
+          },
+          {
+            "name": "speed_type",
+            "title": "Operating Speed Category",
+            "type": "string",
+            "description": "Operational speed tier (Fast, Superfast, Mail/Express)"
+          },
+          {
+            "name": "popularity_score",
+            "title": "National Service Popularity Score",
+            "type": "number",
+            "description": "Passenger booking and demand popularity index score"
+          },
+          {
+            "name": "city",
+            "title": "Base Origin City",
+            "type": "string",
+            "description": "Base operating city / headquarters hub"
+          },
+          {
+            "name": "railway_division_line",
+            "title": "Railway Division Line",
+            "type": "string",
+            "description": "Assigned railway division / trunk corridor line"
+          },
+          {
+            "name": "seating_classes_bitmask",
+            "title": "Seating Class Bitmask",
+            "type": "integer",
+            "description": "Bitmask encoding available seating and berth classes"
+          },
+          {
+            "name": "rake_coach_count",
+            "title": "Rake Coach Count",
+            "type": "integer",
+            "description": "Total count of coaches forming standard rake composition"
+          },
+          {
+            "name": "category_full",
+            "title": "Full Category Description",
+            "type": "string",
+            "description": "Full descriptive name of service classification"
+          },
+          {
+            "name": "mps_kmh",
+            "title": "Maximum Permissible Speed (km/h)",
+            "type": "number",
+            "description": "Nominal track sectional Maximum Permissible Speed"
+          },
+          {
+            "name": "physics_profile_model",
+            "title": "GatiSetu Physics Model Profile",
+            "type": "string",
+            "description": "Assigned Davis tractive and braking deceleration profile identifier"
+          },
+          {
+            "name": "live_observations_count",
+            "title": "Live Observation Count",
+            "type": "integer",
+            "description": "Total count of live telemetry records collected for this train"
+          },
+          {
+            "name": "benchmark_status",
+            "title": "Benchmark Verification Status",
+            "type": "string",
+            "description": "Telemetry status (ACTIVE_TELEMETRY_RECORDED or SCHEDULED_PENDING)"
+          }
+        ]
+      }
     }
   ]
 }
