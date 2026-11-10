@@ -12,6 +12,7 @@
 > Real-time locomotive telemetry, physics-adjusted arrival forecasts, and micro-weather attributes across all 13,550 Indian Railways passenger services:
 > - **All 13,550 Trains Master File (Full Fleet):** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows - *View on [Kaggle Data Explorer](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark) or press `.` on GitHub to view in browser*)
 > - **Direct In-Browser GitHub Table Preview (< 512 KB):** [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) (425 KB, 2,000 active trains - *renders natively as an interactive table on GitHub*)
+> - **Segmented Empirical Case Benchmark Datasets (< 512 KB each):** [`benchmark_cases/`](./benchmark_cases) - *Dedicated interactive in-browser datasets isolating all 4 operating regimes: Adverse Weather (all 31 speed cap cases), Junction Bottlenecks (all 319 cases), Congestion Cascades, and Normal Running.*
 > - **Kaggle Dataset:** [Indian Railways Telemetry: WIMT vs GatiSetu](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)
 > - **Interactive EDA Notebook:** [GatiSetu Telemetry Benchmark EDA](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
 
@@ -230,6 +231,7 @@ invoke-virtual {v5, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSeque
 | **#12696** | **MAS Central SF Exp** | KZK (Kazhakuttam) | **Live Monsoon Storm (1.0 mm/h, Vis 1.9 km)** | **45 km/h** | Varkala (17:48) | 17:57 | **18:23** | **+26.8 min** | MGR Chennai | 10:07 | **11:24** | **+77.0 min** |
 
 *Takeaway:* Google/Where Is My Train's static linear formula ($\text{STA} + \text{Delay}$) naively assumed trains could travel at nominal track speed ($110\text{--}130\text{ km/h}$) through heavy rainfall. GatiSetu's dynamic physics engine automatically recognized the mandated $45\text{--}65\text{ km/h}$ wet-rail safety cap, preventing an under-prediction error of up to **77.0 minutes**.
+*(Complete dataset of all 31 verified adverse weather events: [`benchmark_cases/01_adverse_weather_speed_cap_cases.csv`](./benchmark_cases/01_adverse_weather_speed_cap_cases.csv))*
 
 ### 8.2 Empirical Major Railway Junction Interlocking Benchmark
 *Real-world yard approach telemetry demonstrating how GatiSetu accounts for diamond turnout friction and platform interlocking at high-density junction hubs:*

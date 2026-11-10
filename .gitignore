@@ -8,6 +8,7 @@ wimt_res_only/
 *.csv
 !national_13550_train_telemetry_comparison_master.csv
 !national_trains_side_by_side_preview.csv
+!benchmark_cases/*.csv
 kaggle_dataset/*.csv
 
 *.log
