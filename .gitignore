@@ -7,7 +7,9 @@ apktool.jar
 wimt_res_only/
 *.csv
 !national_13550_train_telemetry_comparison_master.csv
+!national_trains_side_by_side_preview.csv
 kaggle_dataset/*.csv
+
 *.log
 *.zip
 whereismytrain.db

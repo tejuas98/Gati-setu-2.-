@@ -10,7 +10,8 @@
 
 > **Official National Benchmark Dataset on Kaggle & GitHub:**
 > Real-time locomotive telemetry, physics-adjusted arrival forecasts, and micro-weather attributes across all 13,550 Indian Railways passenger services:
-> - **All 13,550 Trains Side-by-Side Master:** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 trains)
+> - **All 13,550 Trains Master File (Full Fleet):** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows - *View on [Kaggle Data Explorer](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark) or press `.` on GitHub to view in browser*)
+> - **Direct In-Browser GitHub Table Preview (< 512 KB):** [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) (425 KB, 2,000 active trains - *renders natively as an interactive table on GitHub*)
 > - **Kaggle Dataset:** [Indian Railways Telemetry: WIMT vs GatiSetu](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)
 > - **Interactive EDA Notebook:** [GatiSetu Telemetry Benchmark EDA](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
 
@@ -378,7 +379,15 @@ flowchart LR
 
 To provide complete transparency across Indian Railways, the entire national passenger fleet of **13,550 trains** has been compiled into a single master comparison file stored directly in this repository:
 
-**Direct File Link:** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows)
+- **Complete 13,550 Fleet Master:** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows)
+- **Direct GitHub In-Browser Table Preview:** [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) (425 KB, 2,000 active trains, renders directly as an interactive web table on GitHub)
+
+#### How to Inspect All 13,550 Rows Directly
+GitHub web interface has a built-in 512 KB rendering limit for interactive table previews (displaying *"Sorry about that, but we can't show files that are this big right now"* for larger CSVs). You can explore all 13,550 rows using any of these methods:
+1. **Interactive Table on Kaggle Data Explorer (Recommended):** Open the [Kaggle Dataset](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark) and click on `national_13550_train_telemetry_comparison_master.csv` to search, sort, and filter all 13,550 rows directly in your browser.
+2. **One-Key Web Editor on GitHub (`github.dev`):** While viewing this repository on GitHub, press the `.` (period) key on your keyboard. This opens web-based VS Code in your browser, allowing you to scroll through and search all 13,550 rows instantly.
+3. **Native GitHub Table Preview:** Click on [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) to view the 2,000 top active express trains rendered natively as a spreadsheet in GitHub.
+4. **Download / Raw View:** Click the **Download** or **Raw** button at the top of the file page to open it in Microsoft Excel, Apple Numbers, or Google Sheets.
 
 #### Fleet Breakdown
 - **3,235 Trains (`LIVE_GROUND_TRUTH_TRACKED`):** Captured from live NTES telemetry sweeps. Contains live locomotive GPS speeds, current delay relative to timetable, real-time Open-Meteo micro-weather (temperature, visibility km, precipitation mm/h, wind gusts), static Google ETA (`STA + Delay`), GatiSetu physics-adjusted ETA, and empirical model divergence delta ($\Delta$ min).
