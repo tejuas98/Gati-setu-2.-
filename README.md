@@ -10,9 +10,9 @@
 
 > **Official National Benchmark Dataset on Kaggle & GitHub:**
 > Real-time locomotive telemetry, physics-adjusted arrival forecasts, and micro-weather attributes across all 13,550 Indian Railways passenger services:
+> - **[Click here for Full Benchmark Cases Directory (benchmark_cases/)](https://github.com/tejuas98/Gati-setu-2.-/tree/main/benchmark_cases)**: Dedicated interactive in-browser datasets isolating all 4 operating regimes: Adverse Weather (all 31 speed cap cases), Junction Bottlenecks (all 319 cases), Congestion Cascades, and Normal Running.
 > - **All 13,550 Trains Master File (Full Fleet):** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows - *View on [Kaggle Data Explorer](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark) or press `.` on GitHub to view in browser*)
 > - **Direct In-Browser GitHub Table Preview (< 512 KB):** [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) (425 KB, 2,000 active trains - *renders natively as an interactive table on GitHub*)
-> - **Segmented Empirical Case Benchmark Datasets (< 512 KB each):** [`benchmark_cases/`](./benchmark_cases) - *Dedicated interactive in-browser datasets isolating all 4 operating regimes: Adverse Weather (all 31 speed cap cases), Junction Bottlenecks (all 319 cases), Congestion Cascades, and Normal Running.*
 > - **Kaggle Dataset:** [Indian Railways Telemetry: WIMT vs GatiSetu](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)
 > - **Interactive EDA Notebook:** [GatiSetu Telemetry Benchmark EDA](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
 
@@ -218,37 +218,27 @@ invoke-virtual {v5, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSeque
 
 ## 8. Live Verification Benchmark Tables
 
-### 8.1 Empirical Adverse Weather Benchmark: Live Monsoon Downpours & Fog Speed Restrictions
-*Empirical telemetry captured directly from `official_24hr_national_benchmark.csv` where real-time Open-Meteo atmospheric monitoring triggered regulatory speed caps under Indian Railways safety operating rules:*
+> ### Dedicated Case-by-Case Benchmark Datasets
+> To eliminate clutter and enable instant spreadsheet inspection directly in your browser, all raw empirical observations have been segmented into dedicated, lightweight (< 512 KB) interactive datasets:
+> - **[Click here for All Benchmark Cases (benchmark_cases/)](https://github.com/tejuas98/Gati-setu-2.-/tree/main/benchmark_cases)**: Full directory containing all 4 case files and detailed empirical reports.
+> - **[Click here for Adverse Weather Cases (31 Speed Cap Instances)](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/01_adverse_weather_speed_cap_cases.csv)**: Real-time monsoon downpours and fog speed restrictions (mandated 45 km/h & 65 km/h safety caps).
+> - **[Click here for Junction Bottleneck Cases (319 Interlocking Holds)](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/02_junction_bottleneck_cases.csv)**: Major yard approach and diamond turnout friction at hubs (CNB, DDU, ET, BZA, PRYJ, GZB, BJU).
+> - **[Click here for Cumulative Congestion Cases (500 Delayed Trunk Runs)](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/03_cumulative_congestion_cases.csv)**: Compounding block-section congestion and line saturation on high-density routes.
+> - **[Click here for Normal Running Baseline Cases (500 Optimal Runs)](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/04_normal_running_baseline_cases.csv)**: Clear weather validation proving a 0.0% false-positive penalty rate.
+> - **[Click here for In-Browser 2,000 Train Interactive Preview](https://github.com/tejuas98/Gati-setu-2.-/blob/main/national_trains_side_by_side_preview.csv)**: Renders directly as an interactive table on GitHub (< 512 KB).
+> - **[Click here for Full Fleet 13,550 Master File on Kaggle Explorer](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark)**: Complete national fleet dataset searchable and filterable.
 
-| Train No | Train Name | Observed Station | Real-Time Weather Telemetry | Speed Cap | Next Halt (STA) | Static Google ETA | GatiSetu Physics ETA | Next Halt Delta (min) | Terminus | Static Terminus ETA | GatiSetu Terminus ETA | Terminus Delta (min) |
-| :---: | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- | :---: | :---: | :---: |
-| **#12625** | **Kerala Express** | KZK (Kazhakuttam) | **Live Monsoon Storm (1.7 mm/h, Vis 3.3 km)** | **45 km/h** | Varkala (13:16) | 13:25 | **13:51** | **+26.8 min** | New Delhi | 14:04 | **15:21** | **+77.0 min** |
-| **#20631** | **TVC Vande Bharat** | KPY (Karunagappalli) | **Live Monsoon Storm (1.5 mm/h, Vis 1.9 km)** | **45 km/h** | Kollam Jn (13:51) | 14:00 | **14:26** | **+26.8 min** | TVC Central | 15:27 | **16:38** | **+71.0 min** |
-| **#16102** | **Chennai Egmore Exp** | KIF (Kuri) | **Live Heavy Rain (1.0 mm/h, Vis 4.3 km)** | **65 km/h** | Auvaneswsarem (16:38) | 16:42 | **16:55** | **+13.3 min** | Tambaram | 06:13 | **06:50** | **+37.2 min** |
-| **#20604** | **NJP Amrit Bharat** | BPE (Benapur) | **Live Heavy Rain (0.8 mm/h, Vis 2.5 km)** | **65 km/h** | Kharagpur Jn (17:30) | 17:34 | **17:47** | **+13.3 min** | New Jalpaiguri | 06:27 | **07:04** | **+37.2 min** |
-| **#13031** | **Howrah Jaynagar Exp** | NMF (Nimo) | **Live Monsoon Storm (0.2 mm/h, Vis 2.5 km)** | **45 km/h** | Bardhaman (13:58) | 14:07 | **14:33** | **+26.8 min** | Jaynagar | 12:41 | **13:52** | **+71.0 min** |
-| **#12696** | **MAS Central SF Exp** | KZK (Kazhakuttam) | **Live Monsoon Storm (1.0 mm/h, Vis 1.9 km)** | **45 km/h** | Varkala (17:48) | 17:57 | **18:23** | **+26.8 min** | MGR Chennai | 10:07 | **11:24** | **+77.0 min** |
+### 8.1 Executive Summary: The 4 Real-World Operating Regimes
+*Synthesized across 8,176 empirical telemetry observations logged during nationwide sweeps:*
 
-*Takeaway:* Google/Where Is My Train's static linear formula ($\text{STA} + \text{Delay}$) naively assumed trains could travel at nominal track speed ($110\text{--}130\text{ km/h}$) through heavy rainfall. GatiSetu's dynamic physics engine automatically recognized the mandated $45\text{--}65\text{ km/h}$ wet-rail safety cap, preventing an under-prediction error of up to **77.0 minutes**.
-*(Complete dataset of all 31 verified adverse weather events: [`benchmark_cases/01_adverse_weather_speed_cap_cases.csv`](./benchmark_cases/01_adverse_weather_speed_cap_cases.csv))*
+| Operating Regime | Verified Cases | Static WIMT / Google Behavior | GatiSetu Dynamic Physics AI Behavior | Peak Error Prevented | Dedicated Interactive Dataset |
+| :--- | :---: | :--- | :--- | :---: | :---: |
+| **Adverse Weather Speed Caps** | **31 trains** | Naively assumes nominal MPS (110-130 km/h) through heavy downpours and dense fog | Enforces statutory FogPASS and wet-rail safety speed caps (45.0 km/h & 65.0 km/h) | **+77.0 min** | [View 31 Cases](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/01_adverse_weather_speed_cap_cases.csv) |
+| **Major Junction Bottlenecks** | **319 trains** | Assumes instant yard entrance even when train is running ahead of schedule | Models turnout friction and platform interlocking holds at CNB, DDU, ET, BZA, PRYJ | **+12.0 min** | [View 319 Cases](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/02_junction_bottleneck_cases.csv) |
+| **Cumulative Congestion Cascades** | **1,258 trains** | Freezes current delay into the future, ignoring downstream line headway degradation | Dynamically compounds section headway friction and models timetable slack recovery | **+39.0 min** | [View 500 Cases](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/03_cumulative_congestion_cases.csv) |
+| **Normal Running Baseline** | **6,400 trains** | Propagates current delay | Maintains tight 0.8 min approach margin with 0.0% false-positive penalty injection | **0.0 min** | [View 500 Cases](https://github.com/tejuas98/Gati-setu-2.-/blob/main/benchmark_cases/04_normal_running_baseline_cases.csv) |
 
-### 8.2 Empirical Major Railway Junction Interlocking Benchmark
-*Real-world yard approach telemetry demonstrating how GatiSetu accounts for diamond turnout friction and platform interlocking at high-density junction hubs:*
-
-| Train No | Train Name | Observed Location | Observed Delay | Classified Bottleneck | Approaching Junction | Static Google ETA | GatiSetu Physics ETA | Junction Divergence Delta (min) | Final Destination | Cumulative Terminus Delta (min) |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- | :---: |
-| **#12423** | **New Delhi Rajdhani** | KYT (Kailahat) | -2 min (Ahead) | `Junction Bottleneck (PRYJ)` | Prayagraj Jn | 02:48 | **02:52** | **+4.8 min** | New Delhi | **+12.0 min** |
-| **#22406** | **Bhagalpur Garib Rath** | BEP (Bheerpur) | +38 min | `Junction Bottleneck (DDU)` | Pt. Deen Dayal Upadhyaya | 03:11 | **03:18** | **+7.2 min** | Bhagalpur | **+6.0 min** |
-| **#12818** | **Jharkhand Swarna J.** | BPU (Bhaupur) | +3 min | `Junction Bottleneck (CNB)` | Kanpur Central | 01:48 | **01:53** | **+5.8 min** | Hatia | **+6.0 min** |
-| **#12625** | **Kerala Express** | MGRD (Magardoh) | +61 min | `Junction Bottleneck (ET)` | Itarsi Jn | 03:06 | **03:10** | **+4.4 min** | New Delhi | **+12.0 min** |
-| **#22863** | **SMVT Bengaluru AC SF** | GLU (Gullipadu) | +54 min | `Junction Bottleneck (BZA)` | Vijayawada Jn | 05:04 | **05:08** | **+4.2 min** | SMVT Bengaluru | **+6.0 min** |
-| **#12273** | **New Delhi Duronto** | CNB Yard | -10 min (Ahead) | `Junction Bottleneck (CNB)` | Kanpur Central | 00:40 | **00:45** | **+5.8 min** | New Delhi | **+12.0 min** |
-| **#12487** | **Seemanchal Express** | SHHT (Singhaul Halt) | +4 min | `Junction Bottleneck (BJU)` | Barauni Jn | 02:04 | **02:09** | **+5.2 min** | Anand Vihar | **+6.0 min** |
-
-*Takeaway:* On Train 12423 (New Delhi Rajdhani), the train was running 2 minutes ahead of time. Google's static model prematurely assumed early entry at Prayagraj Jn (`02:48`). GatiSetu recognized the interlocking constraints at PRYJ, correctly forecasting arrival at `02:52` (+4.8 min junction divergence).
-
-### 8.3 Algorithm Architecture Comparison: Static WIMT vs GatiSetu Dynamic Engine
+### 8.2 Algorithm Architecture Comparison: Static WIMT vs GatiSetu Dynamic Engine
 
 ```mermaid
 flowchart LR
@@ -276,7 +266,29 @@ flowchart LR
     end
 ```
 
-### 8.4 Ground-Truth End-to-End Validation: Train 12361 (Asansol to Itarsi / Mumbai CSMT)
+### 8.3 Mathematical Divergence Formulation & Methodology
+
+#### 1. Static Extrapolation Formula (Where Is My Train / Google)
+```text
+ETA_static = Scheduled Arrival (STA) + Current Cumulative Delay
+```
+*Limitation:* Operates under the naive assumption that future running conditions remain ideal, ignoring real-time precipitation, braking adhesion loss, fog visibility restrictions, and junction turnout queues.
+
+#### 2. GatiSetu Dynamic Physics & Micro-Weather Formula
+```text
+ETA_gatisetu = STA + Current Delay + Δt(weather_cap) + Δt(junction_bottleneck) + Δt(adhesion_braking)
+```
+*Where:*
+- `Δt(weather_cap) = ((V_normal / V_mandated_cap) - 1) * Δt_segment`: Enforced automatically under FogPASS (< 100 m visibility) or adverse precipitation.
+- `Δt(junction_bottleneck) = Bottleneck Factor * 0.4 min`: Dynamically derived from interlocking friction at major junctions (e.g. DDU, CNB, BSL).
+- `Δt(adhesion_braking)`: Safety deceleration compensation factor on wet rail surfaces (>= 0.2 mm/h).
+
+#### 3. Core Scientific Principles
+1. **Physics Determinism (Davis Train Resistance):** The lower bound of transit time between any two points is governed by locomotive tractive power, rake mass, and aerodynamic drag ($F_{\text{tractive}} - R_{\text{davis}} = M_{\text{rake}} \cdot a$). A train cannot violate these physical acceleration profiles regardless of past history.
+2. **Deterministic Regulatory Speed Caps:** When Open-Meteo detects fog visibility below 100 m, Indian Railways Operating Manual legally mandates a maximum speed of 60 km/h under FogPASS regulations. This is a deterministic operational constraint, not an empirical guess.
+3. **Walk-Forward Validation (Backtesting):** Evaluated using rolling-origin cross-validation on completed NTES/RTIS trip records: the model only sees past stations and forecasts upcoming stops, proving generalization on unseen runs without data leakage.
+
+### 8.4 Ground-Truth End-to-End Corridor Validation: Train 12361 (Asansol to Itarsi / Mumbai CSMT)
 *Backtested against actual arrival timestamps logged by Indian Railways NTES/RTIS across a 1,300 km corridor:*
 
 | # | Station Code & Name | Dist | Scheduled (STA) | Static WIMT Prediction | Actual Ground Truth | Static Error | GatiSetu Dynamic Prediction | GatiSetu Error | Local Weather (Open-Meteo) |
@@ -300,40 +312,21 @@ flowchart LR
 - **Static WIMT / Google Peak Error:** Up to **72 minutes** (due to ignoring timetable recovery allowances and freight precedence bottlenecks).
 - **GatiSetu Peak Error:** Bounded within **9 minutes** (achieving a **> 74% reduction in prediction error**).
 
-### 8.5 Real-Time Coastal Weather Degradation: Train 22661 (Sethu SF Express)
-*Tracking how GatiSetu cancels misleading Google early arrival predictions when approaching adverse coastal weather:*
-
-| Station | Scheduled | Static WIMT / Google Prediction | GatiSetu Dynamic Prediction (P50) | Deviation | Live Weather (Open-Meteo Telemetry) |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Vriddhachalam (VRI)** | 21:16 | **21:10** (Observed) | **21:10** (Match) | 0 min | Clear Sky (25.1°C, Vis 14.8 km) |
-| **Ariyalur (ALU)** | 21:51 | 21:52 (+1m) | **21:59** (+8m) | +7 min | Normal Running (25.1°C, Vis 10.0 km) |
-| **Tiruchirappalli (TPJ)** | 23:20 | 23:21 (+1m) | **23:40** (+20m) | +19 min | Junction Congestion Penalty Applied |
-| **Pudukkottai (PDKT)** | 00:08 | 00:09 (+1m) | **00:33** (+25m) | +24 min | Clear Night (24.9°C, Vis 9.0 km) |
-| **Karaikkudi (KKDI)** | 00:43 | 00:44 (+1m) | **01:12** (+29m) | +28 min | Slight Haze (25.2°C, Vis 10.0 km) |
-| **Ramanathapuram (RMD)** | 02:28 | 02:29 (+1m) | **03:13** (+45m) | **+44 min** | **Dense Drizzle (`WMO 55`), Rain 0.3 mm/h, Vis 3.3 km** |
-| **Mandapam (MMM)** | 02:58 | 02:59 (+1m) | **03:46** (+48m) | **+47 min** | **Dense Drizzle (`WMO 55`), Wind Gusts 38.2 km/h, Vis 3.0 km** |
-| **Rameswaram (RMM)** | 04:00 | **03:31** (Static Slack) | **04:51** (Physics Weather) | **+80 min** | **Coastal Rain (`WMO 53`), Wind Gusts 38.5 km/h, Wet Rail Decel** |
-
-### 8.6 Mathematical Methodology: Physics-Informed Validation vs Brute-Force Monitoring
-1. **Physics Determinism (Davis Train Resistance):** The lower bound of transit time between any two points is governed by locomotive tractive power, rake mass, and aerodynamic drag ($F_{\text{tractive}} - R_{\text{davis}} = M_{\text{rake}} \cdot a$). A train cannot violate these physical acceleration profiles regardless of past history.
-2. **Deterministic Regulatory Speed Caps:** When Open-Meteo detects fog visibility below $100\text{ m}$, Indian Railways Operating Manual legally mandates a maximum speed of $60\text{ km/h}$ under FogPASS regulations. This is a deterministic operational constraint, not an empirical guess.
-3. **Walk-Forward Validation (Backtesting):** Evaluated using rolling-origin cross-validation on completed NTES/RTIS trip records: the model only sees past stations and forecasts upcoming stops, proving generalization on unseen runs without data leakage.
-
-### 8.7 Finalized Nationwide Fleet Benchmark (18 Complete Sweeps / 8,176 Real Telemetry Records)
-*Final consolidated multi-cycle longitudinal benchmark across Indian Railways passenger fleet:*
+### 8.5 Nationwide Telemetry Pipeline Execution across 18 Sweeps
+*Consolidated multi-cycle longitudinal benchmark across Indian Railways passenger fleet:*
 
 | Metric | Measured Real-World Value |
 | :--- | :--- |
-| **Total Trains in Offline Master Database** | **13,550 trains** (100% of Indian Railways passenger fleet) |
-| **Completed Nationwide Sweep Cycles** | **`18 full sweeps`** ($18 \times 13,550 = \mathbf{243,900\text{ individual train evaluations}}$) |
-| **Total Real Telemetry Records Logged** | **`8,176 empirical observations`** in `official_24hr_national_benchmark.csv` |
-| **Unique Active Trains Tracked** | **`3,235 unique active trains`** observed across all railway zones |
-| **Adverse Weather Speed Restrictions Enforced** | **`31 active trains`** restricted by real-time rain/fog caps (45.0 km/h / 65.0 km/h) |
-| **Major Railway Junction Bottlenecks Modeled** | **`319 observations`** at CNB, DDU, ET, BZA, PRYJ, GZB, BJU |
-| **Cumulative Congestion Cascades Detected** | **`1,258 observations`** on high-headway trunk corridors |
-| **Normal Running Baseline Verified** | **`6,400 observations`** (0.8 min approach margin, zero false positive penalties) |
-| **Peak Model Divergence at Terminus** | **`+77.0 minutes`** (Google static underpredicted by > 1 hour during monsoon storm) |
-| **Concurrent Engine Load & Reliability** | **`40 async worker threads`**, zero crashes, zero data loss |
+| **Total Trains in Master Database** | **13,550 trains** (100% of Indian Railways passenger fleet) |
+| **Completed Nationwide Sweep Cycles** | **18 full sweeps** (243,900 individual train evaluations) |
+| **Total Real Telemetry Records Logged** | **8,176 empirical observations** in `official_24hr_national_benchmark.csv` |
+| **Unique Active Trains Tracked** | **3,235 unique active trains** observed across all railway zones |
+| **Adverse Weather Speed Restrictions Enforced** | **31 active trains** restricted by real-time rain/fog caps (45.0 km/h / 65.0 km/h) |
+| **Major Railway Junction Bottlenecks Modeled** | **319 observations** at CNB, DDU, ET, BZA, PRYJ, GZB, BJU |
+| **Cumulative Congestion Cascades Detected** | **1,258 observations** on high-headway trunk corridors |
+| **Normal Running Baseline Verified** | **6,400 observations** (0.8 min approach margin, zero false positive penalties) |
+| **Peak Model Divergence at Terminus** | **+77.0 minutes** (Google static underpredicted by > 1 hour during monsoon storm) |
+| **Concurrent Engine Load & Reliability** | **40 async worker threads**, zero crashes, zero data loss |
 
 #### Cycle-by-Cycle Network Delay Progression across 18 Sweeps
 | Sweep Cycle | Active Trains Tracked | National Avg Delay | On-Time Rate (<= 15 min) | Fleet Traffic Context |
@@ -347,56 +340,13 @@ flowchart LR
 | **Cycle 18** | 702 trains | 42.9 min | 44.5% | Final continuous validation sweep |
 
 #### Target Train Trajectory Logged Across Consecutive Sweeps
-- **Train 12779 (Goa Express):** Successfully tracked across **14 consecutive sweeps** from Karnataka into Madhya Pradesh; currently passing **Simariatal block station** on the Bhopal–Bina section heading towards Jhansi and Delhi (+46 min delay).
+- **Train 12779 (Goa Express):** Successfully tracked across **14 consecutive sweeps** from Karnataka into Madhya Pradesh; passing **Simariatal block station** on the Bhopal–Bina section heading towards Jhansi and Delhi (+46 min delay).
 - **Train 12951 (Tejas Rajdhani Express):** Logged running on-time at **Morwani** on the Ratlam–Kota trunk corridor (+14 min delay).
 - **Train 12361 (Mumbai CSMT SF Express):** Tracked through Central Railway approaching Bhusaval division (+139 min delay).
 
-### 8.8 Empirical Live Field Benchmark: Static Formula (Google/WIMT) vs GatiSetu Dynamic Physics & Weather Model
-*Direct real-world side-by-side comparison captured live from active trains across Indian Railways trunk corridors with zero missing values:*
-
-#### Mathematical Divergence Formulation
-
-1. **Static Extrapolation Formula (Where Is My Train / Google):**
-```text
-ETA_static = Scheduled Arrival (STA) + Current Cumulative Delay
-```
-*Limitation:* Operates under the naive assumption that future running conditions remain ideal, ignoring real-time precipitation, braking adhesion loss, fog visibility restrictions, and junction turnout queues.
-
-2. **GatiSetu Dynamic Physics & Micro-Weather Formula:**
-```text
-ETA_gatisetu = STA + Current Delay + Δt(weather_cap) + Δt(junction_bottleneck) + Δt(adhesion_braking)
-```
-*Where:*
-- `Δt(weather_cap) = ((V_normal / V_mandated_cap) - 1) * Δt_segment`: Enforced automatically under FogPASS (< 100 m visibility) or adverse precipitation.
-- `Δt(junction_bottleneck) = Bottleneck Factor * 0.4 min`: Dynamically derived from interlocking friction at major junctions (e.g. DDU, CNB, BSL).
-- `Δt(adhesion_braking)`: Safety deceleration compensation factor on wet rail surfaces (>= 0.2 mm/h).
-
-#### Live Multi-Corridor Telemetry Benchmark Table
-*Telemetry captured live via `run_live_comparison_benchmark.py` and exported to `live_formula_comparison_benchmark.csv`:*
-
-| Train No | Train Name | Current Station & Delay | Next Halt (STA) | Static Google / WIMT ETA | GatiSetu Physics ETA | Formula Divergence Delta (min) | Live Open-Meteo Weather | Operational Cause Tag |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :--- | :--- |
-| **#22661** | **Sethu SF Express** | Devakottai Road (+13 min) | **SVGA** (01:18) | **01:31** | **01:44** | **+13.3 min** | **Rain 0.7 mm/h, Vis 3.4 km** | **Weather Cap (65 km/h)** |
-| **#12302** | **Howrah Rajdhani** | Mirzapur (+12 min) | **DDU** (01:33) | **01:45** | **01:52** | **+7.2 min** | Clear Sky (19.7°C, Vis 6.6 km) | **Junction Bottleneck (DDU)** |
-| **#12779** | **Goa Express** | Sithouli (+27 min) | **GWL** (00:18) | **00:45** | **00:45** | +0.8 min | Clear Sky (21.5°C, Vis 7.9 km) | Normal Running |
-| **#12951** | **Tejas Rajdhani** | Runkhera (+12 min) | **NAD** (01:08) | **01:20** | **01:20** | +0.8 min | Clear Sky (20.2°C, Vis 11.4 km) | Normal Running |
-| **#12138** | **Punjab Mail** | Tarsod (+58 min) | **JL** (00:01) | **00:59** | **00:59** | +0.8 min | Clear Sky (23.1°C, Vis 11.2 km) | Normal Running |
-| **#12361** | **Mumbai CSMT SF** | Nepanagar (+235 min) | **BSL** (22:15) | **02:10** | **02:10** | +0.8 min | Clear Sky (22.7°C, Vis 12.8 km) | Cumulative Congestion |
-| **#12623** | **TVC Mail** | Cauvery (+9 min) | **ED** (00:50) | **00:59** | **00:59** | +0.8 min | Clear Sky (24.1°C, Vis 9.0 km) | Normal Running |
-| **#12626** | **Kerala Express** | Singarayakonda (+21 min) | **NLR** (01:53) | **02:14** | **02:14** | +0.8 min | Clear Sky (24.8°C, Vis 10.5 km) | Normal Running |
-| **#12424** | **Dibrugarh Rajdhani**| Jamguri (+15 min) | **FKG** (00:58) | **01:13** | **01:13** | +0.8 min | Clear Sky (19.5°C, Vis 15.5 km) | Normal Running |
-| **#12861** | **Mahbubnagar SF** | Gangineni (+18 min) | **KMT** (01:44) | **02:02** | **02:02** | +0.8 min | Clear Sky (19.9°C, Vis 11.3 km) | Normal Running |
-| **#14114** | **Subedarganj Exp** | Kaurara (+27 min) | **ETW** (01:05) | **01:32** | **01:32** | +0.8 min | Clear Sky (19.5°C, Vis 6.6 km) | Normal Running |
-| **#15014** | **Ranikhet Express** | Moradabad (+36 min) | **MB** (23:45) | **00:21** | **00:21** | +0.8 min | Clear Sky (19.7°C, Vis 6.5 km) | Normal Running |
-
-#### Empirical Takeaways
-1. **Weather Delay Prediction:** On Train 22661 approaching the Tamil Nadu coastal section (Devakottai Road $\rightarrow$ Sivaganga), live Open-Meteo telemetry detected active rainfall (0.7 mm/h) and reduced visibility (3.4 km). Google's static formula erroneously showed the train arriving at `01:31`. GatiSetu accurately factored in the mandated 65 km/h wet-rail speed restriction, forecasting arrival at `01:44` (**+13.3 min** realistic delay).
-2. **Junction Delay Prediction:** On Train 12302 approaching Pt. Deen Dayal Upadhyaya Junction (DDU), Google's static model predicted `01:45`. GatiSetu applied the DDU interlocking congestion factor, correctly predicting arrival at `01:52` (**+7.2 min** bottleneck hold-up).
-3. **Zero False Positives:** Under normal weather and open corridor conditions (e.g. Trains 12951, 12779, 12623), GatiSetu closely matches static progression (+0.8 min approach margin), confirming zero unnecessary penalty injection.
-
 ---
 
-### 8.5 Nationwide 13,550 Passenger Train Side-by-Side Master Comparison Dataset
+### 8.6 Nationwide 13,550 Passenger Train Side-by-Side Master Comparison Dataset
 
 To provide complete transparency across Indian Railways, the entire national passenger fleet of **13,550 trains** has been compiled into a single master comparison file stored directly in this repository:
 
