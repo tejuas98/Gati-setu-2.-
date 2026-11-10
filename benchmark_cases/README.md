@@ -22,7 +22,7 @@ This directory contains the segmented empirical datasets isolating all four core
 ## Case 1: All 31 Real-World Adverse Weather Instances
 *Active monsoon storms and dense fog where real-time Open-Meteo atmospheric monitoring triggered regulatory speed caps under Indian Railways safety operating rules:*
 
-| # | Train No | Train Name | Observed Station | Live Weather (Open-Meteo) | Cap | Next Halt | Static ETA | GatiSetu ETA | Halt $\Delta$ | Terminus | Static Terminus ETA | GatiSetu Terminus ETA | Terminus $\Delta$ |
+| # | Train No | Train Name | Observed Station | Live Weather (Open-Meteo) | Cap | Next Halt | Static ETA | GatiSetu ETA | Halt Delta (min) | Terminus | Static Terminus ETA | GatiSetu Terminus ETA | Terminus Delta (min) |
 | :---: | :---: | :--- | :--- | :--- | :---: | :--- | :---: | :---: | :---: | :--- | :---: | :---: | :---: |
 | 1 | **#12625** | Kerala Express | KZK (Kazhakuttam) | Live Monsoon Storm (1.7 mm/h) | **45.0 km/h** | Varkala | 13:25 | **13:51** | **+26.8m** | New Delhi | 14:04 | **15:21** | **+77.0m** |
 | 2 | **#37836** | Barddhaman - Howrah Local | BGF (Bagila) | Live Monsoon Storm (0.2 mm/h) | **45.0 km/h** | Debipur | 13:20 | **13:46** | **+26.8m** | Howrah Jn | 15:09 | **16:26** | **+77.0m** |
@@ -63,7 +63,7 @@ This directory contains the segmented empirical datasets isolating all four core
 ## Case 2: Major Railway Junction Bottleneck Instances
 *High-density yard approach telemetry demonstrating interlocking turnout friction across Pt. Deen Dayal Upadhyaya (DDU), Kanpur Central (CNB), Itarsi (ET), Vijayawada (BZA), and Prayagraj (PRYJ):*
 
-| # | Train No | Train Name | Observed Station | Current Delay | Bottleneck Classification | Approaching Junction | Static ETA | GatiSetu ETA | Junction $\Delta$ | Final Destination | Cumulative Terminus $\Delta$ |
+| # | Train No | Train Name | Observed Station | Current Delay | Bottleneck Classification | Approaching Junction | Static ETA | GatiSetu ETA | Junction Delta (min) | Final Destination | Cumulative Terminus Delta (min) |
 | :---: | :---: | :--- | :--- | :---: | :--- | :--- | :---: | :---: | :---: | :--- | :---: |
 | 1 | **#12487** | Seemanchal Express | SHHT (Singhaul Halt) | +4m | `Junction Bottleneck (BJU)` | Barauni Jn | 02:04 | **02:09** | **+5.2m** | Anand Vihar Terminal | **+6.0m** |
 | 2 | **#12423** | New Delhi Rajdhani Express | KYT (Kailahat) | +-2m | `Junction Bottleneck (PRYJ)` | Prayagraj Jn | 02:48 | **02:52** | **+4.8m** | New Delhi | **+12.0m** |
