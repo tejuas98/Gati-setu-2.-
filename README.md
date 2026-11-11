@@ -6,6 +6,12 @@
 [![Kaggle Benchmark EDA](https://img.shields.io/badge/Kaggle-EDA_Notebook-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/code/rudraa11/gatisetu-telemetry-benchmark-eda)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Gati--setu--2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tejuas98/Gati-setu-2.-)
 
+<p align="center">
+  <a href="https://raw.githubusercontent.com/tejuas98/Gati-setu-2.-/main/assets/demo.gif" target="_blank" rel="noopener noreferrer">
+    <img src="assets/demo.gif" width="850" alt="GatiSetu Live Running Dynamic ETA & Rail Radar Workstation Demo" style="border-radius: 14px;" />
+  </a>
+</p>
+
 ---
 
 > **Official National Benchmark Dataset on Kaggle & GitHub:**
@@ -35,6 +41,58 @@
 | **4. Network Congestion & Signal Aspects** | Complete blind spot to preceding train headway; zero signal aspect deduction; ignores junction bottlenecks and cascading ripples. | Real-time 4-aspect ABS signal deduction (Green, Double Yellow, Yellow, Red), spatial headway ($h_s$), calibrated junction friction scores (14 major junctions), and Section Controller Loop Line Precedence Advisor. | **100% Fulfilled** | [Corridor Congestion & Signal Deduction Audit](docs/network_congestion_signal_aspects/) |
 | **5. Fleet-Wide Scalability (13,000+ Trains)** | Sequential, client-triggered polling with zero national fleet state; processing 13,550 trains requires $\sim 22.5\text{ min}$; no operational zone sharding. | Vectorized batch inference covering all 13,550 coaching trains across all 18 operational zones at $> 66,000\text{ trains/sec}$ ($0.015\text{ ms/train}$, full fleet in $\approx 204\text{ ms}$) within $138\text{ MB}$ RAM. | **100% Fulfilled** | [13,550 Train Fleet & 18 Zones Audit](docs/fleet_wide_scalability/) |
 | **6. Station Displays & Control Room Dashboards** | No public display interfaces; zero platform collision checks; no operational dispatcher console or precedence advice for controllers. | Real-time public concourse PIDS LED board (`/pids`) with dual STA vs Dynamic ETA, 15-minute platform conflict detection, and full-screen Section Controller Radar Command Console (`/dashboard`) with AI loop line precedence advice. | **100% Fulfilled** | [PIDS & Control Room Audit](docs/station_displays_control_room/) |
+
+---
+
+## Product Visual Showcase & Feature Breakdown
+
+GatiSetu delivers an end-to-end, multi-tier operational ecosystem covering Section Controllers, Station Managers, Concourse Passengers, and Mobile App Users:
+
+### 1. Section Controller GIS Radar Console & AI Precedence Advisor
+<p align="center">
+  <img src="assets/screenshot-control-room-radar-rounded.png" width="850" alt="GatiSetu Section Controller Command Radar Console" style="border-radius: 14px;" />
+</p>
+
+* **Live Downstream Track Headway:** Continuous spatial headway monitoring ($h_s$) between active rakes across high-density corridors.
+* **4-Aspect ABS Signal Deduction:** Automatically deduces signal aspects (**Green** $130\text{ km/h}$, **Double Yellow** $80\text{ km/h}$, **Caution Yellow** $45\text{ km/h}$, **Red** $0\text{ km/h}$) from spatial gaps and applies statutory line speed restrictions.
+* **Locomotive Physics & Davis Resistance Telemetry:** Real-time continuous monitoring of WAP-7/WAP-4 horsepower, tractive effort ($F_{\text{TE}} = 325\text{ kN}$), Davis aerodynamic resistance ($R = A + Bv + Cv^2$), and emergency service braking distance.
+* **AI Loop Line Precedence Advisor:** Recommends optimal passing loop diversion of preceding slow freights, computing exact delay savings in minutes for priority mail/express services ($S_{\text{savings}} = (12.0 - h_s) \times 2.2\text{ min}$).
+
+---
+
+### 2. Public Station Concourse PIDS LED Display & Platform Conflict Detection
+<p align="center">
+  <img src="assets/screenshot-station-pids-concourse-rounded.png" width="850" alt="GatiSetu Public Concourse PIDS LED Board" style="border-radius: 14px;" />
+</p>
+
+* **Dual Scheduled (STA) vs. Dynamic Expected (ETA) Clocks:** Transparent passenger delivery displaying both timetable nominal arrival and dynamic physics-based forecast side-by-side.
+* **Platform Allocation & Berth Management:** Real-time platform assignment across major junction stations (New Delhi, Kanpur Central, Mumbai Central).
+* **Automated 15-Minute Platform Conflict Alerts:** Flags station track starvation when two arriving trains are projected to occupy the same platform within 15 minutes, providing automated diversion recommendations.
+* **Adverse Weather Regulatory Warnings:** Concourse broadcast banners displaying active Open-Meteo safety speed caps (e.g. FogPASS 60 km/h or Heavy Monsoon 45 km/h).
+
+---
+
+### 3. Mobile Passenger Real-Time Delivery & Visualization (Android Client)
+<p align="center">
+  <img src="assets/screenshot-mobile-passenger-tracking-rounded.png" width="850" alt="GatiSetu Mobile Passenger Live Train Tracking" style="border-radius: 14px;" />
+</p>
+
+* **Live Vertical Route Timeline:** Real-time spatial tracking with animated train locomotive marker, distance in kilometers, and last-reported station.
+* **Intermediate & Destination Dynamic ETAs:** Accurate arrival forecasting across all intermediate stops, reflecting live tractive acceleration, corridor congestion, and sectional recovery.
+* **Delay Transparency with Operational Cause Tags:** Color-coded delays with explicit operational tags (`[Physics Delay]`, `[Headway Decay]`, `[FogPASS Speed Cap]`).
+* **Non-Stopping Passing Loops:** Expandable intermediate block stations, loop lines, and signal passing sidings.
+
+---
+
+### 4. Zero-Internet Onboard Resilience & Coach Berth Layouts
+<p align="center">
+  <img src="assets/screenshot-mobile-coach-and-offline-rounded.png" width="850" alt="GatiSetu Onboard Offline Cell-Tower Triangulation and Coach Berth Maps" style="border-radius: 14px;" />
+</p>
+
+* **Zero-Internet Cellular Base Station Triangulation:** On-device cell tower resolution (`{MCC}_{MNC}_{LAC}_{CID}`) querying local SQLite database, maintaining accurate continuous location in tunnels, deep cuts, and rural belts without GPS or internet.
+* **3-Axis Accelerometer Vibration Fusion:** Harmonic rail joint vibration verification ($\sigma^2_z \in [1.0, 6.5]\text{ m/s}^2$) rejecting parallel highway road vehicles.
+* **Full Rake Composition & Cabin Berth Maps:** Interactive coach position and seat layout viewer (Engine, EOG, GS, Sleeper, 3A, 2A, 1A).
+* **Destination Proximity Alarms:** Geofenced wake-up alerts triggering 10 to 60 minutes prior to arrival.
 
 ---
 
@@ -410,25 +468,58 @@ GitHub web interface has a built-in 512 KB rendering limit for interactive table
 
 ---
 
-## 9. How to Use
+## 9. How to Use & Deployment Guide
 
-### 1. Launch the Live REST API Server
+### 1. Prerequisites & Environment Setup
+- **Python Runtime:** Python 3.10+ with standard scientific libraries (`fastapi`, `uvicorn`, `pandas`, `numpy`, `scikit-learn`, `requests`, `psutil`).
+- **Web Browser:** Google Chrome, Mozilla Firefox, Apple Safari, or Microsoft Edge.
+- **Android Device / Emulator (Optional):** Android 8.0+ device or emulator with ADB debugging enabled.
+
+### 2. Launch the High-Performance Dynamic ML & Radar Server
+Start the core FastAPI backend engine:
 ```bash
 python3 api_server.py
 ```
-- Section Controller Radar Dashboard: **[http://localhost:8000/dashboard](http://localhost:8000/dashboard)**
-- Station-to-Station Train Search: `GET /api/v1/search/trains-between?from_station=BSL&to_station=NK`
-- Live Open-Meteo Station Weather: `GET /api/v1/weather/live/NDLS`
-- Dynamic Multi-Factor Train Forecast: `GET /api/v1/forecast/12951`
+The server initializes in-memory operational caches and binds to `http://127.0.0.1:8000`.
 
-### 2. Run the Terminal CLI
-```bash
-python3 wimt_cli.py 12951  # Tejas Rajdhani
-python3 wimt_cli.py 12129  # Azad Hind Express
-python3 wimt_cli.py 11120  # Igatpuri MEMU Express
-```
+### 3. Access Interactive Web Dashboards & Displays
+Open any of the following interactive portals directly in your browser:
+- **Section Controller Radar Command Console:** **[http://localhost:8000/dashboard](http://localhost:8000/dashboard)**
+  - Full-screen GIS radar with live train markers, 4-aspect ABS signal status, locomotive physics telemetry, and AI Loop Line Precedence Advisor.
+- **Public Station Concourse PIDS LED Board:** **[http://localhost:8000/pids](http://localhost:8000/pids)**
+  - Dual Scheduled (STA) vs Dynamic Expected (ETA) concourse clocks, platform allocation, and automated 15-minute platform starvation/conflict alerts.
+  - Direct Major Station Views:
+    - New Delhi Junction: **[http://localhost:8000/pids/NDLS](http://localhost:8000/pids/NDLS)**
+    - Kanpur Central: **[http://localhost:8000/pids/CNB](http://localhost:8000/pids/CNB)**
+    - Mumbai Central: **[http://localhost:8000/pids/BCT](http://localhost:8000/pids/BCT)**
+- **Mobile Passenger Web View:** **[http://localhost:8000/wimt](http://localhost:8000/wimt)**
 
-### 3. Install the Patched APK on Android Device / Emulator
+### 4. Query High-Throughput REST APIs
+GatiSetu exposes standardized endpoints for integration with external railway software and consumer applications:
+- **Dynamic Train Arrival Forecast:**
+  ```bash
+  curl http://localhost:8000/api/v1/forecast/eta/12951
+  ```
+- **Live National Rail Radar & Congestion:**
+  ```bash
+  curl http://localhost:8000/api/v1/radar/national_map
+  ```
+- **Station Platform & PIDS Payload:**
+  ```bash
+  curl http://localhost:8000/api/v1/pids/NDLS
+  ```
+- **Section Controller Precedence & Block Analytics:**
+  ```bash
+  curl http://localhost:8000/api/v1/controller/section/GZB-CNB
+  ```
+- **Edge Telemetry Ingestion (Cell Tower Triangulation + Vibration Fusion):**
+  ```bash
+  curl -X POST http://localhost:8000/api/v1/telemetry/edge_ingest \
+    -H "Content-Type: application/json" \
+    -d '{"train_no":"12951","cell_mcc":404,"cell_mnc":45,"cell_lac":1204,"cell_id":58291,"linear_accel_z_variance":2.4,"angular_speed_rad_s":0.05}'
+  ```
+
+### 5. Install the Patched Android Client (GatiSetu APK)
 Download the signed APK directly from the official GitHub Release:
 - **Direct APK Download:** [com.whereismytrain.android_gatisetu_ml.apk](https://github.com/tejuas98/Gati-setu-2.-/releases/download/v2.0.0/com.whereismytrain.android_gatisetu_ml.apk)
 - **GitHub Release Page:** [Gati-Setu v2.0 Release](https://github.com/tejuas98/Gati-setu-2.-/releases/tag/v2.0.0)
@@ -440,24 +531,31 @@ The APK has been updated with the open-source name **GatiSetu**:
 - **System Launcher & App Switcher:** Displays `GatiSetu`.
 - **Prominent Disclosures & Notifications:** Updated to reference `GatiSetu`.
 
+Install via ADB:
 ```bash
 adb install -r -d com.whereismytrain.android_gatisetu_ml.apk
 ```
 All in-app running status queries execute natively with dynamic weather speed caps and delay reason tags displayed directly beneath station arrival times.
 
-### 4. Continuous 5-to-10 Hour Real-Time Benchmark Logger
-To empirically monitor and log an active train run continuously from origin to destination across 5 to 10 hours:
+### 6. Run the 41-Test Automated Verification Suite
+Verify complete system integrity across all 6 core pillars, locomotive physics, and fuzzing suites:
 ```bash
-python3 continuous_benchmark_logger.py 22661
+python3 -m unittest test_*.py
 ```
-This automatically polls every 120 seconds, logging live GPS coordinates, Open-Meteo weather parameters, Static Google predictions, and GatiSetu Dynamic predictions directly into `benchmark_telemetry_log_22661.csv`.
+Executes all 41 unit, integration, and stress tests across 6 test suites with 100% pass rate.
 
-### 5. All-India National Fleet Concurrent Engine
-To monitor and benchmark the entire Indian Railways network simultaneously across all active trains:
-```bash
-python3 fleet_tracker.py 100   # Scans 100 trains concurrently
-python3 fleet_tracker.py 1000  # Full divisional network scan
-```
-- **Concurrency:** Multi-threaded non-blocking worker pool with 25-50 threads.
-- **Spatial Weather Caching:** 15-minute TTL caching across railway divisions to avoid API throttling.
-- **Network-Wide KPIs:** Computes real-time On-Time Rate (%), average network delay, and weather-restricted runs, exporting live snapshots to `national_fleet_telemetry.json`.
+### 7. Run Terminal CLI Tools & Benchmark Loggers
+- **Terminal Train CLI:**
+  ```bash
+  python3 wimt_cli.py 12951  # Tejas Rajdhani
+  python3 wimt_cli.py 12129  # Azad Hind Express
+  ```
+- **Continuous 5-to-10 Hour Real-Time Benchmark Logger:**
+  ```bash
+  python3 continuous_benchmark_logger.py 22661
+  ```
+- **All-India National Fleet Concurrent Engine:**
+  ```bash
+  python3 fleet_tracker.py 100   # Scans 100 trains concurrently
+  python3 fleet_tracker.py 1000  # Full divisional network scan
+  ```
