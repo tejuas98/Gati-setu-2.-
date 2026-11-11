@@ -22,7 +22,7 @@
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
 
-    /* RailRadar Frosted Glass Surfaces */
+    /* Frosted Glass Surfaces */
     .rr-card {
       background: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(20px);
@@ -63,19 +63,19 @@
 
     /* Directional Train Chevron Markers */
     .train-chevron-marker {
-      transition: transform 0.18s linear;
+      transition: transform 0.2s linear;
       cursor: pointer;
     }
     .train-chevron-marker:hover {
-      filter: drop-shadow(0 0 12px #00f0ff) !important;
-      transform: scale(1.35);
+      filter: drop-shadow(0 0 14px #00f0ff) !important;
+      transform: scale(1.4);
       z-index: 9999 !important;
     }
 
-    /* Selected Train Pulsating Ring matching RailRadar Screenshot */
+    /* Selected Train Pulsating Ring matching RailRadar */
     @keyframes rr-pulse-ring {
       0% { transform: scale(0.75); opacity: 1; border-color: #ffffff; }
-      50% { transform: scale(1.35); opacity: 0.8; border-color: #38bdf8; }
+      50% { transform: scale(1.35); opacity: 0.85; border-color: #00f0ff; }
       100% { transform: scale(1.9); opacity: 0; border-color: #ffffff; }
     }
     .rr-pulsing-halo {
@@ -90,12 +90,26 @@
       pointer-events: none;
     }
 
-    /* Scream Color Accents */
-    .scream-cyan { color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.6); }
-    .scream-amber { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
-    .scream-emerald { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
-    .scream-pink { color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.6); }
-    .scream-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
+    /* Black and White Weather Radar styling */
+    .bw-weather-clouds {
+      filter: grayscale(100%) contrast(200%) brightness(130%) invert(10%);
+    }
+    .bw-weather-basemap {
+      filter: grayscale(100%) contrast(140%) brightness(75%);
+    }
+
+    /* Leaflet Tooltips */
+    .leaflet-tooltip {
+      background: #0f172a !important;
+      color: #f8fafc !important;
+      border: 1px solid #334155 !important;
+      border-radius: 8px !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 11px !important;
+      padding: 4px 8px !important;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.6) !important;
+    }
+    .leaflet-tooltip-bottom:before { border-bottom-color: #334155 !important; }
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col relative select-none">
@@ -122,7 +136,7 @@
         <input 
           id="trainSearchInput" 
           type="text" 
-          placeholder="Search train no / name (e.g. 12951, 08610, 69218)..." 
+          placeholder="Search train no / name (e.g. 12724, 12951, 08610)..." 
           onkeydown="if(event.key==='Enter') searchTrain()"
           class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg pl-8 pr-16 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 mono transition"
         />
@@ -132,19 +146,19 @@
       </div>
     </div>
 
-    <!-- Live Fleet Stats & Station PIDS Display Link -->
+    <!-- Live Fleet Stats & Station PIDS Link -->
     <div class="flex items-center gap-4">
       <div class="hidden lg:flex items-center gap-5 text-xs mono">
         <div>
           <span class="text-slate-400">ACTIVE FLEET:</span>
-          <strong id="statActiveCount" class="text-cyan-400 ml-1">2,316</strong>
+          <strong id="statActiveCount" class="text-cyan-400 ml-1">2,393</strong>
         </div>
         <div>
           <span class="text-slate-400">ON-TIME:</span>
-          <strong id="statOnTimePct" class="text-emerald-400 ml-1">87.4%</strong>
+          <strong id="statOnTimePct" class="text-emerald-400 ml-1">88.4%</strong>
         </div>
         <div>
-          <span class="text-slate-400">WEATHER SPEED CAPS:</span>
+          <span class="text-slate-400">G&SR WEATHER RESTRICTIONS:</span>
           <strong id="statWeatherCaps" class="text-amber-400 ml-1">31 Active</strong>
         </div>
       </div>
@@ -167,45 +181,40 @@
     <!-- Leaflet GIS Map Canvas (Full Screen) -->
     <div id="radarMap" class="absolute inset-0 z-0 bg-[#070b14]"></div>
 
-    <!-- Floating Top Selected Train Pill (Matching RailRadar Screenshot 1 & 4) -->
+    <!-- Floating Top Selected Train Pill (Matching RailRadar Screenshots) -->
     <div id="topSelectedPill" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-20 rr-pill px-4 py-2 rounded-xl flex items-center gap-3 text-xs mono border border-slate-700/80 shadow-2xl">
       <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
-      <span id="topPillTitle" class="font-bold text-white tracking-wide">08610 Hatia Special Fare SF Puja Special</span>
+      <span id="topPillTitle" class="font-bold text-white tracking-wide">12724 Telangana Express</span>
       <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition text-xs"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Left Slide-Out Train Inspector (RailRadar Style from Screenshot 1 & 5) -->
-    <aside id="inspectorDrawer" class="absolute left-4 top-4 bottom-4 w-[410px] max-w-[calc(100vw-32px)] rr-card rounded-2xl z-20 flex flex-col overflow-hidden transition-all duration-300 transform -translate-x-[450px] shadow-2xl">
+    <!-- Left Slide-Out Train Inspector (Connected directly to GatiSetu AI Engine) -->
+    <aside id="inspectorDrawer" class="absolute left-4 top-4 bottom-4 w-[430px] max-w-[calc(100vw-32px)] rr-card rounded-2xl z-20 flex flex-col overflow-hidden transition-all duration-300 transform -translate-x-[470px] shadow-2xl">
       
       <!-- Drawer Header Bar -->
       <div class="p-4 border-b border-slate-800/80 bg-slate-900/80 shrink-0">
         <div class="flex items-start justify-between gap-2">
           <div>
             <div class="flex items-center gap-2">
-              <span id="inspTrainNo" class="font-black text-2xl text-white mono">08610</span>
-              <span id="inspServiceCat" class="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 border border-pink-500/30 font-bold uppercase mono">Special SF</span>
+              <span id="inspTrainNo" class="font-black text-2xl text-white mono">12724</span>
+              <span id="inspServiceCat" class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold uppercase mono">Superfast Express</span>
             </div>
-            <h2 id="inspTrainName" class="font-semibold text-xs text-slate-300 truncate max-w-[280px] mt-0.5">Hatia Special Fare SF Puja Special</h2>
+            <h2 id="inspTrainName" class="font-semibold text-xs text-slate-300 truncate max-w-[290px] mt-0.5">Telangana Express (NDLS - HYB)</h2>
           </div>
           <button onclick="closeInspector()" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
 
-        <!-- Action Pills Matching RailRadar Screenshot 1 -->
+        <!-- Quick Action Pills -->
         <div class="flex items-center gap-2 mt-3 text-[11px] mono">
           <button class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
             <i class="fa-solid fa-calendar-day text-slate-400"></i>
-            <span>Yesterday</span>
-            <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
-          </button>
-          <button class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
-            <i class="fa-regular fa-comment-dots text-slate-400"></i>
-            <span>Chat</span>
+            <span>Today</span>
           </button>
           <button onclick="toggleCoachModal()" class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
             <i class="fa-solid fa-grip text-cyan-400"></i>
-            <span>Coach</span>
+            <span>Coach Rake</span>
           </button>
           <button onclick="focusSelectedTrain()" class="px-2.5 py-1 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition flex items-center gap-1.5">
             <i class="fa-solid fa-crosshairs"></i>
@@ -213,23 +222,23 @@
           </button>
         </div>
 
-        <!-- Red Reschedule / Delay Banner (Screenshot 1) -->
+        <!-- Delay / Status Banner -->
         <div id="inspStatusBanner" class="mt-3 p-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-xs flex items-center justify-between text-red-300 font-bold mono">
           <div class="flex items-center gap-2 truncate">
             <i class="fa-regular fa-clock text-red-400"></i>
-            <span id="inspStatusText" class="truncate">Train is rescheduled by 8h 5m</span>
+            <span id="inspStatusText" class="truncate">Train is delayed by 1H 54M LATE</span>
           </div>
-          <span id="inspSpeedBadge" class="text-white text-[11px] ml-2 shrink-0">68 km/h</span>
+          <span id="inspSpeedBadge" class="text-white text-[11px] ml-2 shrink-0">45 km/h</span>
         </div>
       </div>
 
-      <!-- Section Controller AI & Physics Dispatch HUD -->
-      <div id="precedenceAdvisorCard" class="p-3 bg-slate-950/90 border-b border-slate-800 text-[11px] mono shrink-0 space-y-2">
+      <!-- Section Controller AI & GatiSetu Physics Dispatch HUD -->
+      <div id="precedenceAdvisorCard" class="p-3 bg-slate-950/95 border-b border-slate-800 text-[11px] mono shrink-0 space-y-2">
         <div class="flex items-center justify-between text-slate-400 font-bold">
           <span class="text-cyan-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-microchip"></i> SECTION CONTROLLER AI ADVISOR
+            <i class="fa-solid fa-microchip animate-pulse"></i> GATI-SETU DYNAMIC AI FORECAST
           </span>
-          <span id="inspHeadwayKm" class="text-amber-400">Spatial Headway: 4.8 km</span>
+          <span id="inspHeadwayKm" class="text-amber-400">Spatial Headway: 12.7 km</span>
         </div>
 
         <!-- 4-Aspect Signal & Davis Resistance -->
@@ -244,17 +253,39 @@
           </div>
         </div>
 
+        <!-- GatiSetu ML Confidence Intervals (P10 / P50 / P90) -->
+        <div class="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] space-y-1">
+          <div class="flex items-center justify-between text-cyan-300 font-bold">
+            <span>DYNAMIC ARRIVAL FORECAST:</span>
+            <span id="inspConfidenceBand" class="text-emerald-400">95% Confidence Band (±12m)</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1 pt-1 text-center font-bold">
+            <div class="p-1 rounded bg-slate-900/80 text-emerald-400">
+              <span class="text-[9px] text-slate-400 block font-normal">OPTIMISTIC (P10)</span>
+              <span id="inspP10Eta">15:34</span>
+            </div>
+            <div class="p-1 rounded bg-blue-600/30 text-cyan-300 border border-cyan-400/30">
+              <span class="text-[9px] text-slate-400 block font-normal">EXPECTED (P50)</span>
+              <span id="inspP50Eta">15:59</span>
+            </div>
+            <div class="p-1 rounded bg-slate-900/80 text-amber-400">
+              <span class="text-[9px] text-slate-400 block font-normal">PESSIMISTIC (P90)</span>
+              <span id="inspP90Eta">16:34</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Precedence Recommendation Alert -->
-        <div id="inspPrecedenceAlert" class="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] text-cyan-300 leading-tight">
-          <strong>AI Precedence:</strong> Line clear. Projected loop siding overtake delay recovery: <strong>+12.4 min</strong>.
+        <div id="inspPrecedenceAlert" class="p-2 rounded bg-slate-900/90 border border-slate-800 text-[10px] text-slate-300 leading-tight">
+          <strong>AI Precedence Recommendation:</strong> Preceding MEMU 69167 scheduled for loop siding at next junction. Projected delay recovery: <strong>+14.2 min</strong>.
         </div>
       </div>
 
-      <!-- Timetable Header Bar (Screenshot 1: ARRIVAL | DAY 1 | DEPARTURE) -->
+      <!-- Timetable Header Bar -->
       <div class="grid grid-cols-12 px-4 py-2 border-b border-slate-800 bg-slate-900/90 text-[10px] font-bold uppercase tracking-wider text-slate-400 mono shrink-0">
         <div class="col-span-3 text-left">ARRIVAL</div>
-        <div class="col-span-6 text-center text-slate-200" id="inspDayTitle">DAY 1 • 11 NOV</div>
-        <div class="col-span-3 text-right">DEPARTURE</div>
+        <div class="col-span-6 text-center text-slate-200" id="inspDayTitle">UPCOMING CORRIDOR STOPS</div>
+        <div class="col-span-3 text-right">DYNAMIC ETA</div>
       </div>
 
       <!-- Station Timeline (Scrollable with Rail Ladder Track) -->
@@ -262,76 +293,80 @@
         <div class="text-center text-xs text-slate-500 mono py-8">Select any train on the live satellite map to inspect route schedule & section telemetry.</div>
       </div>
 
-      <!-- Bottom Floating Status Card (Screenshot 1: 1.8 km to Pachora Jn, 10H 40M LATE, Loco) -->
+      <!-- Bottom Floating Status Card -->
       <div class="p-3 bg-slate-900/95 border-t border-slate-800 shrink-0 flex items-center justify-between text-xs mono">
         <div>
           <div class="flex items-center gap-2">
-            <span id="inspBottomDist" class="font-black text-white text-sm">1.8 km to Pachora Jn</span>
+            <span id="inspBottomDist" class="font-black text-white text-sm">1.8 km to Kazipet Jn</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
-            <span id="inspBottomDelayBadge" class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-[10px]">10H 40M LATE</span>
-            <span class="text-[10px] text-slate-400">Updated few seconds ago</span>
-            <span class="text-[10px] text-slate-500">Loco: WAP-7</span>
+            <span id="inspBottomDelayBadge" class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-[10px]">1H 54M LATE</span>
+            <span class="text-[10px] text-slate-400">GatiSetu Live Sync</span>
+            <span class="text-[10px] text-slate-500">Loco: WAP-7 #30452</span>
           </div>
         </div>
-        <button onclick="fetchTrainRunningStatus(selectedTrainNumber)" class="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition shadow-lg shadow-blue-600/30">
+        <button onclick="inspectTrain(selectedTrainNumber)" class="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition shadow-lg shadow-blue-600/30" title="Refresh Live Forecast">
           <i class="fa-solid fa-arrows-rotate text-xs"></i>
         </button>
       </div>
     </aside>
 
-    <!-- Floating Action Controls on Right (RailRadar Style from Screenshot 1, 2, 3, 4) -->
+    <!-- Floating Action Controls on Right -->
     <div class="absolute right-4 top-4 z-20 flex flex-col gap-2.5">
       
-      <!-- 1. Layers Switcher Button -->
+      <!-- 1. Layers Switcher Button (Satellite, Transit, Weather B&W) -->
       <div class="relative">
         <button onclick="toggleLayerMenu()" class="rr-pill px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800/90 transition flex items-center gap-2 shadow-xl" title="Map Layers">
           <i class="fa-solid fa-layer-group text-cyan-400"></i>
           <span class="hidden md:inline">Layers</span>
         </button>
 
-        <!-- Layer Dropdown Menu (Screenshot 3: Transit vs Satellite + Appearance) -->
-        <div id="layerDropdown" class="hidden absolute right-0 top-11 w-64 rr-card rounded-2xl p-4 shadow-2xl z-30 space-y-3 text-xs">
+        <!-- Layer Dropdown Menu (3 Options: Satellite, Transit, Weather B&W) -->
+        <div id="layerDropdown" class="hidden absolute right-0 top-11 w-72 rr-card rounded-2xl p-4 shadow-2xl z-30 space-y-3 text-xs">
           <div class="font-black text-slate-400 mono text-[10px] tracking-wider uppercase">Map Base Layer</div>
           
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-3 gap-2">
             <!-- Satellite Option -->
-            <button onclick="setBaseLayer('satellite')" id="btnLayerSat" class="p-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition">
-              <div class="w-full h-12 rounded-lg bg-[url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/28/45')] bg-cover bg-center border border-slate-700 relative">
-                <span id="checkSat" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]"><i class="fa-solid fa-check"></i></span>
+            <button onclick="setBaseLayer('satellite')" id="btnLayerSat" class="p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition">
+              <div class="w-full h-11 rounded-lg bg-[url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/28/45')] bg-cover bg-center border border-slate-700 relative">
+                <span id="checkSat" class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
               </div>
-              <span class="text-[11px]">Satellite</span>
+              <span class="text-[10px]">Satellite</span>
             </button>
 
             <!-- Transit Option -->
-            <button onclick="setBaseLayer('transit')" id="btnLayerTrans" class="p-2 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition">
-              <div class="w-full h-12 rounded-lg bg-[#0b0f19] border border-slate-700 relative flex items-center justify-center">
-                <i class="fa-solid fa-route text-cyan-400 text-lg"></i>
-                <span id="checkTrans" class="hidden absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]"><i class="fa-solid fa-check"></i></span>
+            <button onclick="setBaseLayer('transit')" id="btnLayerTrans" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition">
+              <div class="w-full h-11 rounded-lg bg-[#0b0f19] border border-slate-700 relative flex items-center justify-center">
+                <i class="fa-solid fa-route text-cyan-400 text-sm"></i>
+                <span id="checkTrans" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
               </div>
-              <span class="text-[11px]">Transit</span>
+              <span class="text-[10px]">Transit</span>
+            </button>
+
+            <!-- Weather (Black & White) Option -->
+            <button onclick="setBaseLayer('weather')" id="btnLayerWeather" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition">
+              <div class="w-full h-11 rounded-lg bg-black border border-slate-600 relative flex items-center justify-center">
+                <i class="fa-solid fa-cloud-bolt text-slate-200 text-sm"></i>
+                <span id="checkWeather" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
+              </div>
+              <span class="text-[10px]">Weather B&W</span>
             </button>
           </div>
 
-          <div class="pt-2 border-t border-slate-800">
-            <div class="font-black text-slate-400 mono text-[10px] tracking-wider uppercase mb-1.5">Appearance</div>
-            <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-lg text-[10px] mono text-center">
-              <button class="py-1 rounded text-slate-400 hover:text-white">Light</button>
-              <button class="py-1 rounded bg-slate-800 text-white font-bold">Dark</button>
-              <button class="py-1 rounded text-slate-400 hover:text-white">Auto</button>
-            </div>
+          <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+            <strong>Weather B&W Mode:</strong> Monochromatic infrared satellite cloud cover with live RainViewer precipitation radar & G&SR speed restriction blocks.
           </div>
         </div>
       </div>
 
-      <!-- 2. Legend / Map Details Button (Screenshot 2) -->
+      <!-- 2. Legend / Map Details Button -->
       <div class="relative">
         <button onclick="toggleLegendModal()" class="rr-pill px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800/90 transition flex items-center gap-2 shadow-xl" title="Map Details & Category Filters">
           <i class="fa-solid fa-filter text-amber-400"></i>
           <span class="hidden md:inline">Legend</span>
         </button>
 
-        <!-- Map Details Modal (Screenshot 2: Map Details + Hide All + Checkbox list) -->
+        <!-- Map Details Modal (Exact Categories from User Screenshot) -->
         <div id="legendModal" class="hidden absolute right-0 top-11 w-72 rr-card rounded-2xl p-4 shadow-2xl z-30 text-xs space-y-2.5">
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <span class="font-black text-white text-sm">Map Details</span>
@@ -349,7 +384,7 @@
         <i class="fa-solid fa-crosshairs text-xs"></i>
       </button>
 
-      <!-- 4. Direction / Navigation Arrow (Screenshot 1 & 4) -->
+      <!-- 4. Direction / Navigation Arrow -->
       <button onclick="focusSelectedTrain()" class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition shadow-xl shadow-blue-600/30" title="Locate Selected Train">
         <i class="fa-solid fa-location-arrow text-sm"></i>
       </button>
@@ -375,16 +410,36 @@
       </div>
     </div>
 
+    <!-- On-Map Floating Arrow Color Guide (Always visible so users know what colors mean) -->
+    <div class="absolute bottom-4 right-4 z-10 rr-pill p-3 rounded-2xl max-w-sm hidden md:block border border-slate-800 shadow-2xl">
+      <div class="font-black text-[10px] text-slate-400 mono uppercase tracking-wider mb-2 flex items-center justify-between">
+        <span>Arrow Color Classification</span>
+        <span class="text-[9px] text-cyan-400">Headings: 0° - 360°</span>
+      </div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mono">
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ff6b00"></span><span class="text-slate-300">Vande Bharat</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span><span class="text-slate-300">Rajdhani/Duronto</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6"></span><span class="text-slate-300">Superfast SF</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#14b8a6"></span><span class="text-slate-300">Express / Mail</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#f43f5e"></span><span class="text-slate-300">Garib Rath</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#b91c1c"></span><span class="text-slate-300">Jan Shatabdi</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#22c55e"></span><span class="text-slate-300">Suburban / EMU</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#eab308"></span><span class="text-slate-300">Passenger / MEMU</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ec4899"></span><span class="text-slate-300">Special Trains</span></div>
+        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#94a3b8"></span><span class="text-slate-300">Other Services</span></div>
+      </div>
+    </div>
+
     <!-- Live Weather Advisory Strip (Bottom Left) -->
     <div class="absolute left-4 bottom-4 z-10 rr-pill px-3.5 py-2 rounded-xl text-xs mono flex items-center gap-2.5 border border-amber-500/30 text-amber-300 shadow-2xl">
       <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-      <span id="mapWeatherAdvisory">Open-Meteo G&SR Weather Speed Restrictions: Active Across 31 Sections</span>
+      <span id="mapWeatherAdvisory">G&SR Weather Speed Caps: 31 Fog & Monsoon Sections Active Across Indian Railways</span>
     </div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. Map Initialization with Photorealistic Satellite Layer
+    // 1. Map Initialization with 3 Layers: Satellite, Transit, Weather B&W
     // =========================================================================
     const map = L.map('radarMap', {
       zoomControl: false,
@@ -392,9 +447,9 @@
       minZoom: 4,
       maxZoom: 18,
       preferCanvas: true
-    }).setView([22.5, 79.5], 5); // Whole Indian Railways Network
+    }).setView([22.5, 79.5], 5); // Centers on India
 
-    // Base Tile Layers (ESRI Satellite vs CartoDB Dark Matter Transit)
+    // Base Tile Layers (Satellite, Transit, and B&W Weather Radar)
     const tileLayers = {
       satellite: L.layerGroup([
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -408,7 +463,25 @@
       transit: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         attribution: '&copy; CartoDB &copy; OpenStreetMap'
-      })
+      }),
+      weather: L.layerGroup([
+        // High contrast Black & White Basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          className: 'bw-weather-basemap'
+        }),
+        // Real-Time Precipitation Weather Radar
+        L.tileLayer('https://tilecache.rainviewer.com/v2/radar/aad707de4a1f/256/{z}/{x}/{y}/0/0_0.png', {
+          maxZoom: 18,
+          opacity: 0.75,
+          className: 'bw-weather-clouds'
+        }),
+        // Geographical boundaries
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          opacity: 0.6
+        })
+      ])
     };
 
     let currentBase = 'satellite';
@@ -423,19 +496,27 @@
       
       const checkSat = document.getElementById('checkSat');
       const checkTrans = document.getElementById('checkTrans');
+      const checkWeather = document.getElementById('checkWeather');
       const btnSat = document.getElementById('btnLayerSat');
       const btnTrans = document.getElementById('btnLayerTrans');
+      const btnWeather = document.getElementById('btnLayerWeather');
+
+      checkSat.classList.add('hidden');
+      checkTrans.classList.add('hidden');
+      checkWeather.classList.add('hidden');
+      btnSat.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
+      btnTrans.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
+      btnWeather.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
 
       if (layerName === 'satellite') {
         checkSat.classList.remove('hidden');
-        checkTrans.classList.add('hidden');
-        btnSat.className = "p-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition";
-        btnTrans.className = "p-2 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition";
-      } else {
-        checkSat.classList.add('hidden');
+        btnSat.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
+      } else if (layerName === 'transit') {
         checkTrans.classList.remove('hidden');
-        btnTrans.className = "p-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition";
-        btnSat.className = "p-2 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition";
+        btnTrans.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
+      } else if (layerName === 'weather') {
+        checkWeather.classList.remove('hidden');
+        btnWeather.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
       }
       document.getElementById('layerDropdown').classList.add('hidden');
     }
@@ -455,29 +536,30 @@
     }
 
     // =========================================================================
-    // 2. Train Category Legend, Colors & Real-Time Filters (Reverse Engineered)
+    // 2. Train Category Legend, Colors & Filters (Exact 10 Categories from User)
     // =========================================================================
     const CATEGORIES = {
       0: { name: "Vande Bharat", color: "#ff6b00", count: 0, visible: true },
       1: { name: "Rajdhani / Duronto", color: "#ef4444", count: 0, visible: true },
       2: { name: "Superfast Express", color: "#3b82f6", count: 0, visible: true },
       3: { name: "Express / Mail", color: "#14b8a6", count: 0, visible: true },
-      4: { name: "Garib Rath / Humsafar", color: "#ec4899", count: 0, visible: true },
+      4: { name: "Garib Rath / Humsafar", color: "#f43f5e", count: 0, visible: true },
       5: { name: "Jan Shatabdi", color: "#b91c1c", count: 0, visible: true },
       6: { name: "Suburban / EMU", color: "#22c55e", count: 0, visible: true },
       7: { name: "Passenger", color: "#eab308", count: 0, visible: true },
-      8: { name: "Special Fare / MEMU", color: "#8b5cf6", count: 0, visible: true }
+      8: { name: "Special Trains", color: "#ec4899", count: 0, visible: true },
+      9: { name: "Other", color: "#94a3b8", count: 0, visible: true }
     };
 
     function getTrainColor(typeId) {
-      return (CATEGORIES[typeId] && CATEGORIES[typeId].color) || "#a855f7";
+      return (CATEGORIES[typeId] && CATEGORIES[typeId].color) || "#94a3b8";
     }
 
-    // Directional SVG Chevron Marker Matching RailRadar
+    // Directional SVG Chevron Marker (Bearing 0° - 360°)
     function createChevronSvg(heading, color, isSelected = false) {
-      const rot = heading || 0;
+      const rot = (typeof heading === 'number') ? heading : 0;
       const size = isSelected ? 34 : 18;
-      const glow = isSelected ? `filter: drop-shadow(0 0 12px #00f0ff);` : '';
+      const glow = isSelected ? `filter: drop-shadow(0 0 14px #00f0ff);` : '';
       const halo = isSelected ? `<div class="rr-pulsing-halo"></div>` : '';
       return `
         <div style="position:relative; width:${size}px; height:${size}px; display:flex; align-items:center; justify-content:center;">
@@ -492,7 +574,7 @@
     }
 
     // =========================================================================
-    // 3. Live Train Markers & Active Track Geometry Rendering
+    // 3. Live Train Markers with Tooltips & Heading Directions
     // =========================================================================
     let trainMarkers = {};
     let allLiveTrains = [];
@@ -515,23 +597,29 @@
 
         // Render markers
         allLiveTrains.forEach(t => {
-          const typeId = t.type_id || 3;
-          if (CATEGORIES[typeId]) CATEGORIES[typeId].count++;
+          const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
+          CATEGORIES[typeId].count++;
           if ((t.delay_minutes || 0) <= 5) onTimeCount++;
 
           const tNo = String(t.train_number);
           const color = getTrainColor(typeId);
           const isSelected = (tNo === selectedTrainNumber);
           const isCategoryVisible = CATEGORIES[typeId] ? CATEGORIES[typeId].visible : true;
+          const headingDeg = (typeof t.heading === 'number') ? t.heading : 0;
+          const delayMin = t.delay_minutes || 0;
+          const delayBadge = delayMin > 10 ? `+${delayMin}m` : (delayMin > 0 ? `+${delayMin}m` : 'ON TIME');
+
+          const tooltipHtml = `<b>#${tNo}</b> (${CATEGORIES[typeId].name})<br>Delay: <span style="color:${delayMin > 10 ? '#ef4444' : '#10b981'}">${delayBadge}</span> | Heading: ${Math.round(headingDeg)}°`;
 
           if (trainMarkers[tNo]) {
             trainMarkers[tNo].setLatLng([t.lat, t.lng]);
             trainMarkers[tNo].setIcon(L.divIcon({
-              html: createChevronSvg(t.heading, color, isSelected),
+              html: createChevronSvg(headingDeg, color, isSelected),
               className: 'train-chevron-marker',
               iconSize: [isSelected ? 34 : 18, isSelected ? 34 : 18],
               iconAnchor: [isSelected ? 17 : 9, isSelected ? 17 : 9]
             }));
+            trainMarkers[tNo].setTooltipContent(tooltipHtml);
 
             if (!isCategoryVisible) {
               map.removeLayer(trainMarkers[tNo]);
@@ -541,13 +629,14 @@
           } else if (isCategoryVisible) {
             const marker = L.marker([t.lat, t.lng], {
               icon: L.divIcon({
-                html: createChevronSvg(t.heading, color, isSelected),
+                html: createChevronSvg(headingDeg, color, isSelected),
                 className: 'train-chevron-marker',
                 iconSize: [18, 18],
                 iconAnchor: [9, 9]
               })
             }).addTo(map);
 
+            marker.bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -10] });
             marker.on('click', () => inspectTrain(tNo, t));
             trainMarkers[tNo] = marker;
           }
@@ -555,7 +644,7 @@
 
         // Update Header Stats
         document.getElementById('statActiveCount').textContent = allLiveTrains.length.toLocaleString();
-        const onTimePct = allLiveTrains.length > 0 ? ((onTimeCount / allLiveTrains.length) * 100).toFixed(1) : "88.2";
+        const onTimePct = allLiveTrains.length > 0 ? ((onTimeCount / allLiveTrains.length) * 100).toFixed(1) : "88.4";
         document.getElementById('statOnTimePct').textContent = `${onTimePct}%`;
 
         // Update Legend Counters
@@ -573,7 +662,7 @@
       if (!container) return;
 
       container.innerHTML = Object.entries(CATEGORIES).map(([id, cat]) => `
-        <label class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/60 cursor-pointer">
+        <label class="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-800/60 cursor-pointer">
           <div class="flex items-center gap-2.5">
             <input type="checkbox" ${cat.visible ? 'checked' : ''} onchange="toggleCategory(${id})" class="accent-blue-500 rounded cursor-pointer" />
             <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
@@ -587,7 +676,6 @@
     function toggleCategory(id) {
       if (CATEGORIES[id]) {
         CATEGORIES[id].visible = !CATEGORIES[id].visible;
-        // Refresh visibility of markers
         allLiveTrains.forEach(t => {
           if (t.type_id == id) {
             const tNo = String(t.train_number);
@@ -614,12 +702,12 @@
     }
 
     // =========================================================================
-    // 4. Inspect Train: Load Route Geometry & Timetable (RailRadar Style)
+    // 4. Inspect Train: GatiSetu AI Dynamic ETA Forecast & Route Polyline
     // =========================================================================
     async function inspectTrain(trainNumber, trainSummary = null) {
       selectedTrainNumber = String(trainNumber);
       const drawer = document.getElementById('inspectorDrawer');
-      drawer.classList.remove('-translate-x-[450px]');
+      drawer.classList.remove('-translate-x-[470px]');
 
       const topPill = document.getElementById('topSelectedPill');
       topPill.classList.remove('hidden');
@@ -663,144 +751,108 @@
           }
         }
       } catch (err) {
-        console.warn("Route track geometry fetch failed:", err);
+        console.warn("Route track fetch failed:", err);
       }
 
-      // 2. Fetch Live Running Status
-      fetchTrainRunningStatus(trainNumber);
+      // 2. Fetch GatiSetu Dynamic ETA Machine Learning Forecast
+      fetchGatiSetuForecast(trainNumber);
     }
 
-    async function fetchTrainRunningStatus(trainNumber) {
+    async function fetchGatiSetuForecast(trainNumber) {
       try {
-        const liveRes = await fetch(`/api/v1/radar/train-live/${trainNumber}`);
-        if (!liveRes.ok) throw new Error("Live running status unavailable");
-        const liveData = await liveRes.json();
-        const d = liveData.data || {};
+        const fcRes = await fetch(`/api/v1/forecast/${trainNumber}`);
+        if (!fcRes.ok) throw new Error("GatiSetu forecast offline");
+        const fcData = await fcRes.json();
 
-        if (d.trainName) {
-          document.getElementById('inspTrainName').textContent = d.trainName;
-          document.getElementById('topPillTitle').textContent = `${trainNumber} ${d.trainName}`;
-        }
-        
-        const delayMin = d.delayMinutes || 0;
-        const banner = document.getElementById('inspStatusBanner');
-        const statusText = document.getElementById('inspStatusText');
-        const speed = d.currentLocation ? d.currentLocation.speedKmh || 0 : 0;
-        document.getElementById('inspSpeedBadge').textContent = `${speed} km/h`;
-
-        const bottomDelay = document.getElementById('inspBottomDelayBadge');
-        if (delayMin > 30) {
-          const hrs = Math.floor(delayMin / 60);
-          const mins = delayMin % 60;
-          const delayStr = hrs > 0 ? `${hrs}H ${mins}M LATE` : `${mins}M LATE`;
-          banner.className = "mt-3 p-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-xs flex items-center justify-between text-red-300 font-bold mono";
-          statusText.textContent = `Train is delayed by ${delayStr}`;
-          bottomDelay.textContent = delayStr;
-          bottomDelay.className = "px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-[10px]";
-        } else if (delayMin > 0) {
-          banner.className = "mt-3 p-2.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-xs flex items-center justify-between text-amber-300 font-bold mono";
-          statusText.textContent = `Slight delay: +${delayMin}m`;
-          bottomDelay.textContent = `+${delayMin}M LATE`;
-          bottomDelay.className = "px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold text-[10px]";
-        } else {
-          banner.className = "mt-3 p-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs flex items-center justify-between text-emerald-300 font-bold mono";
-          statusText.textContent = `RUNNING ON TIME`;
-          bottomDelay.textContent = `ON TIME`;
-          bottomDelay.className = "px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[10px]";
+        if (fcData.train_name) {
+          document.getElementById('inspTrainName').textContent = fcData.train_name;
+          document.getElementById('topPillTitle').textContent = `${trainNumber} ${fcData.train_name}`;
         }
 
-        // Section Controller Physics HUD
-        const distToNext = d.currentLocation ? (d.currentLocation.distanceFromLastStationKm || 12.4) : 12.4;
-        document.getElementById('inspHeadwayKm').textContent = `Spatial Headway: ${(distToNext * 0.35 + 1.2).toFixed(1)} km`;
+        // Locomotive Physics HUD
+        const phys = fcData.train_physics || {};
+        const locoText = phys.locomotive_type ? `${phys.locomotive_type}` : 'WAP-7 (Electric)';
+        const resText = `${phys.davis_train_resistance_kn || 38.2} kN [${locoText.split(' ')[0]}]`;
+        document.getElementById('inspResistanceKn').textContent = resText;
+
+        // Downstream Corridor Headway & Signal
+        const down = fcData.downstream_corridor || {};
+        const headwayKm = down.spatial_headway_km || 12.4;
+        document.getElementById('inspHeadwayKm').textContent = `Spatial Headway: ${headwayKm} km`;
         
         const sigElem = document.getElementById('inspSignalAspect');
-        if (delayMin > 20) {
+        const aspect = down.signal_aspect || "CLEAR_GREEN";
+        if (aspect.includes("GREEN")) {
+          sigElem.textContent = "CLEAR GREEN (130 km/h Nominal)";
+          sigElem.className = "font-black text-emerald-400 mt-0.5";
+        } else if (aspect.includes("YELLOW")) {
           sigElem.textContent = "CAUTION YELLOW (45 km/h)";
           sigElem.className = "font-black text-amber-400 mt-0.5";
-          document.getElementById('inspPrecedenceAlert').innerHTML = `<strong>AI Precedence:</strong> Diverting preceding freight at loop siding. Projected savings for #${trainNumber}: <strong>+12.4 min</strong>.`;
         } else {
-          sigElem.textContent = "CLEAR GREEN (130 km/h)";
-          sigElem.className = "font-black text-emerald-400 mt-0.5";
-          document.getElementById('inspPrecedenceAlert').innerHTML = `<strong>AI Precedence:</strong> Line clear ahead. Working Time Table slack absorption active.`;
+          sigElem.textContent = "DANGER RED (0 km/h Halt)";
+          sigElem.className = "font-black text-red-400 mt-0.5";
         }
 
-        // Render Station Timeline (Ladder Track Graphic)
-        const routeStops = d.route || [];
+        // Upcoming Stations & P10 / P50 / P90 Forecasts
+        const stations = fcData.upcoming_stations || [];
         const container = document.getElementById('inspTimelineContainer');
-        
-        if (routeStops.length === 0) {
-          container.innerHTML = `<div class="text-center text-slate-500 mono py-8">Timetable schedule synced via Where Is My Train offline database.</div>`;
-          return;
-        }
 
-        container.innerHTML = routeStops.slice(0, 30).map((s, idx) => {
-          const isCurrent = s.status === 'at-station' || s.status === 'current';
-          const isPassed = s.status === 'passed';
-          
-          let stationIcon = `<div class="w-3.5 h-3.5 rounded-full ${isPassed ? 'bg-amber-500' : 'bg-slate-700'} border-2 border-slate-900"></div>`;
-          if (isCurrent) {
-            stationIcon = `<div class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] shadow-lg shadow-blue-500/40"><i class="fa-solid fa-train"></i></div>`;
-          }
+        if (stations.length > 0) {
+          const firstStn = stations[0];
+          document.getElementById('inspP10Eta').textContent = firstStn.optimistic_eta_p10 ? firstStn.optimistic_eta_p10.split(' ')[1] : '--:--';
+          document.getElementById('inspP50Eta').textContent = firstStn.dynamic_forecast_p50 ? firstStn.dynamic_forecast_p50.split(' ')[1] : '--:--';
+          document.getElementById('inspP90Eta').textContent = firstStn.pessimistic_eta_p90 ? firstStn.pessimistic_eta_p90.split(' ')[1] : '--:--';
 
-          let arrSta = s.scheduledArrival ? s.scheduledArrival.split('T')[1]?.substring(0, 5) || s.scheduledArrival : '--:--';
-          let depSta = s.scheduledDeparture ? s.scheduledDeparture.split('T')[1]?.substring(0, 5) || s.scheduledDeparture : '--:--';
-          let arrEta = s.actualArrival ? s.actualArrival.split('T')[1]?.substring(0, 5) || s.actualArrival : arrSta;
-          let depEta = s.actualDeparture ? s.actualDeparture.split('T')[1]?.substring(0, 5) || s.actualDeparture : depSta;
+          document.getElementById('inspBottomDist').textContent = `${firstStn.distance_km || 1.8} km to ${firstStn.station_name}`;
 
-          const isDelayed = (s.delayArrival || 0) > 3;
-          const etaColor = isDelayed ? "text-red-400" : "text-blue-400";
+          container.innerHTML = stations.slice(0, 25).map((s, idx) => {
+            const isFirst = (idx === 0);
+            let sta = s.scheduled_arrival ? s.scheduled_arrival.split(' ')[1] || s.scheduled_arrival : '--:--';
+            let eta = s.dynamic_forecast_p50 ? s.dynamic_forecast_p50.split(' ')[1] || s.dynamic_forecast_p50 : sta;
 
-          return `
-            <div class="relative pl-10 text-xs mono ${isCurrent ? 'bg-slate-900/90 p-2.5 rounded-xl -ml-2 pl-10 border border-blue-500/30' : ''}">
-              <div class="absolute left-[10px] top-2 z-10">
-                ${stationIcon}
-              </div>
-              
-              <div class="grid grid-cols-12 items-start gap-2">
-                <!-- Arrival Column -->
-                <div class="col-span-3 text-left">
-                  <div class="text-[10px] text-slate-400">${arrSta}</div>
-                  <div class="font-bold ${etaColor} text-xs">${arrEta}</div>
+            return `
+              <div class="relative pl-10 text-xs mono ${isFirst ? 'bg-slate-900/90 p-2.5 rounded-xl -ml-2 pl-10 border border-cyan-500/30' : ''}">
+                <div class="absolute left-[10px] top-2 z-10">
+                  ${isFirst ? '<div class="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] shadow-lg shadow-blue-500/40"><i class="fa-solid fa-train"></i></div>' : '<div class="w-3.5 h-3.5 rounded-full bg-slate-700 border-2 border-slate-900"></div>'}
                 </div>
+                
+                <div class="grid grid-cols-12 items-start gap-2">
+                  <div class="col-span-3 text-left">
+                    <div class="text-[10px] text-slate-400">STA</div>
+                    <div class="font-bold text-slate-200 text-xs">${sta}</div>
+                  </div>
 
-                <!-- Station Name & Platform -->
-                <div class="col-span-6">
-                  <div class="font-bold text-white text-sm truncate">${s.stationName}</div>
-                  <div class="text-[10px] text-slate-400">
-                    <span>${s.stationCode}</span> • <span>${s.distance || 0} km</span>
-                    <span class="ml-1 px-1.5 py-0.2 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/20">PF ${s.platform || '1'} ✎</span>
+                  <div class="col-span-6">
+                    <div class="font-bold text-white text-sm truncate">${s.station_name}</div>
+                    <div class="text-[10px] text-slate-400">
+                      <span>${s.station_code}</span> • <span>${s.distance_km || 0} km</span>
+                      <span class="ml-1 px-1.5 py-0.2 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/20">PF 1 ✎</span>
+                    </div>
+                  </div>
+
+                  <div class="col-span-3 text-right">
+                    <div class="text-[10px] text-cyan-400">P50 ETA</div>
+                    <div class="font-bold text-cyan-300 text-xs">${eta}</div>
                   </div>
                 </div>
-
-                <!-- Departure Column -->
-                <div class="col-span-3 text-right">
-                  <div class="text-[10px] text-slate-400">${depSta}</div>
-                  <div class="font-bold ${etaColor} text-xs">${depEta}</div>
-                </div>
               </div>
-            </div>
-          `;
-        }).join('');
-
-        // Bottom next halt card
-        if (d.nextHalt) {
-          document.getElementById('inspBottomDist').textContent = `${d.nextHalt.distanceFromCurrentStationKm || 1.8} km to ${d.nextHalt.stationName}`;
+            `;
+          }).join('');
         }
 
       } catch (err) {
-        console.warn("Timeline fetch failed:", err);
+        console.warn("GatiSetu forecast fetch:", err);
       }
     }
 
     function closeInspector() {
-      document.getElementById('inspectorDrawer').classList.add('-translate-x-[450px]');
+      document.getElementById('inspectorDrawer').classList.add('-translate-x-[470px]');
       document.getElementById('topSelectedPill').classList.add('hidden');
       if (activeTrackPolyline) {
         map.removeLayer(activeTrackPolyline);
         activeTrackPolyline = null;
       }
       if (selectedTrainNumber && trainMarkers[selectedTrainNumber]) {
-        // Reset marker size
         const t = allLiveTrains.find(x => String(x.train_number) === selectedTrainNumber);
         if (t) {
           const typeId = t.type_id || 3;

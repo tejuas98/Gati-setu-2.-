@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GATI-SETU | Public Station Concourse PIDS LED Display</title>
+  <title>GATI-SETU | PASSENGER INFORMATION DISPLAY SYSTEM (PIDS)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -34,25 +34,51 @@
           <h1 class="font-black text-xl tracking-wider text-white">GATI-SETU : PASSENGER INFORMATION DISPLAY SYSTEM (PIDS) LED BOARD</h1>
           <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold mono">PS 26028 CONCOURSE FEED</span>
         </div>
-        <p class="text-xs text-slate-400">PASSENGER INFORMATION DISPLAY SYSTEM | Dual-Clock Transparency (STA vs Dynamic ETA) & Platform Conflict Guard</p>
+        <p class="text-xs text-slate-400">PASSENGER INFORMATION DISPLAY SYSTEM | Dual-Clock Transparency (STA vs Dynamic ETA) & Platform Conflict Guard Across 10,083 Indian Stations</p>
       </div>
     </div>
 
-    <!-- Station Selector & Clock -->
-    <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+    <!-- Station Search, Selector & Clock -->
+    <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
+      
+      <!-- Instant Search Input across 10,083 Stations -->
+      <div class="relative w-64 md:w-72">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+        <input 
+          id="stationSearchInput" 
+          type="text" 
+          placeholder="Search 10,083 stations (e.g. KOTA, KZJ, BPL)..." 
+          oninput="handleStationSearch(this.value)"
+          class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 mono transition"
+        />
+        <div id="stationSearchResults" class="hidden absolute left-0 top-9 w-full bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-800 mono text-xs"></div>
+      </div>
+
+      <!-- Station Selector Dropdown -->
       <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 gap-2 shadow-inner">
-        <span class="text-xs text-slate-400 font-semibold">STATION:</span>
+        <span class="text-xs text-slate-400 font-semibold">STN:</span>
         <select id="stationSelect" onchange="switchStation()" class="bg-transparent border-0 text-sm font-black text-amber-400 focus:outline-none mono cursor-pointer">
-          <option value="NDLS" class="bg-slate-900 text-white">NDLS - New Delhi Junction</option>
-          <option value="CNB" class="bg-slate-900 text-white">CNB - Kanpur Central</option>
-          <option value="MMCT" class="bg-slate-900 text-white">MMCT - Mumbai Central</option>
-          <option value="HWH" class="bg-slate-900 text-white">HWH - Howrah Junction</option>
-          <option value="BZA" class="bg-slate-900 text-white">BZA - Vijayawada Junction</option>
-          <option value="GZB" class="bg-slate-900 text-white">GZB - Ghaziabad Junction</option>
-          <option value="DDU" class="bg-slate-900 text-white">DDU - Pt. DD Upadhyaya Junction</option>
-          <option value="PRYJ" class="bg-slate-900 text-white">PRYJ - Prayagraj Junction</option>
-          <option value="BRC" class="bg-slate-900 text-white">BRC - Vadodara Junction</option>
-          <option value="BVI" class="bg-slate-900 text-white">BVI - Borivali</option>
+          <option value="NDLS">NDLS - New Delhi (NR)</option>
+          <option value="CNB">CNB - Kanpur Central (NCR)</option>
+          <option value="MMCT">MMCT - Mumbai Central (WR)</option>
+          <option value="CSMT">CSMT - Mumbai CST (CR)</option>
+          <option value="HWH">HWH - Howrah Junction (ER)</option>
+          <option value="BZA">BZA - Vijayawada Junction (SCR)</option>
+          <option value="KZJ">KZJ - Kazipet Junction (SCR)</option>
+          <option value="KOTA">KOTA - Kota Junction (WCR)</option>
+          <option value="BPL">BPL - Bhopal Junction (WCR)</option>
+          <option value="AGC">AGC - Agra Cantt (NCR)</option>
+          <option value="GZB">GZB - Ghaziabad Junction (NR)</option>
+          <option value="DDU">DDU - Pt. DD Upadhyaya (ECR)</option>
+          <option value="PRYJ">PRYJ - Prayagraj Junction (NCR)</option>
+          <option value="BRC">BRC - Vadodara Junction (WR)</option>
+          <option value="BVI">BVI - Borivali (WR)</option>
+          <option value="MAS">MAS - Chennai Central (SR)</option>
+          <option value="SBC">SBC - KSR Bengaluru (SWR)</option>
+          <option value="PNBE">PNBE - Patna Junction (ECR)</option>
+          <option value="LKO">LKO - Lucknow Charbagh (NR)</option>
+          <option value="ADI">ADI - Ahmedabad Junction (WR)</option>
+          <option value="GHY">GHY - Guwahati (NFR)</option>
         </select>
       </div>
 
@@ -68,12 +94,28 @@
     </div>
   </header>
 
+  <!-- Popular Major Railway Hubs Bar across all Zones -->
+  <div class="max-w-[1720px] w-full mx-auto mt-2 flex items-center gap-2 overflow-x-auto pb-1 text-[11px] mono text-slate-400">
+    <span class="text-slate-500 font-bold uppercase text-[10px] shrink-0">MAJOR HUBS:</span>
+    <button onclick="selectStation('NDLS')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 shrink-0">NDLS (New Delhi)</button>
+    <button onclick="selectStation('HWH')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">HWH (Howrah)</button>
+    <button onclick="selectStation('CNB')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">CNB (Kanpur)</button>
+    <button onclick="selectStation('KZJ')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800 shrink-0">KZJ (Kazipet)</button>
+    <button onclick="selectStation('KOTA')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 shrink-0">KOTA (Kota)</button>
+    <button onclick="selectStation('BZA')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">BZA (Vijayawada)</button>
+    <button onclick="selectStation('MMCT')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">MMCT (Mumbai Central)</button>
+    <button onclick="selectStation('MAS')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">MAS (Chennai)</button>
+    <button onclick="selectStation('SBC')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">SBC (Bengaluru)</button>
+    <button onclick="selectStation('PNBE')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">PNBE (Patna)</button>
+    <button onclick="selectStation('ADI')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">ADI (Ahmedabad)</button>
+  </div>
+
   <!-- Educational Purpose Banner explaining Functions & Use -->
   <div class="max-w-[1720px] w-full mx-auto my-3 p-3.5 rounded-xl bg-blue-950/30 border border-blue-500/30 text-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
     <div class="flex items-start gap-2.5">
       <span class="px-2 py-0.5 rounded bg-blue-500 text-white font-extrabold text-[10px] mono uppercase tracking-wider mt-0.5">What is PIDS?</span>
       <p class="text-slate-300 leading-relaxed text-[11px]">
-        Mounted on railway station concourses and over platform overbridges, the <strong>Passenger Information Display System (PIDS)</strong> fulfills Problem Statement 26028 by providing <strong>dual-clock arrival transparency</strong>: it compares the static timetable <span class="text-slate-200 font-bold">Scheduled Arrival (STA)</span> against GatiSetu's physics-informed <span class="text-cyan-400 font-bold">Dynamic Expected Arrival (ETA)</span>, assigns real platform berths, and broadcasts automated 15-minute platform starvation/conflict alerts.
+        Mounted on railway station concourses and platform overbridges across all 10,083 stations, the <strong>Passenger Information Display System (PIDS)</strong> fulfills Problem Statement 26028 by providing <strong>dual-clock arrival transparency</strong>: it compares the static timetable <span class="text-slate-200 font-bold">Scheduled Arrival (STA)</span> against GatiSetu's physics-informed <span class="text-cyan-400 font-bold">Dynamic Expected Arrival (ETA)</span>, assigns real platform berths, and broadcasts automated 15-minute platform starvation/conflict alerts.
       </p>
     </div>
     <div class="flex items-center gap-2 shrink-0 text-[11px] mono">
@@ -98,44 +140,42 @@
   <main class="max-w-[1720px] w-full mx-auto flex-1 led-board rounded-2xl p-4 md:p-6 flex flex-col overflow-hidden">
     
     <!-- LED Column Headers -->
-    <div class="grid grid-cols-12 gap-2 pb-3 mb-2 border-b border-slate-800 text-[11px] font-black tracking-wider mono uppercase text-slate-400 px-3">
-      <div class="col-span-1 text-amber-400">TRAIN #</div>
-      <div class="col-span-3 text-white">TRAIN NAME & SERVICE CATEGORY</div>
-      <div class="col-span-2 text-slate-300">DESTINATION</div>
-      <div class="col-span-1 text-center text-slate-300">SCHEDULED (STA)</div>
+    <div class="grid grid-cols-12 gap-2 pb-3 mb-2 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider mono">
+      <div class="col-span-1">TRAIN #</div>
+      <div class="col-span-3">TRAIN NAME & SERVICE CATEGORY</div>
+      <div class="col-span-2">DESTINATION</div>
+      <div class="col-span-1 text-center">SCHEDULED (STA)</div>
       <div class="col-span-1 text-center text-cyan-400">DYNAMIC ETA (AI)</div>
-      <div class="col-span-1 text-center text-amber-300">DELAY</div>
-      <div class="col-span-1 text-center text-white">PF #</div>
-      <div class="col-span-2 text-right text-emerald-400">BERTH & CONFLICT STATUS</div>
+      <div class="col-span-1 text-center">DELAY</div>
+      <div class="col-span-1 text-center text-amber-400">PF #</div>
+      <div class="col-span-2 text-right">BERTH & CONFLICT STATUS</div>
     </div>
 
-    <!-- Live Rows Container -->
-    <div id="pidsRowsContainer" class="flex-1 divide-y divide-slate-800/60 overflow-y-auto">
+    <!-- Scrolling/List Container for Inbound Trains -->
+    <div id="pidsRowsContainer" class="flex-1 overflow-y-auto divide-y divide-slate-800/80">
       <div class="py-16 text-center text-slate-500 mono text-xs animate-pulse">
-        CONNECTING TO NATIONAL RAILWAY RADAR & PIDS DISPATCH ENGINE...
+        CONNECTING TO GATI-SETU DYNAMIC DISPATCH FEED...
       </div>
     </div>
 
-    <!-- Board Footer Summary -->
-    <div class="border-t border-slate-800 pt-3 mt-3 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-400 mono gap-2">
-      <div class="flex items-center gap-5">
-        <span>TOTAL INBOUND: <strong id="totalInboundCount" class="text-white font-bold">0</strong></span>
-        <span>PLATFORM CONFLICTS: <strong id="totalConflictsCount" class="text-emerald-400 font-bold">0</strong></span>
-        <span>STATION STATUS: <strong id="stationOperationalStatus" class="text-emerald-400 font-bold">NORMAL FLOW</strong></span>
+    <!-- Concourse Summary Footer -->
+    <footer class="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs mono text-slate-400 gap-2 shrink-0">
+      <div class="flex items-center gap-4">
+        <span>TOTAL INBOUND (4-HR WINDOW): <strong id="totalInboundCount" class="text-white">--</strong></span>
+        <span>PLATFORM CONFLICTS DETECTED: <strong id="totalConflictsCount" class="text-emerald-400 font-bold">0</strong></span>
       </div>
-      <div>
-        <span>POWERED BY GATI-SETU DYNAMIC ML FORECASTING ENGINE (PS ID: 26028)</span>
+      <div class="flex items-center gap-2 text-[11px]">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="text-slate-300">DISPATCH ALGORITHM: SPATIO-TEMPORAL PLATFORM BUFFER (15 MIN HEADWAY GUARD)</span>
       </div>
-    </div>
+    </footer>
   </main>
 
   <script>
     function updateClock() {
       const now = new Date();
-      const hrs = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const sec = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('liveClock').textContent = `${hrs}:${min}:${sec} IST`;
+      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
+      document.getElementById('liveClock').textContent = timeStr;
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -144,20 +184,90 @@
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     if (pathParts.length >= 2 && pathParts[0] === 'pids') {
       const urlStn = pathParts[1].toUpperCase();
-      const select = document.getElementById('stationSelect');
-      if (select) {
-        for (let i = 0; i < select.options.length; i++) {
-          if (select.options[i].value === urlStn) {
-            select.selectedIndex = i;
-            break;
-          }
-        }
-      }
+      selectStation(urlStn);
     }
 
     function switchStation() {
       fetchPIDSData();
     }
+
+    function selectStation(code) {
+      const select = document.getElementById('stationSelect');
+      if (!select) return;
+      
+      let found = false;
+      for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === code) {
+          select.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = `${code} - Station`;
+        select.appendChild(opt);
+        select.value = code;
+      }
+      fetchPIDSData();
+    }
+
+    // High-speed station search autocomplete
+    let searchTimeout = null;
+    async function handleStationSearch(val) {
+      clearTimeout(searchTimeout);
+      const resBox = document.getElementById('stationSearchResults');
+      const q = val.trim().toUpperCase();
+      if (!q || q.length < 1) {
+        resBox.classList.add('hidden');
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/v1/stations/search?q=${encodeURIComponent(q)}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const list = data.stations || [];
+
+          if (list.length === 0) {
+            resBox.innerHTML = `<div class="p-2.5 text-slate-500 text-[11px]">No matching station in 10,083 Indian Railways stations</div>`;
+            resBox.classList.remove('hidden');
+            return;
+          }
+
+          resBox.innerHTML = list.map(s => `
+            <div onclick="selectFromSearch('${s.code}')" class="p-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between transition">
+              <div>
+                <strong class="text-amber-400">${s.code}</strong>
+                <span class="text-white ml-1.5">${s.name}</span>
+                ${s.city ? `<span class="text-[10px] text-slate-400 ml-1">(${s.city})</span>` : ''}
+              </div>
+              <span class="text-[10px] text-slate-500">Pop: ${s.pop || 0}</span>
+            </div>
+          `).join('');
+          resBox.classList.remove('hidden');
+        } catch (e) {
+          console.warn("Station search failed:", e);
+        }
+      }, 150);
+    }
+
+    function selectFromSearch(code) {
+      document.getElementById('stationSearchResults').classList.add('hidden');
+      document.getElementById('stationSearchInput').value = code;
+      selectStation(code);
+    }
+
+    // Close search on click outside
+    document.addEventListener('click', (e) => {
+      const box = document.getElementById('stationSearchResults');
+      const input = document.getElementById('stationSearchInput');
+      if (!box.contains(e.target) && e.target !== input) {
+        box.classList.add('hidden');
+      }
+    });
 
     async function fetchPIDSData() {
       const stn = document.getElementById('stationSelect').value;

@@ -81,15 +81,15 @@ class RailRadarClient:
     def get_live_radar_map(self) -> List[Dict[str, Any]]:
         """
         Fetch nationwide live radar. Unpacks the compact 13-tuple array into structured objects.
-        Tuple mapping:
+        Tuple mapping (reverse-engineered from RailRadar vector protocol):
           [0]: trainNumber
-          [1]: typeId
-          [2]: delayMinutes
-          [3]: latitude
-          [4]: longitude
-          [5]: distanceAlongRouteKm
-          [6]: speedKmh
-          [7]: headingDegrees
+          [1]: typeId (0: Vande Bharat, 1: Rajdhani, 2: SF, 3: Express, 4: Garib Rath, 5: Jan Shatabdi, 6: Suburban, 7: Passenger, 8: Special, 9: Other)
+          [2]: statusCode (0: Running, 1: Rescheduled, 2: Diverted)
+          [3]: latitude (float)
+          [4]: longitude (float)
+          [5]: headingDegrees (float 0.0 to 360.0 bearing along rail track)
+          [6]: delayMinutes (int signed minutes late/early)
+          [7]: directionFlag (0: Down, 1: Up)
           [8]: statusFlag (1 = active)
           [9]: lastStationCode
           [10]: lastStationDistanceKm
@@ -103,15 +103,25 @@ class RailRadarClient:
         parsed = []
         for t in raw["data"]:
             if len(t) >= 13:
+                try:
+                    heading_val = float(t[5])
+                except (ValueError, TypeError):
+                    heading_val = 0.0
+
+                try:
+                    delay_val = int(t[6])
+                except (ValueError, TypeError):
+                    delay_val = 0
+
                 parsed.append({
                     "train_number": t[0],
                     "type_id": t[1],
-                    "delay_minutes": t[2],
-                    "lat": t[3],
-                    "lng": t[4],
-                    "distance_km": t[5],
-                    "speed_kmh": t[6],
-                    "heading": t[7],
+                    "status_code": t[2],
+                    "lat": float(t[3]),
+                    "lng": float(t[4]),
+                    "heading": heading_val,
+                    "delay_minutes": delay_val,
+                    "direction": t[7],
                     "is_active": bool(t[8]),
                     "last_station": t[9],
                     "last_station_dist_km": t[10],
