@@ -203,3 +203,4 @@ The system provides:
 3. Orthogonal snapping to official railway track centerlines and kilometer posts.
 4. Robust crowdsourced consensus filtering across multiple edge devices per train.
 5. High-throughput RESTful ingestion and batch offline synchronization APIs.
+

@@ -575,3 +575,4 @@ if __name__ == "__main__":
     print(f"    Consensus Lat/Lng: {status2.consensus_lat}, {status2.consensus_lng}")
     print(f"    Speed: {status2.consensus_speed_kmh} km/h, In-Train Confidence: {status2.in_train_confidence_pct}%")
     print(f"    Matched Corridor: {status2.matched_corridor}, Active Devices: {status2.active_edge_devices_count}")
+

@@ -206,3 +206,4 @@ flowchart TD
 The GatiSetu mobile client fulfills **100%** of **Requirement 1: Passenger Real-Time Delivery & Visualization**. 
 
 It transitions the passenger experience from legacy, static delays into a transparent, physics-grounded, and resilient railway tracking system that operates seamlessly across both high-speed cellular networks and complete offline environments.
+
