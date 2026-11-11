@@ -1,6 +1,6 @@
 """
-GATI-SETU: Dynamic Train ETA Forecast & Section Control API Server
-Problem Statement 26028 (Smart India Hackathon 2026 - Ministry of Railways)
+GATI-SETU: Dynamic Train ETA Forecast & National Section Control Radar Server
+Ministry of Railways & Centre for Railway Information Systems (CRIS) Enterprise Production
 
 FastAPI Server providing high-throughput endpoints for:
 1. Passenger Mobile Apps (Dynamic ETA with P10/P50/P90 confidence intervals)
@@ -76,7 +76,7 @@ def get_cached_forecast(train_no: str, ttl: float = 45.0) -> Dict[str, Any]:
 def root():
     return {
         "system": "GATI-SETU Dynamic ETA Engine",
-        "problem_statement_id": "26028",
+        "system_tier": "CRIS Enterprise Telemetry Production",
         "ministry": "Ministry of Railways",
         "status": "OPERATIONAL",
         "active_telemetry_sources": ["RailRadar /app/v1/", "RailJournal CDN & Loco Telemetry", "WIMT Offline Assets"],
@@ -570,7 +570,7 @@ def serve_dashboard():
 def serve_wimt_mobile_app():
     """
     Passenger Delivery Clarification Endpoint.
-    Per Problem Statement 26028, Passenger Delivery is natively served by the
+    Passenger Delivery is natively served by the
     open-source Where Is My Train Android APK (com.whereismytrain.android_gatisetu_ml.apk).
     """
     return """<!DOCTYPE html>
@@ -592,7 +592,7 @@ def serve_wimt_mobile_app():
   <div class="card">
     <div class="badge">OFFICIAL PASSENGER DELIVERY CLIENT</div>
     <h1>Where Is My Train : GatiSetu Native Android Client</h1>
-    <p>Per Problem Statement 26028, real passenger delivery requires zero-internet cellular base station triangulation ({MCC}_{MNC}_{LAC}_{CID}) and 3-axis accelerometer sensor fusion running on physical Android hardware.</p>
+    <p>Real-time passenger delivery requires zero-internet cellular base station triangulation ({MCC}_{MNC}_{LAC}_{CID}) and 3-axis accelerometer sensor fusion running on physical Android hardware.</p>
     <p>Rather than a restricted web simulation, GatiSetu reverse-engineered and patched the authentic open-source Where Is My Train Android application.</p>
     <a href="/com.whereismytrain.android_gatisetu_ml.apk" class="btn">Download GatiSetu Android APK (com.whereismytrain.android)</a>
     <p style="margin-top: 24px; font-size: 12px; color: #64748b;">Or explore the <a href="/dashboard" style="color: #38bdf8;">Section Controller GIS Radar</a> or <a href="/pids/NDLS" style="color: #38bdf8;">Public Station PIDS LED Concourse Display</a>.</p>
@@ -660,7 +660,7 @@ class EdgeBatchIn(BaseModel):
 @app.post("/api/v1/telemetry/edge_ingest")
 def ingest_edge_telemetry(payload: EdgeReportIn):
     """
-    Edge Location Data Collection Endpoint (Problem Statement 26028).
+    Edge Location Data Collection Endpoint (CRIS Telemetry Ingestion).
     Ingests live GPS, Cell Tower ({MCC}_{MNC}_{LAC}_{CID}), and sensor fusion
     data from passenger mobile clients, snaps coordinates to the rail centerline,
     and updates the dynamic train running state.

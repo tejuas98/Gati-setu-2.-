@@ -57,9 +57,11 @@ def render_phase_1(frame_idx, total_p1_frames=30):
     # Progress [0, 1]
     prog = frame_idx / float(total_p1_frames - 1)
     
-    # Sub-header
-    draw.text((20, 48), "SECTION CONTROLLER GIS RADAR CONSOLE", fill=(241, 245, 249, 255), font=font_banner)
-    draw.text((430, 50), "Division: NCR | Section: GZB-CNB High-Density Corridor", fill=(148, 163, 184, 255), font=font_small)
+    # Sub-header with Indian Railways Cultural Styling
+    draw.rounded_rectangle([20, 44, 130, 68], radius=6, fill=(255, 199, 44, 255), outline=(217, 119, 6, 255), width=1)
+    draw.text((28, 48), "CRIS RADAR", fill=(11, 15, 25, 255), font=font_bold)
+    draw.text((145, 48), "SECTION CONTROLLER & RADAR DESK", fill=(241, 245, 249, 255), font=font_banner)
+    draw.text((540, 50), "Division: NCR | GZB-CNB High-Density Corridor", fill=(148, 163, 184, 255), font=font_small)
     
     # Corridor Track Canvas (Dark Slate)
     draw.rounded_rectangle([20, 75, 570, 345], radius=10, fill=(15, 23, 42, 255), outline=(30, 41, 59, 255), width=2)
@@ -160,9 +162,11 @@ def render_phase_2(frame_idx, total_p2_frames=30):
     prog = frame_idx / float(total_p2_frames - 1)
     conflict_resolved = (prog >= 0.65)
     
-    # Sub-header
-    draw.text((20, 48), "PUBLIC CONCOURSE PASSENGER INFORMATION DISPLAY (PIDS)", fill=(241, 245, 249, 255), font=font_banner)
-    draw.text((560, 50), "Station: NEW DELHI [NDLS] | Live Concourse LED", fill=(250, 204, 21, 255), font=font_small)
+    # Sub-header with Authentic IR Signboard Pill
+    draw.rounded_rectangle([20, 44, 255, 68], radius=6, fill=(255, 199, 44, 255), outline=(217, 119, 6, 255), width=1)
+    draw.text((28, 48), "NDLS • NEW DELHI JUNCTION", fill=(11, 15, 25, 255), font=font_bold)
+    draw.text((270, 48), "CONCOURSE PIDS LED BOARD", fill=(241, 245, 249, 255), font=font_banner)
+    draw.text((610, 50), "Dual-Clock STA vs Dynamic ETA", fill=(250, 204, 21, 255), font=font_small)
     
     # PIDS Display Board Table (High-contrast LED look)
     draw.rounded_rectangle([20, 75, 830, 345], radius=10, fill=(10, 15, 25, 255), outline=(59, 130, 246, 255), width=2)
@@ -228,9 +232,11 @@ def render_phase_3(frame_idx, total_p3_frames=30):
     
     prog = frame_idx / float(total_p3_frames - 1)
     
-    # Sub-header
-    draw.text((20, 48), "MOBILE PASSENGER TRACKING & SENSOR FUSION ENGINE", fill=(241, 245, 249, 255), font=font_banner)
-    draw.text((500, 50), "Client: com.whereismytrain.android (Production APK)", fill=(148, 163, 184, 255), font=font_small)
+    # Sub-header with Indian Railways Mobile Delivery Styling
+    draw.rounded_rectangle([20, 44, 185, 68], radius=6, fill=(30, 58, 138, 255), outline=(59, 130, 246, 255), width=1)
+    draw.text((28, 48), "WHERE IS MY TRAIN", fill=(241, 245, 249, 255), font=font_bold)
+    draw.text((215, 48), "OFFLINE PASSENGER TRACKING & BTS", fill=(241, 245, 249, 255), font=font_banner)
+    draw.text((610, 50), "Zero-Internet Sensor Fusion", fill=(52, 211, 153, 255), font=font_small)
     
     # Left: Smartphone Live Timeline Representation
     draw.rounded_rectangle([20, 75, 440, 455], radius=10, fill=(15, 23, 42, 255), outline=(37, 99, 235, 255), width=2)

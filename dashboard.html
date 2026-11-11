@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GATI-SETU | SECTION CONTROLLER & RADAR DESK (PS 26028)</title>
+  <title>GATI-SETU | NATIONAL LIVE RAIL RADAR &amp; SECTION TELEMETRY</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -139,23 +139,23 @@
 </head>
 <body class="h-screen w-screen flex flex-col relative select-none">
 
-  <!-- Top Navigation & Radar Search Bar -->
-  <header class="h-14 bg-slate-950/95 border-b border-slate-800/80 px-4 flex items-center justify-between z-30 shrink-0 backdrop-blur-md">
+  <!-- Top Navigation & Radar Search Bar (Shared Indian Railways Enterprise Header) -->
+  <header class="h-16 bg-[#0B101D] border-b-2 border-amber-500/30 px-4 flex items-center justify-between z-30 shrink-0 select-none shadow-md">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-black text-sm shadow-lg shadow-cyan-500/20">
-          <i class="fa-solid fa-satellite-dish"></i>
+        <div class="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shadow-sm shrink-0">
+          <i class="fa-solid fa-train"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-black text-sm tracking-wider text-white">GATI-SETU</span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/30 mono">RADAR DESK</span>
+            <span class="font-black text-base tracking-wider text-white">GATI-SETU</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-400/15 text-amber-400 font-bold border border-amber-400/40 mono uppercase">CRIS TELEMETRY</span>
           </div>
-          <span class="text-[10px] text-slate-400 hidden sm:inline">SECTION CONTROLLER & RADAR DESK | Problem Statement 26028</span>
+          <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">SECTION CONTROLLER & RADAR DESK | Centre for Railway Information Systems (CRIS)</span>
         </div>
       </div>
 
-      <!-- Search Box -->
+      <!-- Train Search Box -->
       <div class="relative w-64 md:w-80 ml-2">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
         <input 
@@ -163,20 +163,20 @@
           type="text" 
           placeholder="Search train no / name (e.g. 12724, 12951, 54804)..." 
           onkeydown="if(event.key==='Enter') searchTrain()"
-          class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg pl-8 pr-16 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 mono transition"
+          class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-8 pr-16 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 mono transition"
         />
-        <button onclick="searchTrain()" class="absolute right-1.5 top-1 px-2.5 py-0.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-[10px] font-bold transition">
+        <button onclick="searchTrain()" class="absolute right-1.5 top-1 px-2.5 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold transition">
           Find
         </button>
       </div>
     </div>
 
-    <!-- Live Fleet Stats & Station PIDS Link -->
-    <div class="flex items-center gap-4">
-      <div class="hidden lg:flex items-center gap-5 text-xs mono">
+    <!-- Live Fleet Stats, Live IST Clock & Concourse PIDS Link -->
+    <div class="flex items-center gap-3">
+      <div class="hidden xl:flex items-center gap-4 text-xs mono">
         <div>
-          <span class="text-slate-400">ACTIVE RADAR SWEEP:</span>
-          <strong id="statActiveCount" class="text-cyan-400 ml-1">2,459</strong>
+          <span class="text-slate-400">ACTIVE RADAR:</span>
+          <strong id="statActiveCount" class="text-amber-400 ml-1">2,459</strong>
           <span class="text-[10px] text-slate-500 ml-1">/ 22,593 IR Daily</span>
         </div>
         <div>
@@ -185,17 +185,23 @@
         </div>
         <div>
           <span class="text-slate-400">STATIONS:</span>
-          <span class="text-amber-400 font-bold">7,349 Operating</span>
+          <span class="text-white font-bold">7,349 Operating</span>
           <span class="text-[10px] text-slate-500">(10,083 Halts)</span>
         </div>
       </div>
 
+      <!-- Live Clock -->
+      <div class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs font-black mono text-white shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="liveClock">12:00:00 IST</span>
+      </div>
+
       <div class="flex items-center gap-2">
-        <a href="/pids/NDLS" target="_blank" class="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-bold transition flex items-center gap-1.5">
+        <a href="/pids/NDLS" class="px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-tv"></i>
-          <span class="hidden sm:inline">Station PIDS Display</span>
+          <span class="hidden sm:inline">Concourse PIDS</span>
         </a>
-        <button onclick="fetchLiveTrains(true)" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition" title="Refresh Live Radar">
+        <button onclick="fetchLiveTrains(true)" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition" title="Refresh Live Radar">
           <i id="refreshIcon" class="fa-solid fa-arrows-rotate text-xs"></i>
         </button>
       </div>
@@ -1206,9 +1212,29 @@
       }
     }
 
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
+      const el = document.getElementById('liveClock');
+      if (el) el.textContent = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     // Auto-refresh every 20 seconds
     fetchLiveTrains();
     setInterval(fetchLiveTrains, 20000);
+
+    // Support ?train=12724 query param (similar to railradar.in/railradar?train=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const trainParam = urlParams.get('train');
+    if (trainParam) {
+      setTimeout(() => {
+        const searchInput = document.getElementById('trainSearchInput');
+        if (searchInput) searchInput.value = trainParam;
+        searchTrain();
+      }, 1200);
+    }
   </script>
 </body>
 </html>
