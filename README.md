@@ -96,6 +96,78 @@ GatiSetu delivers an end-to-end, multi-tier operational ecosystem covering Secti
 
 ---
 
+## Codebase Anatomy
+
+```text
+Gati-setu-2.-/
+├── assets/                                      # Showcase visual assets, gifs, and UI screenshots
+│   ├── demo.gif                                 # Full end-to-end animated workstation walkthrough
+│   ├── screenshot-control-room-radar-rounded.png # Section Controller GIS Radar and AI Precedence Console
+│   ├── screenshot-mobile-coach-and-offline-rounded.png # Offline cell-tower triangulation and coach berth layouts
+│   ├── screenshot-mobile-passenger-tracking-rounded.png # Passenger real-time tracking with dual STA vs ETA
+│   └── screenshot-station-pids-concourse-rounded.png # Station concourse PIDS LED display and conflict guard
+├── benchmark_cases/                             # Isolated benchmark datasets across operating regimes
+│   ├── 01_adverse_weather_speed_cap_cases.csv   # G&SR fog and monsoon speed restriction validation suite
+│   ├── 02_junction_bottleneck_cases.csv         # Major junction approach conflict and headway benchmark
+│   ├── 03_cumulative_congestion_cases.csv       # Downstream cascading delay propagation scenarios
+│   ├── 04_normal_running_baseline_cases.csv     # Nominal clear-track WTT slack baseline trajectories
+│   └── README.md                                # Methodology and statistical benchmark documentation
+├── docs/                                        # Deep-dive architecture and verification compliance audit
+│   ├── dynamic_ml_forecasting_engine/           # Davis resistance, weather caps, and quantile ML specs
+│   ├── edge_location_collection/                # BTS cell triangulation, sensor fusion, and dead reckoning
+│   ├── fleet_wide_scalability/                  # 13,550 train fleet indexing and vectorization benchmark
+│   ├── network_congestion_signal_aspects/       # 4-aspect signal deduction and loop precedence engine
+│   ├── passenger_visualization/                 # Android mobile interface and dual-clock visualization
+│   ├── station_displays_control_room/           # Concourse PIDS LED boards and controller GIS workstations
+│   └── problem_statement_26028_compliance_audit.md # Complete verification matrix mapping all mandates
+├── kaggle_dataset/                              # Kaggle publishing bundle and dataset metadata
+│   ├── all_13550_fleet_master.csv               # Complete nationwide passenger timetable catalog
+│   ├── cover.png                                # Kaggle dataset cover artwork
+│   ├── dataset-metadata.json                    # Kaggle API metadata schema and licensing configuration
+│   ├── national_13550_train_telemetry_comparison_master.csv # Master 20-feature comparative telemetry dataset
+│   ├── official_24hr_national_benchmark.csv     # 24-hour continuous validation sweep logs
+│   └── README.md                                # Kaggle dataset description and data dictionary
+├── scripts/                                     # Automation, benchmarking, and asset generation utilities
+│   └── generate_demo_gif.py                     # Headless Chrome script for capturing animated demo GIFs
+├── wimt_core/                                   # Reverse-engineered Where Is My Train core engines
+│   ├── asset_database.py                        # Station and locomotive physics reference constants
+│   ├── cell_tower_engine.py                     # Offline MCC/MNC/LAC/CID cellular triangulation engine
+│   ├── dynamic_eta_service.py                   # Embedded real-time ETA calculation daemon
+│   ├── GatiSetuEngine.smali                     # Dalvik bytecode injection hook for Android runtime
+│   ├── train_physics.py                         # Tractive effort, trailing load, and Davis resistance
+│   ├── weather_engine.py                        # Open-Meteo G&SR weather speed cap integration
+│   └── __init__.py                              # Core package initializer
+├── .gitignore                                   # Git exclusion rules for builds, caches, and raw dumps
+├── api_server.py                                # FastAPI backend server: REST endpoints and WebSocket relays
+├── continuous_benchmark_logger.py               # Continuous telemetry monitoring and drift detection
+├── dashboard.html                               # Section Controller GIS Radar workstation (Web interface)
+├── edge_location_engine.py                      # Multi-sensor fusion: GPS, BTS towers, and track snapping
+├── eta_engine.py                                # Dynamic ML engine: Davis physics, headway, and quantiles
+├── fleet_scalability_engine.py                  # Spatial grid indexing and high-throughput vectorization
+├── fleet_tracker.py                             # Nationwide fleet polling and state synchronization
+├── live_tracker.py                              # Single-train live telemetry retrieval and status tracker
+├── national_13550_train_telemetry_comparison_master.csv # Full fleet side-by-side comparative master CSV
+├── national_24hr_official_telemetry_pipeline.py # 24-hour multi-cycle national telemetry harvester
+├── national_fleet_telemetry_pipeline.py         # Automated pipeline runner for national fleet sweeps
+├── national_trains_side_by_side_preview.csv     # GitHub interactive table preview (2,000 active services)
+├── patch_wimt_apk.py                            # Dalvik bytecode injector and APK recompiler utility
+├── railjournal_client.py                        # CRIS RailJournal telemetry client adapter
+├── railradar_client.py                          # RailRadar live GPS stream scraper and telemetry client
+├── station_pids.html                            # Concourse PIDS LED display board (Web interface)
+├── test_dynamic_ml_engine.py                    # Automated test: physics, weather caps, and quantile ETA
+├── test_edge_location_pipeline.py               # Automated test: BTS triangulation and dead-reckoning
+├── test_fleet_scalability.py                    # Automated test: 13,550 train fleet latency and memory
+├── test_network_congestion_signals.py           # Automated test: 4-aspect signal deduction and headway
+├── test_station_displays_control_room.py        # Automated test: platform conflict detection and PIDS
+├── test_system_fuzz_and_edge_cases.py           # Automated test: corrupted telemetry and boundary conditions
+├── whereismytrain_extractor.py                  # Timetable, route, and shapefile extractor from WIMT
+├── wimt_cli.py                                  # Interactive terminal CLI for train lookup and forecasting
+├── wimt_engine_adapter.py                       # Adapter bridging WIMT runtime to GatiSetu AI engine
+└── README.md                                    # Master documentation, architecture, and verification
+```
+
+---
+
 ## 1. System Architecture Overview
 
 Where Is My Train's core technological innovation is **completely offline train tracking without active satellite GPS or an internet connection**. 

@@ -13,6 +13,10 @@ kaggle_dataset/*.csv
 
 *.log
 *.zip
+*.tar.gz
+*.backup
+*.unsigned
+*.bak
 whereismytrain.db
 official_24hr_scanner_heartbeat.json
 national_fleet_telemetry.json
