@@ -61,15 +61,40 @@
       z-index: 1;
     }
 
-    /* Directional Train Chevron Markers */
+    :root {
+      --marker-sz: 8px;
+    }
+
+    /* Directional Train Chevron Markers (High-Performance GPU Accelerated) */
     .train-chevron-marker {
-      transition: transform 0.2s linear, width 0.15s ease, height 0.15s ease;
+      width: var(--marker-sz, 8px) !important;
+      height: var(--marker-sz, 8px) !important;
+      margin-left: calc(var(--marker-sz, 8px) * -0.5) !important;
+      margin-top: calc(var(--marker-sz, 8px) * -0.5) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       cursor: pointer;
+      pointer-events: auto !important;
+      will-change: transform;
     }
     .train-chevron-marker:hover {
       filter: drop-shadow(0 0 14px #00f0ff) !important;
       transform: scale(1.4);
       z-index: 9999 !important;
+    }
+    .train-chevron-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease-out;
+    }
+    .train-chevron-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     /* Selected Train Pulsating Ring matching RailRadar */
@@ -435,30 +460,39 @@
       </div>
     </div>
 
-    <!-- On-Map Floating Arrow Color Guide (Bottom Right) -->
-    <div class="absolute bottom-4 right-4 z-10 rr-pill p-3 rounded-2xl max-w-sm hidden md:block border border-slate-800 shadow-2xl">
-      <div class="font-black text-[10px] text-slate-400 mono uppercase tracking-wider mb-2 flex items-center justify-between">
-        <span>Arrow Color Classification</span>
-        <span class="text-[9px] text-cyan-400">Headings: 0° - 360°</span>
+    <!-- On-Map Floating Arrow Color Guide (Collapsible Bottom Right Pill) -->
+    <div id="arrowGuideContainer" class="absolute bottom-4 right-4 z-20 flex flex-col items-end">
+      <!-- Expanded Box (Hidden by default, expands on click) -->
+      <div id="arrowGuideBox" class="hidden rr-card p-3 rounded-2xl max-w-sm border border-slate-800 shadow-2xl mb-2 text-xs">
+        <div class="font-black text-[10px] text-slate-400 mono uppercase tracking-wider mb-2 flex items-center justify-between gap-4">
+          <span>Arrow Color Classification</span>
+          <span class="text-[9px] text-cyan-400">Headings: 0° - 360°</span>
+        </div>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mono">
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ff6b00"></span><span class="text-slate-300">Vande Bharat</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span><span class="text-slate-300">Rajdhani/Duronto</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6"></span><span class="text-slate-300">Superfast SF</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#14b8a6"></span><span class="text-slate-300">Express / Mail</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#f43f5e"></span><span class="text-slate-300">Garib Rath</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#b91c1c"></span><span class="text-slate-300">Jan Shatabdi</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#22c55e"></span><span class="text-slate-300">Suburban / EMU</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#eab308"></span><span class="text-slate-300">Passenger / MEMU</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ec4899"></span><span class="text-slate-300">Special Trains</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#94a3b8"></span><span class="text-slate-300">Other Services</span></div>
+        </div>
       </div>
-      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] mono">
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ff6b00"></span><span class="text-slate-300">Vande Bharat</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ef4444"></span><span class="text-slate-300">Rajdhani/Duronto</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3b82f6"></span><span class="text-slate-300">Superfast SF</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#14b8a6"></span><span class="text-slate-300">Express / Mail</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#f43f5e"></span><span class="text-slate-300">Garib Rath</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#b91c1c"></span><span class="text-slate-300">Jan Shatabdi</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#22c55e"></span><span class="text-slate-300">Suburban / EMU</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#eab308"></span><span class="text-slate-300">Passenger / MEMU</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#ec4899"></span><span class="text-slate-300">Special Trains</span></div>
-        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#94a3b8"></span><span class="text-slate-300">Other Services</span></div>
-      </div>
+      <!-- Toggle Button -->
+      <button onclick="toggleArrowGuide()" class="rr-pill px-3 py-1.5 rounded-xl text-[11px] mono text-slate-300 hover:text-white flex items-center gap-2 border border-slate-700/80 shadow-xl transition">
+        <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+        <span class="font-bold">Legend Colors</span>
+        <i id="arrowGuideIcon" class="fa-solid fa-chevron-up text-[9px] text-slate-400"></i>
+      </button>
     </div>
 
-    <!-- Live Weather Advisory Strip (Bottom Center so it NEVER overlaps the left drawer) -->
-    <div class="absolute left-1/2 transform -translate-x-1/2 bottom-3 z-10 rr-pill px-4 py-2 rounded-xl text-xs mono flex items-center gap-2.5 border border-amber-500/30 text-amber-300 shadow-2xl pointer-events-none sm:pointer-events-auto">
-      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-      <span id="mapWeatherAdvisory">G&SR Weather Restrictions: Active Across 31 Fog & Monsoon Sections</span>
+    <!-- Live Weather Advisory Strip (Bottom Center so it NEVER overlaps the left drawer or right controls) -->
+    <div id="weatherAdvisoryStrip" class="absolute left-1/2 transform -translate-x-1/2 bottom-3 z-10 rr-pill px-4 py-2 rounded-xl text-xs mono flex items-center gap-2.5 border border-amber-500/30 text-amber-300 shadow-2xl max-w-[85vw] truncate pointer-events-none sm:pointer-events-auto">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+      <span id="mapWeatherAdvisory" class="truncate">G&SR Weather Restrictions: Active Across 31 Fog &amp; Monsoon Sections</span>
     </div>
   </div>
 
@@ -722,20 +756,22 @@
       return 22;                  // 22px at station view
     }
 
-    // Directional SVG Chevron Marker (Bearing 0° - 360°)
+    function updateMarkerSize() {
+      const sz = getMarkerSize();
+      document.documentElement.style.setProperty('--marker-sz', `${sz}px`);
+    }
+
+    // Directional SVG Chevron Marker (Bearing 0° - 360°, GPU Scaled via CSS)
     function createChevronSvg(heading, color, isSelected = false) {
       const rot = (typeof heading === 'number') ? heading : 0;
-      const baseSize = getMarkerSize();
-      const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
       const glow = isSelected ? `filter: drop-shadow(0 0 14px #00f0ff);` : '';
       const halo = isSelected ? `<div class="rr-pulsing-halo"></div>` : '';
-      const strokeW = baseSize <= 9 ? 1.0 : 1.8;
       return `
-        <div style="position:relative; width:${size}px; height:${size}px; display:flex; align-items:center; justify-content:center;">
+        <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
           ${halo}
-          <div style="width:${size}px; height:${size}px; transform: rotate(${rot}deg); ${glow}">
-            <svg width="${size}" height="${size}" viewBox="0 0 24 24">
-              <path d="M12 2 L21 21 L12 16 L3 21 Z" fill="${color}" stroke="#070b14" stroke-width="${strokeW}" />
+          <div class="train-chevron-inner" style="transform: rotate(${rot}deg); ${glow}">
+            <svg class="train-chevron-svg" viewBox="0 0 24 24">
+              <path d="M12 2 L21 21 L12 16 L3 21 Z" fill="${color}" stroke="#070b14" stroke-width="1.2" />
             </svg>
           </div>
         </div>
@@ -743,37 +779,57 @@
     }
 
     // =========================================================================
-    // 3. Live Train Markers with Dynamic Zoom Scaling & Tooltips
+    // 3. Live Train Markers with Viewport Culling & 60 FPS Zoom
     // =========================================================================
     let trainMarkers = {};
     let allLiveTrains = [];
     let activeTrackPolyline = null;
     let selectedTrainNumber = null;
 
-    // Refresh marker icons whenever user zooms in or out
-    map.on('zoomend', () => {
-      refreshAllMarkerIcons();
-    });
+    // Viewport Culling: At zoom >= 7, only keep markers inside map viewport in DOM
+    function updateVisibleMarkers() {
+      const z = map.getZoom();
+      const bounds = map.getBounds().pad(0.3);
+      const isSelected = selectedTrainNumber;
 
-    function refreshAllMarkerIcons() {
-      const baseSize = getMarkerSize();
-      allLiveTrains.forEach(t => {
+      for (let i = 0; i < allLiveTrains.length; i++) {
+        const t = allLiveTrains[i];
         const tNo = String(t.train_number);
         const marker = trainMarkers[tNo];
-        if (marker) {
-          const isSelected = (tNo === selectedTrainNumber);
-          const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
-          const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
-          const color = getTrainColor(typeId);
-          marker.setIcon(L.divIcon({
-            html: createChevronSvg(t.heading, color, isSelected),
-            className: 'train-chevron-marker',
-            iconSize: [size, size],
-            iconAnchor: [size / 2, size / 2]
-          }));
+        if (!marker) continue;
+
+        const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
+        const isCatVisible = CATEGORIES[typeId] ? CATEGORIES[typeId].visible : true;
+
+        if (!isCatVisible) {
+          if (marker._map) map.removeLayer(marker);
+          continue;
         }
-      });
+
+        if (z >= 7 && tNo !== isSelected) {
+          const inView = bounds.contains([t.lat, t.lng]);
+          if (!inView && marker._map) {
+            map.removeLayer(marker);
+          } else if (inView && !marker._map) {
+            marker.addTo(map);
+          }
+        } else {
+          if (!marker._map) {
+            marker.addTo(map);
+          }
+        }
+      }
     }
+
+    // Fast GPU-accelerated zoom without DOM re-creations
+    map.on('zoomend', () => {
+      updateMarkerSize();
+      updateVisibleMarkers();
+    });
+
+    map.on('moveend', () => {
+      updateVisibleMarkers();
+    });
 
     async function fetchLiveTrains(manual = false) {
       const refIcon = document.getElementById('refreshIcon');
@@ -788,10 +844,10 @@
         // Reset category counts
         Object.keys(CATEGORIES).forEach(k => CATEGORIES[k].count = 0);
         let onTimeCount = 0;
+        const z = map.getZoom();
+        const bounds = map.getBounds().pad(0.3);
 
-        const baseSize = getMarkerSize();
-
-        // Render markers
+        // Fast render / update markers
         allLiveTrains.forEach(t => {
           const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
           CATEGORIES[typeId].count++;
@@ -800,42 +856,55 @@
           const tNo = String(t.train_number);
           const color = getTrainColor(typeId);
           const isSelected = (tNo === selectedTrainNumber);
-          const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
           const isCategoryVisible = CATEGORIES[typeId] ? CATEGORIES[typeId].visible : true;
           const headingDeg = (typeof t.heading === 'number') ? t.heading : 0;
-          const delayMin = t.delay_minutes || 0;
-          const delayBadge = delayMin > 10 ? `+${delayMin}m` : (delayMin > 0 ? `+${delayMin}m` : 'ON TIME');
-
-          const tooltipHtml = `<b>#${tNo}</b> (${CATEGORIES[typeId].name})<br>Delay: <span style="color:${delayMin > 10 ? '#ef4444' : '#10b981'}">${delayBadge}</span> | Heading: ${Math.round(headingDeg)}°`;
 
           if (trainMarkers[tNo]) {
-            trainMarkers[tNo].setLatLng([t.lat, t.lng]);
-            trainMarkers[tNo].setIcon(L.divIcon({
-              html: createChevronSvg(headingDeg, color, isSelected),
-              className: 'train-chevron-marker',
-              iconSize: [size, size],
-              iconAnchor: [size / 2, size / 2]
-            }));
-            trainMarkers[tNo].setTooltipContent(tooltipHtml);
+            const marker = trainMarkers[tNo];
+            marker.setLatLng([t.lat, t.lng]);
+
+            // Directly adjust rotation transform if inner element exists (100x faster than setIcon)
+            if (marker._icon) {
+              const inner = marker._icon.querySelector('.train-chevron-inner');
+              if (inner && inner._lastRot !== headingDeg) {
+                inner.style.transform = `rotate(${headingDeg}deg)`;
+                inner._lastRot = headingDeg;
+              }
+            }
 
             if (!isCategoryVisible) {
-              map.removeLayer(trainMarkers[tNo]);
-            } else if (!map.hasLayer(trainMarkers[tNo])) {
-              trainMarkers[tNo].addTo(map);
+              if (marker._map) map.removeLayer(marker);
+            } else if (z >= 7 && tNo !== selectedTrainNumber) {
+              const inView = bounds.contains([t.lat, t.lng]);
+              if (!inView && marker._map) map.removeLayer(marker);
+              else if (inView && !marker._map) marker.addTo(map);
+            } else if (!marker._map) {
+              marker.addTo(map);
             }
-          } else if (isCategoryVisible) {
+          } else {
             const marker = L.marker([t.lat, t.lng], {
               icon: L.divIcon({
                 html: createChevronSvg(headingDeg, color, isSelected),
                 className: 'train-chevron-marker',
-                iconSize: [size, size],
-                iconAnchor: [size / 2, size / 2]
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
               })
-            }).addTo(map);
+            });
 
-            marker.bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -6] });
+            // Lazy tooltip binding on hover to eliminate 2,500 initial tooltip DOM allocations
+            marker.on('mouseover', () => {
+              const delayMin = t.delay_minutes || 0;
+              const delayBadge = delayMin > 10 ? `+${delayMin}m` : (delayMin > 0 ? `+${delayMin}m` : 'ON TIME');
+              const tooltipHtml = `<b>#${tNo}</b> (${CATEGORIES[typeId].name})<br>Delay: <span style="color:${delayMin > 10 ? '#ef4444' : '#10b981'}">${delayBadge}</span> | Heading: ${Math.round(headingDeg)}°`;
+              marker.bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -6] }).openTooltip();
+            });
+
             marker.on('click', () => inspectTrain(tNo, t));
             trainMarkers[tNo] = marker;
+
+            if (isCategoryVisible && (z < 7 || bounds.contains([t.lat, t.lng]) || isSelected)) {
+              marker.addTo(map);
+            }
           }
         });
 
@@ -916,6 +985,41 @@
       }
     }
 
+    function toggleArrowGuide() {
+      const box = document.getElementById('arrowGuideBox');
+      const icon = document.getElementById('arrowGuideIcon');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        icon.className = "fa-solid fa-chevron-down text-[9px] text-slate-400";
+      } else {
+        box.classList.add('hidden');
+        icon.className = "fa-solid fa-chevron-up text-[9px] text-slate-400";
+      }
+    }
+
+    // Dismiss floating dropdowns on click outside
+    document.addEventListener('click', (e) => {
+      const layerDropdown = document.getElementById('layerDropdown');
+      const legendModal = document.getElementById('legendModal');
+      const arrowGuideContainer = document.getElementById('arrowGuideContainer');
+      const arrowGuideBox = document.getElementById('arrowGuideBox');
+      
+      const layerBtn = e.target.closest('button[onclick="toggleLayerMenu()"]');
+      const legendBtn = e.target.closest('button[onclick="toggleLegendModal()"]');
+
+      if (layerDropdown && !layerDropdown.classList.contains('hidden') && !layerDropdown.contains(e.target) && !layerBtn) {
+        layerDropdown.classList.add('hidden');
+      }
+      if (legendModal && !legendModal.classList.contains('hidden') && !legendModal.contains(e.target) && !legendBtn) {
+        legendModal.classList.add('hidden');
+      }
+      if (arrowGuideBox && !arrowGuideBox.classList.contains('hidden') && arrowGuideContainer && !arrowGuideContainer.contains(e.target)) {
+        arrowGuideBox.classList.add('hidden');
+        const icon = document.getElementById('arrowGuideIcon');
+        if (icon) icon.className = "fa-solid fa-chevron-up text-[9px] text-slate-400";
+      }
+    });
+
     // =========================================================================
     // 4. Inspect Train: GatiSetu AI Dynamic ETA Forecast & Track Geometry
     // =========================================================================
@@ -924,8 +1028,9 @@
       const drawer = document.getElementById('inspectorDrawer');
       drawer.classList.remove('-translate-x-[470px]');
 
+      // Drawer is active: keep floating top pill hidden to prevent element collision
       const topPill = document.getElementById('topSelectedPill');
-      topPill.classList.remove('hidden');
+      topPill.classList.add('hidden');
 
       document.getElementById('inspTrainNo').textContent = trainNumber;
       const trainName = (trainSummary && trainSummary.train_name) || `Train #${trainNumber}`;
