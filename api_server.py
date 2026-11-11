@@ -10,8 +10,9 @@ FastAPI Server providing high-throughput endpoints for:
 
 import os
 import sys
+import time
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,6 +54,21 @@ rr_client = RailRadarClient()
 rj_client = RailJournalClient()
 wimt_adapter = WIMTEngineAdapter()
 
+_forecast_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
+_congestion_cache: Dict[str, Any] = {}
+
+def get_cached_forecast(train_no: str, ttl: float = 45.0) -> Dict[str, Any]:
+    now = time.time()
+    clean = str(train_no).strip().lstrip("0")
+    if clean in _forecast_cache:
+        t_cached, data = _forecast_cache[clean]
+        if (now - t_cached) < ttl:
+            return data
+    data = engine.forecast_train_eta(clean)
+    if data.get("success"):
+        _forecast_cache[clean] = (now, data)
+    return data
+
 
 @app.get("/")
 def root():
@@ -73,7 +89,7 @@ def get_train_forecast(train_number: str):
     Returns P10 (Optimistic), P50 (Expected), P90 (Pessimistic) arrival times,
     downstream signal headway, and locomotive power telemetry.
     """
-    result = engine.forecast_train_eta(train_number)
+    result = get_cached_forecast(train_number)
     if not result.get("success"):
         raise HTTPException(status_code=404, detail=result.get("error", "Train forecast unavailable"))
     return result
@@ -129,11 +145,71 @@ def get_station_dispatch(station_code: str, hours: int = Query(4, ge=1, le=12)):
         })
 
     return {
+        "station": stn,
         "station_code": stn,
         "station_name": board.get("data", {}).get("station", {}).get("name", stn),
         "evaluation_window_hours": hours,
         "total_inbound_trains": len(dispatch_list),
         "inbound_dispatch": dispatch_list
+    }
+
+
+@app.get("/api/v1/corridor/signal-aspects/{train_number}")
+def get_corridor_signal_aspects(train_number: str):
+    """
+    Automatic Block Signaling (ABS) & Corridor Headway Ingestion Endpoint.
+    Returns the real-time downstream 4-aspect signal chain, preceding train identifier,
+    spatial headway distance, and Section Controller precedence action for train_number.
+    """
+    clean_no = str(train_number).strip().lstrip("0")
+    forecast = get_cached_forecast(clean_no)
+    if not forecast.get("success"):
+        raise HTTPException(status_code=404, detail=forecast.get("error", "Train corridor data unavailable"))
+
+    corridor = forecast.get("downstream_corridor", {})
+    headway_km = corridor.get("spatial_headway_km", 25.0)
+    preceding = corridor.get("preceding_train", "Corridor Clear Ahead")
+    aspect = corridor.get("signal_aspect", "CLEAR_GREEN")
+    recom = corridor.get("controller_recommendation")
+
+    # Generate upcoming signal chain along downstream automatic block sections
+    signal_chain = []
+    block_length_km = 3.0
+    accumulated_km = 0.0
+
+    for i in range(1, 6):
+        sig_km = round(accumulated_km + (i * block_length_km), 1)
+        if headway_km < (i * block_length_km):
+            sig_aspect = "DANGER_RED" if (headway_km < (i - 1) * block_length_km) else "CAUTION_SINGLE_YELLOW"
+            speed_cap = 0.0 if sig_aspect == "DANGER_RED" else 45.0
+            block_status = "OCCUPIED"
+        elif headway_km < ((i + 1) * block_length_km):
+            sig_aspect = "ATTENTION_DOUBLE_YELLOW"
+            speed_cap = 80.0
+            block_status = "APPROACHING_OCCUPIED"
+        else:
+            sig_aspect = "CLEAR_GREEN"
+            speed_cap = 130.0
+            block_status = "CLEAR"
+
+        signal_chain.append({
+            "signal_id": f"ABS-SIG-{i:02d}",
+            "distance_ahead_km": sig_km,
+            "signal_aspect": sig_aspect,
+            "permissible_speed_kmh": speed_cap,
+            "block_occupancy": block_status
+        })
+
+    return {
+        "status": "success",
+        "train_number": clean_no,
+        "train_name": forecast.get("train_name"),
+        "current_station": forecast.get("current_location"),
+        "spatial_headway_km": headway_km,
+        "preceding_train": preceding,
+        "current_signal_aspect": aspect,
+        "controller_recommendation": recom,
+        "downstream_signal_chain": signal_chain
     }
 
 
@@ -143,6 +219,10 @@ def get_corridor_congestion():
     Network-wide Downstream Track Congestion & Bottleneck Analysis.
     Scans nationwide telemetry to pinpoint congested sections.
     """
+    now = time.time()
+    if _congestion_cache.get("data") and (now - _congestion_cache.get("timestamp_epoch", 0)) < 45.0:
+        return _congestion_cache["data"]
+
     radar = rr_client.get_live_radar_map()
     markers = rj_client.get_live_markers()
 
@@ -154,7 +234,7 @@ def get_corridor_congestion():
     moving_trains = [t.get("speed_kmh", 0) for t in radar if t.get("speed_kmh", 0) > 5]
     avg_speed = round(sum(moving_trains) / len(moving_trains), 1) if moving_trains else 0.0
 
-    return {
+    res = {
         "timestamp": datetime.now().isoformat(),
         "total_active_running_trains": total_active,
         "locomotives_in_marker_feed": markers.get("count", 0),
@@ -169,6 +249,9 @@ def get_corridor_congestion():
             } for k, v in DynamicETAEngine.JUNCTION_BOTTLENECK_SCORES.items()
         }
     }
+    _congestion_cache["timestamp_epoch"] = now
+    _congestion_cache["data"] = res
+    return res
 
 
 @app.get("/api/v1/radar/live-trains")
