@@ -116,19 +116,21 @@ Incorporates empirical delay friction coefficients $\beta_{\text{junction}}$ cal
 
 ## 3. Complete Automated Test Suite Verification
 
-The entire system is continuously verified through **32 comprehensive automated tests** across 5 test suites with zero failures:
+The entire system is continuously verified through **41 comprehensive automated tests** across 6 test suites with zero failures:
 
 | Test Suite | Coverage Area | Number of Tests | Execution Time | Result |
 | :--- | :--- | :---: | :---: | :---: |
+| [`test_system_fuzz_and_edge_cases.py`](test_system_fuzz_and_edge_cases.py) | Boundary Inputs, Fuzzing, 500 Prevention, Malformed Payloads, Standstill Physics | 9 | 5.101s | **ALL PASS (9/9)** |
 | [`test_edge_location_pipeline.py`](test_edge_location_pipeline.py) | Cellular BTS Triangulation, Rail Joint Vibration Fusion, Track Snapping, Multi-Device Consensus | 5 | 0.008s | **ALL PASS (5/5)** |
-| [`test_dynamic_ml_engine.py`](test_dynamic_ml_engine.py) | Davis Physics, Headway, G&SR Weather Caps, Random Forest ML, Monotonic Quantiles, WTT Slack | 8 | 10.010s | **ALL PASS (8/8)** |
-| [`test_network_congestion_signals.py`](test_network_congestion_signals.py) | 4-Aspect Signals, Spatial Headway, Junction Bottlenecks, Cascading Delays, AI Precedence Advisor | 7 | 18.994s | **ALL PASS (7/7)** |
-| [`test_fleet_scalability.py`](test_fleet_scalability.py) | 13,550 Trains Master Fleet, 18 Operational Zones, Vectorized Batch Inference, RAM Footprint | 7 | 0.057s | **ALL PASS (7/7)** |
-| [`test_station_displays_control_room.py`](test_station_displays_control_room.py) | PIDS LED Board, Platform Conflicts, Section Controller Feed, HTML Dashboard Availability | 5 | 2.570s | **ALL PASS (5/5)** |
-| **Total Regression Test Suite** | **Comprehensive Full System Verification** | **32** | **31.639s** | **100% PASS (32/32)** |
+| [`test_dynamic_ml_engine.py`](test_dynamic_ml_engine.py) | Davis Physics, Headway, G&SR Weather Caps, Random Forest ML, Monotonic Quantiles, WTT Slack | 8 | 11.865s | **ALL PASS (8/8)** |
+| [`test_network_congestion_signals.py`](test_network_congestion_signals.py) | 4-Aspect Signals, Spatial Headway, Junction Bottlenecks, Cascading Delays, AI Precedence Advisor | 7 | 9.842s | **ALL PASS (7/7)** |
+| [`test_fleet_scalability.py`](test_fleet_scalability.py) | 13,550 Trains Master Fleet, 18 Operational Zones, Vectorized Batch Inference, RAM Footprint | 7 | 0.060s | **ALL PASS (7/7)** |
+| [`test_station_displays_control_room.py`](test_station_displays_control_room.py) | PIDS LED Board, Platform Conflicts, Section Controller Feed, HTML Dashboard Availability | 5 | 4.428s | **ALL PASS (5/5)** |
+| **Total Regression & Fuzzing Suite** | **Comprehensive Full System Verification** | **41** | **31.304s** | **100% PASS (41/41)** |
 
 ---
 
 ## 4. Conclusion & Certification
 
 Every challenge, real-world operational factor, mathematical requirement, scalability threshold, and API delivery mechanism specified under **Problem Statement ID 26028 (Smart India Hackathon 2026 - Ministry of Railways)** is **100% fully satisfied**, empirically benchmarked, and committed to the open-source repository: [Gati-setu-2.0 on GitHub](https://github.com/tejuas98/Gati-setu-2.-).
+

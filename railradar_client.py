@@ -18,7 +18,7 @@ class RailRadarClient:
         "Origin": "https://railradar.in"
     }
 
-    def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None, timeout: float = 6.0) -> Dict[str, Any]:
         url = f"{self.BASE_URL}{endpoint}"
         if params:
             query = urllib.parse.urlencode({k: v for k, v in params.items() if v is not None})
@@ -26,7 +26,7 @@ class RailRadarClient:
         
         req = urllib.request.Request(url, headers=self.HEADERS)
         try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 return data
         except urllib.error.HTTPError as e:

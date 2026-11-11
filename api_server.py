@@ -57,10 +57,11 @@ wimt_adapter = WIMTEngineAdapter()
 
 _forecast_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
 _congestion_cache: Dict[str, Any] = {}
+_station_board_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
 
 def get_cached_forecast(train_no: str, ttl: float = 45.0) -> Dict[str, Any]:
     now = time.time()
-    clean = str(train_no).strip().lstrip("0")
+    clean = str(train_no).strip().lstrip("0") or str(train_no).strip()
     if clean in _forecast_cache:
         t_cached, data = _forecast_cache[clean]
         if (now - t_cached) < ttl:
@@ -104,6 +105,16 @@ def get_station_dispatch(station_code: str, hours: int = Query(4, ge=1, le=12)):
     and detects platform allocation conflicts.
     """
     stn = station_code.upper().strip()
+    if len(stn) < 2 or len(stn) > 6 or not stn.isalnum():
+        raise HTTPException(status_code=404, detail=f"Invalid or unknown station code: {stn}")
+
+    now = time.time()
+    cache_key = f"{stn}_{hours}"
+    if cache_key in _station_board_cache:
+        t_cached, data = _station_board_cache[cache_key]
+        if (now - t_cached) < 45.0:
+            return data
+
     board = rr_client.get_station_live_board(stn, hours=hours)
     if not board.get("success"):
         raise HTTPException(status_code=404, detail=f"No active station board for {stn}")
@@ -145,7 +156,7 @@ def get_station_dispatch(station_code: str, hours: int = Query(4, ge=1, le=12)):
             "action_recommendation": f"RE-ALLOCATE PLATFORM (Conflict with #{conflicting_train})" if conflict else "PROCEED NORMAL"
         })
 
-    return {
+    result = {
         "station": stn,
         "station_code": stn,
         "station_name": board.get("data", {}).get("station", {}).get("name", stn),
@@ -153,6 +164,8 @@ def get_station_dispatch(station_code: str, hours: int = Query(4, ge=1, le=12)):
         "total_inbound_trains": len(dispatch_list),
         "inbound_dispatch": dispatch_list
     }
+    _station_board_cache[cache_key] = (now, result)
+    return result
 
 
 @app.get("/api/v1/corridor/signal-aspects/{train_number}")
@@ -162,7 +175,7 @@ def get_corridor_signal_aspects(train_number: str):
     Returns the real-time downstream 4-aspect signal chain, preceding train identifier,
     spatial headway distance, and Section Controller precedence action for train_number.
     """
-    clean_no = str(train_number).strip().lstrip("0")
+    clean_no = str(train_number).strip().lstrip("0") or str(train_number).strip()
     forecast = get_cached_forecast(clean_no)
     if not forecast.get("success"):
         raise HTTPException(status_code=404, detail=forecast.get("error", "Train corridor data unavailable"))
@@ -274,7 +287,7 @@ def get_train_route_track(train_number: str):
     Returns high-precision GIS LineString track geometry (2,000+ coordinates)
     for rendering exact railway lines on the Section Controller Radar.
     """
-    clean_no = str(train_number).strip().lstrip("0")
+    clean_no = str(train_number).strip().lstrip("0") or str(train_number).strip()
     route = rr_client.get_route_geometry(clean_no)
     if not route.get("success"):
         raise HTTPException(status_code=404, detail=f"Track geometry not found for train {clean_no}")
@@ -559,7 +572,7 @@ def get_edge_train_status(train_number: str):
     """
     Returns live crowdsourced edge location consensus for a specific train service.
     """
-    clean_no = str(train_number).strip().lstrip("0")
+    clean_no = str(train_number).strip().lstrip("0") or str(train_number).strip()
     consensus = edge_engine.compute_train_consensus(clean_no)
     return {
         "status": "success",
@@ -673,6 +686,18 @@ def get_pids_display_data(station_code: str):
     including dual STA vs. Dynamic ETA, platform allocation, conflict flags, and weather safety banners.
     """
     stn = station_code.upper().strip()
+    if len(stn) < 2 or len(stn) > 6 or not stn.isalnum():
+        return {
+            "status": "success",
+            "station_code": stn,
+            "station_name": stn,
+            "timestamp": datetime.now().isoformat(),
+            "total_inbound_trains": 0,
+            "platform_conflicts_count": 0,
+            "announcement": f"No active schedule for invalid station: {stn}",
+            "trains": []
+        }
+
     try:
         dispatch_data = get_station_dispatch(stn, hours=4)
     except Exception:
@@ -688,7 +713,8 @@ def get_pids_display_data(station_code: str):
     conflict_count = 0
 
     for item in inbound:
-        t_no = str(item.get("train_number", "")).strip().lstrip("0")
+        raw_no = str(item.get("train_number", "")).strip()
+        t_no = raw_no.lstrip("0") or raw_no
         sched_str = item.get("scheduled_time", "12:00")
         dyn_delay = float(item.get("dynamic_forecast_delay_min", 0.0))
         is_conflict = bool(item.get("platform_conflict_detected", False))
@@ -756,7 +782,8 @@ def get_section_controller_feed(section_code: str):
 
     active_in_section = []
     for t in radar[:30]:
-        t_no = str(t.get("train_number") or t.get("train_no") or t.get("trainNumber", "")).strip().lstrip("0")
+        raw_tno = str(t.get("train_number") or t.get("train_no") or t.get("trainNumber", "")).strip()
+        t_no = raw_tno.lstrip("0") or raw_tno
         if not t_no:
             continue
         delay = float(t.get("delay_minutes") or t.get("delayMinutes") or 0.0)
