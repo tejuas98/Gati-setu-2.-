@@ -10,6 +10,7 @@
 
 > **Official National Benchmark Dataset on Kaggle & GitHub:**
 > Real-time locomotive telemetry, physics-adjusted arrival forecasts, and micro-weather attributes across all 13,550 Indian Railways passenger services:
+> - **[Click here for Full Passenger Real-Time Delivery & Visualization Proof (docs/passenger_visualization/)](https://github.com/tejuas98/Gati-setu-2.-/tree/main/docs/passenger_visualization)**: 100% Problem Statement 26028 Fulfillment Audit with 12 Live Android Screenshots, Feature Breakdown, STA vs Dynamic ETA Analysis & Offline/Online Sync Architecture.
 > - **[Click here for Full Benchmark Cases Directory (benchmark_cases/)](https://github.com/tejuas98/Gati-setu-2.-/tree/main/benchmark_cases)**: Dedicated interactive in-browser datasets isolating all 4 operating regimes: Adverse Weather (all 31 speed cap cases), Junction Bottlenecks (all 319 cases), Congestion Cascades, and Normal Running.
 > - **All 13,550 Trains Master File (Full Fleet):** [`national_13550_train_telemetry_comparison_master.csv`](./national_13550_train_telemetry_comparison_master.csv) (2.8 MB, 13,550 rows - *View on [Kaggle Data Explorer](https://www.kaggle.com/datasets/rudraa11/indian-railways-live-telemetry-gatisetu-benchmark) or press `.` on GitHub to view in browser*)
 > - **Direct In-Browser GitHub Table Preview (< 512 KB):** [`national_trains_side_by_side_preview.csv`](./national_trains_side_by_side_preview.csv) (425 KB, 2,000 active trains - *renders natively as an interactive table on GitHub*)
