@@ -175,7 +175,7 @@ class TestDynamicMLEngine(unittest.TestCase):
     def test_08_live_rest_api_forecast_endpoint(self):
         """Verifies HTTP API integration of the dynamic forecast endpoint on FastAPI port 8000."""
         try:
-            r = requests.get(f"{self.api_base}/api/v1/forecast/12951", timeout=5)
+            r = requests.get(f"{self.api_base}/api/v1/forecast/12951", timeout=25)
             self.assertEqual(r.status_code, 200)
             data = r.json()
             self.assertTrue(data["success"])

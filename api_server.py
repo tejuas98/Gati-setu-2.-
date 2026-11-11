@@ -32,6 +32,7 @@ from edge_location_engine import (
     MotionSensorData,
     CALIBRATED_CELL_TOWERS
 )
+from fleet_scalability_engine import fleet_engine
 
 app = FastAPI(
     title="GATI-SETU: Dynamic Railway ETA Engine",
@@ -588,6 +589,58 @@ def list_calibrated_cell_towers(corridor: Optional[str] = None):
         "total_calibrated_towers": len(towers),
         "towers": towers
     }
+
+
+# =====================================================================
+# Requirement 5: Fleet-Wide Scalability Endpoints (13,000+ Trains)
+# =====================================================================
+
+class BatchForecastRequest(BaseModel):
+    train_numbers: List[str] = Field(..., description="List of train numbers to evaluate in parallel batch")
+
+
+@app.get("/api/v1/fleet/status")
+def get_fleet_status():
+    """
+    Fleet-Wide Scalability Status API.
+    Returns fleet aggregates across all 13,550 Indian Railways coaching trains,
+    including zonal breakdowns across all 18 operational zones and punctuality metrics.
+    """
+    return fleet_engine.get_fleet_summary()
+
+
+@app.get("/api/v1/fleet/zone/{zone_code}")
+def get_zone_fleet(zone_code: str, limit: int = Query(100, ge=1, le=1000), status_filter: Optional[str] = None):
+    """
+    Zonal Partitioned Fleet Query API.
+    Returns all coaching trains within the requested operational zone (e.g. NR, WR, CR, ER, SR, SCR, etc.).
+    """
+    result = fleet_engine.get_zone_fleet(zone_code, limit=limit, status_filter=status_filter)
+    if not result.get("success"):
+        raise HTTPException(status_code=404, detail=result.get("error", "Zone not found"))
+    return result
+
+
+@app.post("/api/v1/fleet/batch-forecast")
+def post_batch_forecast(request: BatchForecastRequest = Body(...)):
+    """
+    High-Throughput Parallel Batch ETA Forecasting API.
+    Evaluates dynamic ETAs, tractive limits, and quantile intervals [P10, P50, P90]
+    simultaneously across batches of trains using vectorized NumPy operations (> 5,000 trains/sec).
+    """
+    if not request.train_numbers:
+        raise HTTPException(status_code=400, detail="train_numbers list cannot be empty")
+    return fleet_engine.batch_forecast_eta(request.train_numbers)
+
+
+@app.get("/api/v1/fleet/benchmark")
+def get_fleet_benchmark(sample_size: int = Query(1000, ge=10, le=13550)):
+    """
+    Empirical Stress Test Benchmark Endpoint.
+    Measures real-time vectorized inference throughput (trains/sec), memory footprint (MB),
+    and latency speedup against legacy sequential architectures.
+    """
+    return fleet_engine.benchmark_fleet_throughput(sample_size=sample_size)
 
 
 if __name__ == "__main__":
