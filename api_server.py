@@ -85,6 +85,7 @@ def root():
 
 
 @app.get("/api/v1/forecast/{train_number}")
+@app.get("/api/v1/forecast/eta/{train_number}")
 def get_train_forecast(train_number: str):
     """
     Dynamic ETA Forecast for Passenger Mobile Apps and Controllers.
@@ -228,6 +229,7 @@ def get_corridor_signal_aspects(train_number: str):
 
 
 @app.get("/api/v1/corridor/congestion")
+@app.get("/api/v1/radar/national_map")
 def get_corridor_congestion():
     """
     Network-wide Downstream Track Congestion & Bottleneck Analysis.
@@ -653,6 +655,7 @@ def get_zone_fleet(zone_code: str, limit: int = Query(100, ge=1, le=1000), statu
 
 
 @app.post("/api/v1/fleet/batch-forecast")
+@app.post("/api/v1/fleet/batch_forecast")
 def post_batch_forecast(request: BatchForecastRequest = Body(...)):
     """
     High-Throughput Parallel Batch ETA Forecasting API.
