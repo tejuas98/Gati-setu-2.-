@@ -63,7 +63,7 @@
 
     /* Directional Train Chevron Markers */
     .train-chevron-marker {
-      transition: transform 0.2s linear;
+      transition: transform 0.2s linear, width 0.15s ease, height 0.15s ease;
       cursor: pointer;
     }
     .train-chevron-marker:hover {
@@ -80,10 +80,10 @@
     }
     .rr-pulsing-halo {
       position: absolute;
-      width: 44px;
-      height: 44px;
-      margin-left: -22px;
-      margin-top: -22px;
+      width: 40px;
+      height: 40px;
+      margin-left: -20px;
+      margin-top: -20px;
       border-radius: 50%;
       border: 2px dashed #ffffff;
       animation: rr-pulse-ring 2.2s infinite ease-out;
@@ -130,13 +130,13 @@
         </div>
       </div>
 
-      <!-- RailRadar Style Search Box -->
+      <!-- Search Box -->
       <div class="relative w-64 md:w-80 ml-2">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
         <input 
           id="trainSearchInput" 
           type="text" 
-          placeholder="Search train no / name (e.g. 12724, 12951, 08610)..." 
+          placeholder="Search train no / name (e.g. 12724, 12951, 54804)..." 
           onkeydown="if(event.key==='Enter') searchTrain()"
           class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg pl-8 pr-16 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 mono transition"
         />
@@ -150,16 +150,18 @@
     <div class="flex items-center gap-4">
       <div class="hidden lg:flex items-center gap-5 text-xs mono">
         <div>
-          <span class="text-slate-400">ACTIVE FLEET:</span>
-          <strong id="statActiveCount" class="text-cyan-400 ml-1">2,393</strong>
+          <span class="text-slate-400">ACTIVE RADAR SWEEP:</span>
+          <strong id="statActiveCount" class="text-cyan-400 ml-1">2,459</strong>
+          <span class="text-[10px] text-slate-500 ml-1">/ 22,593 IR Daily</span>
         </div>
         <div>
           <span class="text-slate-400">ON-TIME:</span>
           <strong id="statOnTimePct" class="text-emerald-400 ml-1">88.4%</strong>
         </div>
         <div>
-          <span class="text-slate-400">G&SR WEATHER RESTRICTIONS:</span>
-          <strong id="statWeatherCaps" class="text-amber-400 ml-1">31 Active</strong>
+          <span class="text-slate-400">STATIONS:</span>
+          <span class="text-amber-400 font-bold">7,349 Operating</span>
+          <span class="text-[10px] text-slate-500">(10,083 Halts)</span>
         </div>
       </div>
 
@@ -181,25 +183,25 @@
     <!-- Leaflet GIS Map Canvas (Full Screen) -->
     <div id="radarMap" class="absolute inset-0 z-0 bg-[#070b14]"></div>
 
-    <!-- Floating Top Selected Train Pill (Matching RailRadar Screenshots) -->
+    <!-- Floating Top Selected Train Pill -->
     <div id="topSelectedPill" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-20 rr-pill px-4 py-2 rounded-xl flex items-center gap-3 text-xs mono border border-slate-700/80 shadow-2xl">
       <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-arrow-left"></i></button>
-      <span id="topPillTitle" class="font-bold text-white tracking-wide">12724 Telangana Express</span>
+      <span id="topPillTitle" class="font-bold text-white tracking-wide">Train Details</span>
       <button onclick="closeInspector()" class="text-slate-400 hover:text-white transition text-xs"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Left Slide-Out Train Inspector (Connected directly to GatiSetu AI Engine) -->
-    <aside id="inspectorDrawer" class="absolute left-4 top-4 bottom-4 w-[430px] max-w-[calc(100vw-32px)] rr-card rounded-2xl z-20 flex flex-col overflow-hidden transition-all duration-300 transform -translate-x-[470px] shadow-2xl">
+    <!-- Left Slide-Out Train Inspector (Full Height, Smooth Scrolling) -->
+    <aside id="inspectorDrawer" class="absolute left-4 top-4 bottom-4 w-[430px] max-w-[calc(100vw-32px)] rr-card rounded-2xl z-30 flex flex-col overflow-hidden transition-all duration-300 transform -translate-x-[470px] shadow-2xl">
       
       <!-- Drawer Header Bar -->
-      <div class="p-4 border-b border-slate-800/80 bg-slate-900/80 shrink-0">
+      <div class="p-3.5 border-b border-slate-800/80 bg-slate-900/90 shrink-0">
         <div class="flex items-start justify-between gap-2">
           <div>
             <div class="flex items-center gap-2">
-              <span id="inspTrainNo" class="font-black text-2xl text-white mono">12724</span>
-              <span id="inspServiceCat" class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold uppercase mono">Superfast Express</span>
+              <span id="inspTrainNo" class="font-black text-2xl text-white mono">--</span>
+              <span id="inspServiceCat" class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold uppercase mono">Service</span>
             </div>
-            <h2 id="inspTrainName" class="font-semibold text-xs text-slate-300 truncate max-w-[290px] mt-0.5">Telangana Express (NDLS - HYB)</h2>
+            <h2 id="inspTrainName" class="font-semibold text-xs text-slate-300 truncate max-w-[290px] mt-0.5">Train Name</h2>
           </div>
           <button onclick="closeInspector()" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
             <i class="fa-solid fa-xmark text-sm"></i>
@@ -207,102 +209,107 @@
         </div>
 
         <!-- Quick Action Pills -->
-        <div class="flex items-center gap-2 mt-3 text-[11px] mono">
+        <div class="flex items-center gap-2 mt-2.5 text-[11px] mono">
           <button class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
             <i class="fa-solid fa-calendar-day text-slate-400"></i>
             <span>Today</span>
-          </button>
-          <button onclick="toggleCoachModal()" class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-grip text-cyan-400"></i>
-            <span>Coach Rake</span>
           </button>
           <button onclick="focusSelectedTrain()" class="px-2.5 py-1 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 transition flex items-center gap-1.5">
             <i class="fa-solid fa-crosshairs"></i>
             <span>Center</span>
           </button>
+          <button onclick="toggleAdvisorExpand()" class="px-2.5 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-amber-400 border border-amber-500/30 transition flex items-center gap-1.5 ml-auto">
+            <i class="fa-solid fa-microchip"></i>
+            <span id="advisorToggleText">AI Details</span>
+            <i id="advisorToggleIcon" class="fa-solid fa-chevron-down text-[9px]"></i>
+          </button>
         </div>
 
         <!-- Delay / Status Banner -->
-        <div id="inspStatusBanner" class="mt-3 p-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-xs flex items-center justify-between text-red-300 font-bold mono">
+        <div id="inspStatusBanner" class="mt-2.5 p-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs flex items-center justify-between text-emerald-300 font-bold mono">
           <div class="flex items-center gap-2 truncate">
-            <i class="fa-regular fa-clock text-red-400"></i>
-            <span id="inspStatusText" class="truncate">Train is delayed by 1H 54M LATE</span>
+            <i class="fa-regular fa-clock text-emerald-400"></i>
+            <span id="inspStatusText" class="truncate">RUNNING ON TIME</span>
           </div>
-          <span id="inspSpeedBadge" class="text-white text-[11px] ml-2 shrink-0">45 km/h</span>
+          <span id="inspSpeedBadge" class="text-white text-[11px] ml-2 shrink-0">0 km/h</span>
         </div>
       </div>
 
-      <!-- Section Controller AI & GatiSetu Physics Dispatch HUD -->
+      <!-- Collapsible Section Controller AI HUD -->
       <div id="precedenceAdvisorCard" class="p-3 bg-slate-950/95 border-b border-slate-800 text-[11px] mono shrink-0 space-y-2">
+        <!-- Compact Summary Row -->
         <div class="flex items-center justify-between text-slate-400 font-bold">
           <span class="text-cyan-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-microchip animate-pulse"></i> GATI-SETU DYNAMIC AI FORECAST
+            <i class="fa-solid fa-microchip animate-pulse"></i> GATI-SETU DYNAMIC AI
           </span>
-          <span id="inspHeadwayKm" class="text-amber-400">Spatial Headway: 12.7 km</span>
+          <span id="inspHeadwayKm" class="text-amber-400 text-[10px]">Headway: 12.4 km</span>
         </div>
 
-        <!-- 4-Aspect Signal & Davis Resistance -->
-        <div class="grid grid-cols-2 gap-2 text-[10px]">
-          <div class="p-1.5 rounded bg-slate-900 border border-slate-800">
-            <span class="text-slate-500">ABS SIGNAL ASPECT:</span>
-            <div id="inspSignalAspect" class="font-black text-emerald-400 mt-0.5">CLEAR GREEN (130 km/h)</div>
+        <!-- Detailed Panel (Expanded on Toggle) -->
+        <div id="advisorDetailContent" class="hidden space-y-2 pt-1 border-t border-slate-800/80">
+          <!-- 4-Aspect Signal & Davis Resistance -->
+          <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <div class="p-1.5 rounded bg-slate-900 border border-slate-800">
+              <span class="text-slate-500">ABS SIGNAL ASPECT:</span>
+              <div id="inspSignalAspect" class="font-black text-emerald-400 mt-0.5">CLEAR GREEN (130 km/h)</div>
+            </div>
+            <div class="p-1.5 rounded bg-slate-900 border border-slate-800">
+              <span class="text-slate-500">DAVIS RESISTANCE:</span>
+              <div id="inspResistanceKn" class="font-black text-cyan-400 mt-0.5">38.2 kN [WAP-7 Loco]</div>
+            </div>
           </div>
-          <div class="p-1.5 rounded bg-slate-900 border border-slate-800">
-            <span class="text-slate-500">DAVIS RESISTANCE:</span>
-            <div id="inspResistanceKn" class="font-black text-cyan-400 mt-0.5">38.2 kN [WAP-7 Loco]</div>
-          </div>
-        </div>
 
-        <!-- GatiSetu ML Confidence Intervals (P10 / P50 / P90) -->
-        <div class="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] space-y-1">
-          <div class="flex items-center justify-between text-cyan-300 font-bold">
-            <span>DYNAMIC ARRIVAL FORECAST:</span>
-            <span id="inspConfidenceBand" class="text-emerald-400">95% Confidence Band (±12m)</span>
+          <!-- GatiSetu ML Confidence Intervals (P10 / P50 / P90) -->
+          <div class="p-2 rounded bg-cyan-950/40 border border-cyan-500/30 text-[10px] space-y-1">
+            <div class="flex items-center justify-between text-cyan-300 font-bold">
+              <span>DYNAMIC ARRIVAL FORECAST:</span>
+              <span id="inspConfidenceBand" class="text-emerald-400">95% CI (±12m)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1 pt-1 text-center font-bold">
+              <div class="p-1 rounded bg-slate-900/80 text-emerald-400">
+                <span class="text-[9px] text-slate-400 block font-normal">P10 OPT</span>
+                <span id="inspP10Eta">--:--</span>
+              </div>
+              <div class="p-1 rounded bg-blue-600/30 text-cyan-300 border border-cyan-400/30">
+                <span class="text-[9px] text-slate-400 block font-normal">P50 EXP</span>
+                <span id="inspP50Eta">--:--</span>
+              </div>
+              <div class="p-1 rounded bg-slate-900/80 text-amber-400">
+                <span class="text-[9px] text-slate-400 block font-normal">P90 PESS</span>
+                <span id="inspP90Eta">--:--</span>
+              </div>
+            </div>
           </div>
-          <div class="grid grid-cols-3 gap-1 pt-1 text-center font-bold">
-            <div class="p-1 rounded bg-slate-900/80 text-emerald-400">
-              <span class="text-[9px] text-slate-400 block font-normal">OPTIMISTIC (P10)</span>
-              <span id="inspP10Eta">15:34</span>
-            </div>
-            <div class="p-1 rounded bg-blue-600/30 text-cyan-300 border border-cyan-400/30">
-              <span class="text-[9px] text-slate-400 block font-normal">EXPECTED (P50)</span>
-              <span id="inspP50Eta">15:59</span>
-            </div>
-            <div class="p-1 rounded bg-slate-900/80 text-amber-400">
-              <span class="text-[9px] text-slate-400 block font-normal">PESSIMISTIC (P90)</span>
-              <span id="inspP90Eta">16:34</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Precedence Recommendation Alert -->
-        <div id="inspPrecedenceAlert" class="p-2 rounded bg-slate-900/90 border border-slate-800 text-[10px] text-slate-300 leading-tight">
-          <strong>AI Precedence Recommendation:</strong> Preceding MEMU 69167 scheduled for loop siding at next junction. Projected delay recovery: <strong>+14.2 min</strong>.
+          <!-- Precedence Alert Box -->
+          <div id="inspPrecedenceAlert" class="p-2 rounded bg-slate-900/90 border border-slate-800 text-[10px] text-slate-300 leading-tight">
+            <strong>AI Precedence:</strong> Line clear. Projected loop siding overtake recovery: <strong>+14.2 min</strong>.
+          </div>
         </div>
       </div>
 
       <!-- Timetable Header Bar -->
       <div class="grid grid-cols-12 px-4 py-2 border-b border-slate-800 bg-slate-900/90 text-[10px] font-bold uppercase tracking-wider text-slate-400 mono shrink-0">
         <div class="col-span-3 text-left">ARRIVAL</div>
-        <div class="col-span-6 text-center text-slate-200" id="inspDayTitle">UPCOMING CORRIDOR STOPS</div>
+        <div class="col-span-6 text-center text-slate-200">UPCOMING STATIONS</div>
         <div class="col-span-3 text-right">DYNAMIC ETA</div>
       </div>
 
-      <!-- Station Timeline (Scrollable with Rail Ladder Track) -->
-      <div id="inspTimelineContainer" class="flex-1 overflow-y-auto p-4 rail-ladder-track space-y-4 relative">
+      <!-- Station Timeline (Fully Scrollable) -->
+      <div id="inspTimelineContainer" class="flex-1 overflow-y-auto p-4 rail-ladder-track space-y-3.5 relative min-h-[160px]">
         <div class="text-center text-xs text-slate-500 mono py-8">Select any train on the live satellite map to inspect route schedule & section telemetry.</div>
       </div>
 
-      <!-- Bottom Floating Status Card -->
+      <!-- Bottom Floating Status Card (Always pinned & fully visible) -->
       <div class="p-3 bg-slate-900/95 border-t border-slate-800 shrink-0 flex items-center justify-between text-xs mono">
         <div>
           <div class="flex items-center gap-2">
-            <span id="inspBottomDist" class="font-black text-white text-sm">1.8 km to Kazipet Jn</span>
+            <span id="inspBottomDist" class="font-black text-white text-sm">-- km to next stop</span>
           </div>
           <div class="flex items-center gap-2 mt-1">
-            <span id="inspBottomDelayBadge" class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-[10px]">1H 54M LATE</span>
+            <span id="inspBottomDelayBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[10px]">ON TIME</span>
             <span class="text-[10px] text-slate-400">GatiSetu Live Sync</span>
-            <span class="text-[10px] text-slate-500">Loco: WAP-7 #30452</span>
+            <span class="text-[10px] text-slate-500" id="inspLocoBadge">Loco: WAP-7</span>
           </div>
         </div>
         <button onclick="inspectTrain(selectedTrainNumber)" class="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition shadow-lg shadow-blue-600/30" title="Refresh Live Forecast">
@@ -321,7 +328,7 @@
           <span class="hidden md:inline">Layers</span>
         </button>
 
-        <!-- Layer Dropdown Menu (3 Options: Satellite, Transit, Weather B&W) -->
+        <!-- Layer Dropdown Menu (3 Options with maxNativeZoom support) -->
         <div id="layerDropdown" class="hidden absolute right-0 top-11 w-72 rr-card rounded-2xl p-4 shadow-2xl z-30 space-y-3 text-xs">
           <div class="font-black text-slate-400 mono text-[10px] tracking-wider uppercase">Map Base Layer</div>
           
@@ -354,7 +361,7 @@
           </div>
 
           <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 leading-relaxed">
-            <strong>Weather B&W Mode:</strong> Monochromatic infrared satellite cloud cover with live RainViewer precipitation radar & G&SR speed restriction blocks.
+            <strong>Full Zoom Support:</strong> All layers support up to Zoom Level 19 with automatic vector upscaling and high-precision tile rendering.
           </div>
         </div>
       </div>
@@ -366,16 +373,14 @@
           <span class="hidden md:inline">Legend</span>
         </button>
 
-        <!-- Map Details Modal (Exact Categories from User Screenshot) -->
+        <!-- Map Details Modal (Exact Categories) -->
         <div id="legendModal" class="hidden absolute right-0 top-11 w-72 rr-card rounded-2xl p-4 shadow-2xl z-30 text-xs space-y-2.5">
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <span class="font-black text-white text-sm">Map Details</span>
             <button onclick="toggleAllCategories()" id="toggleAllCatBtn" class="text-blue-400 hover:text-blue-300 text-xs font-medium">Hide All</button>
           </div>
           
-          <div class="space-y-1.5 mono text-[11px]" id="categoryListContainer">
-            <!-- Dynamically populated with checkboxes & counts -->
-          </div>
+          <div class="space-y-1.5 mono text-[11px]" id="categoryListContainer"></div>
         </div>
       </div>
 
@@ -410,7 +415,7 @@
       </div>
     </div>
 
-    <!-- On-Map Floating Arrow Color Guide (Always visible so users know what colors mean) -->
+    <!-- On-Map Floating Arrow Color Guide (Bottom Right) -->
     <div class="absolute bottom-4 right-4 z-10 rr-pill p-3 rounded-2xl max-w-sm hidden md:block border border-slate-800 shadow-2xl">
       <div class="font-black text-[10px] text-slate-400 mono uppercase tracking-wider mb-2 flex items-center justify-between">
         <span>Arrow Color Classification</span>
@@ -430,55 +435,65 @@
       </div>
     </div>
 
-    <!-- Live Weather Advisory Strip (Bottom Left) -->
-    <div class="absolute left-4 bottom-4 z-10 rr-pill px-3.5 py-2 rounded-xl text-xs mono flex items-center gap-2.5 border border-amber-500/30 text-amber-300 shadow-2xl">
+    <!-- Live Weather Advisory Strip (Bottom Center so it NEVER overlaps the left drawer) -->
+    <div class="absolute left-1/2 transform -translate-x-1/2 bottom-3 z-10 rr-pill px-4 py-2 rounded-xl text-xs mono flex items-center gap-2.5 border border-amber-500/30 text-amber-300 shadow-2xl pointer-events-none sm:pointer-events-auto">
       <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-      <span id="mapWeatherAdvisory">G&SR Weather Speed Caps: 31 Fog & Monsoon Sections Active Across Indian Railways</span>
+      <span id="mapWeatherAdvisory">G&SR Weather Restrictions: Active Across 31 Fog & Monsoon Sections</span>
     </div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. Map Initialization with 3 Layers: Satellite, Transit, Weather B&W
+    // 1. Map Initialization with Safe Zoom & Uncapped Scaled Tile Providers
     // =========================================================================
     const map = L.map('radarMap', {
       zoomControl: false,
       attributionControl: false,
       minZoom: 4,
-      maxZoom: 18,
+      maxZoom: 19,
       preferCanvas: true
     }).setView([22.5, 79.5], 5); // Centers on India
 
-    // Base Tile Layers (Satellite, Transit, and B&W Weather Radar)
+    // Base Tile Providers with maxNativeZoom to prevent "Zoom Level Not Supported"
     const tileLayers = {
       satellite: L.layerGroup([
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
+          maxNativeZoom: 18,
           attribution: '&copy; Esri, Maxar'
         }),
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-          maxZoom: 19
+          maxZoom: 19,
+          maxNativeZoom: 18
         })
       ]),
       transit: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        minZoom: 3,
         maxZoom: 19,
+        maxNativeZoom: 14, // Automatically scales tiles up to zoom 19 without API errors
+        subdomains: 'abcd',
         attribution: '&copy; CartoDB &copy; OpenStreetMap'
       }),
       weather: L.layerGroup([
-        // High contrast Black & White Basemap
+        // Monochrome dark base
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          minZoom: 3,
           maxZoom: 19,
+          maxNativeZoom: 14,
+          subdomains: 'abcd',
           className: 'bw-weather-basemap'
         }),
         // Real-Time Precipitation Weather Radar
         L.tileLayer('https://tilecache.rainviewer.com/v2/radar/aad707de4a1f/256/{z}/{x}/{y}/0/0_0.png', {
-          maxZoom: 18,
+          maxZoom: 19,
+          maxNativeZoom: 12,
           opacity: 0.75,
           className: 'bw-weather-clouds'
         }),
         // Geographical boundaries
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
+          maxNativeZoom: 18,
           opacity: 0.6
         })
       ])
@@ -536,7 +551,7 @@
     }
 
     // =========================================================================
-    // 2. Train Category Legend, Colors & Filters (Exact 10 Categories from User)
+    // 2. Train Category Legend, Colors & Filters
     // =========================================================================
     const CATEGORIES = {
       0: { name: "Vande Bharat", color: "#ff6b00", count: 0, visible: true },
@@ -555,18 +570,30 @@
       return (CATEGORIES[typeId] && CATEGORIES[typeId].color) || "#94a3b8";
     }
 
+    // Dynamic Zoom-Dependent Marker Sizing (Eliminates Arrow Kichdi / Overlap)
+    function getMarkerSize() {
+      const z = map.getZoom();
+      if (z <= 5) return 8;       // Tiny sleek 8px chevrons at nationwide view!
+      if (z <= 7) return 11;      // 11px at regional view
+      if (z <= 9) return 14;      // 14px at division view
+      if (z <= 12) return 17;     // 17px at section view
+      return 22;                  // 22px at station view
+    }
+
     // Directional SVG Chevron Marker (Bearing 0° - 360°)
     function createChevronSvg(heading, color, isSelected = false) {
       const rot = (typeof heading === 'number') ? heading : 0;
-      const size = isSelected ? 34 : 18;
+      const baseSize = getMarkerSize();
+      const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
       const glow = isSelected ? `filter: drop-shadow(0 0 14px #00f0ff);` : '';
       const halo = isSelected ? `<div class="rr-pulsing-halo"></div>` : '';
+      const strokeW = baseSize <= 9 ? 1.0 : 1.8;
       return `
         <div style="position:relative; width:${size}px; height:${size}px; display:flex; align-items:center; justify-content:center;">
           ${halo}
           <div style="width:${size}px; height:${size}px; transform: rotate(${rot}deg); ${glow}">
             <svg width="${size}" height="${size}" viewBox="0 0 24 24">
-              <path d="M12 2 L21 21 L12 16 L3 21 Z" fill="${color}" stroke="#070b14" stroke-width="1.8" />
+              <path d="M12 2 L21 21 L12 16 L3 21 Z" fill="${color}" stroke="#070b14" stroke-width="${strokeW}" />
             </svg>
           </div>
         </div>
@@ -574,12 +601,37 @@
     }
 
     // =========================================================================
-    // 3. Live Train Markers with Tooltips & Heading Directions
+    // 3. Live Train Markers with Dynamic Zoom Scaling & Tooltips
     // =========================================================================
     let trainMarkers = {};
     let allLiveTrains = [];
     let activeTrackPolyline = null;
     let selectedTrainNumber = null;
+
+    // Refresh marker icons whenever user zooms in or out
+    map.on('zoomend', () => {
+      refreshAllMarkerIcons();
+    });
+
+    function refreshAllMarkerIcons() {
+      const baseSize = getMarkerSize();
+      allLiveTrains.forEach(t => {
+        const tNo = String(t.train_number);
+        const marker = trainMarkers[tNo];
+        if (marker) {
+          const isSelected = (tNo === selectedTrainNumber);
+          const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
+          const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
+          const color = getTrainColor(typeId);
+          marker.setIcon(L.divIcon({
+            html: createChevronSvg(t.heading, color, isSelected),
+            className: 'train-chevron-marker',
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size / 2]
+          }));
+        }
+      });
+    }
 
     async function fetchLiveTrains(manual = false) {
       const refIcon = document.getElementById('refreshIcon');
@@ -595,6 +647,8 @@
         Object.keys(CATEGORIES).forEach(k => CATEGORIES[k].count = 0);
         let onTimeCount = 0;
 
+        const baseSize = getMarkerSize();
+
         // Render markers
         allLiveTrains.forEach(t => {
           const typeId = (t.type_id !== undefined && CATEGORIES[t.type_id]) ? t.type_id : 3;
@@ -604,6 +658,7 @@
           const tNo = String(t.train_number);
           const color = getTrainColor(typeId);
           const isSelected = (tNo === selectedTrainNumber);
+          const size = isSelected ? Math.max(baseSize + 14, 26) : baseSize;
           const isCategoryVisible = CATEGORIES[typeId] ? CATEGORIES[typeId].visible : true;
           const headingDeg = (typeof t.heading === 'number') ? t.heading : 0;
           const delayMin = t.delay_minutes || 0;
@@ -616,8 +671,8 @@
             trainMarkers[tNo].setIcon(L.divIcon({
               html: createChevronSvg(headingDeg, color, isSelected),
               className: 'train-chevron-marker',
-              iconSize: [isSelected ? 34 : 18, isSelected ? 34 : 18],
-              iconAnchor: [isSelected ? 17 : 9, isSelected ? 17 : 9]
+              iconSize: [size, size],
+              iconAnchor: [size / 2, size / 2]
             }));
             trainMarkers[tNo].setTooltipContent(tooltipHtml);
 
@@ -631,12 +686,12 @@
               icon: L.divIcon({
                 html: createChevronSvg(headingDeg, color, isSelected),
                 className: 'train-chevron-marker',
-                iconSize: [18, 18],
-                iconAnchor: [9, 9]
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2]
               })
             }).addTo(map);
 
-            marker.bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -10] });
+            marker.bindTooltip(tooltipHtml, { direction: 'top', offset: [0, -6] });
             marker.on('click', () => inspectTrain(tNo, t));
             trainMarkers[tNo] = marker;
           }
@@ -701,8 +756,26 @@
       fetchLiveTrains();
     }
 
+    // Toggle AI Advisor Details in Drawer
+    let isAdvisorExpanded = false;
+    function toggleAdvisorExpand() {
+      isAdvisorExpanded = !isAdvisorExpanded;
+      const content = document.getElementById('advisorDetailContent');
+      const icon = document.getElementById('advisorToggleIcon');
+      const text = document.getElementById('advisorToggleText');
+      if (isAdvisorExpanded) {
+        content.classList.remove('hidden');
+        icon.className = "fa-solid fa-chevron-up text-[9px]";
+        text.textContent = "Collapse";
+      } else {
+        content.classList.add('hidden');
+        icon.className = "fa-solid fa-chevron-down text-[9px]";
+        text.textContent = "AI Details";
+      }
+    }
+
     // =========================================================================
-    // 4. Inspect Train: GatiSetu AI Dynamic ETA Forecast & Route Polyline
+    // 4. Inspect Train: GatiSetu AI Dynamic ETA Forecast & Track Geometry
     // =========================================================================
     async function inspectTrain(trainNumber, trainSummary = null) {
       selectedTrainNumber = String(trainNumber);
@@ -724,8 +797,8 @@
         trainMarkers[selectedTrainNumber].setIcon(L.divIcon({
           html: createChevronSvg(trainSummary.heading, color, true),
           className: 'train-chevron-marker',
-          iconSize: [34, 34],
-          iconAnchor: [17, 17]
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         }));
       }
 
@@ -774,6 +847,7 @@
         const locoText = phys.locomotive_type ? `${phys.locomotive_type}` : 'WAP-7 (Electric)';
         const resText = `${phys.davis_train_resistance_kn || 38.2} kN [${locoText.split(' ')[0]}]`;
         document.getElementById('inspResistanceKn').textContent = resText;
+        document.getElementById('inspLocoBadge').textContent = `Loco: ${locoText.split(' ')[0]}`;
 
         // Downstream Corridor Headway & Signal
         const down = fcData.downstream_corridor || {};
@@ -805,7 +879,7 @@
 
           document.getElementById('inspBottomDist').textContent = `${firstStn.distance_km || 1.8} km to ${firstStn.station_name}`;
 
-          container.innerHTML = stations.slice(0, 25).map((s, idx) => {
+          container.innerHTML = stations.slice(0, 30).map((s, idx) => {
             const isFirst = (idx === 0);
             let sta = s.scheduled_arrival ? s.scheduled_arrival.split(' ')[1] || s.scheduled_arrival : '--:--';
             let eta = s.dynamic_forecast_p50 ? s.dynamic_forecast_p50.split(' ')[1] || s.dynamic_forecast_p50 : sta;
@@ -856,11 +930,12 @@
         const t = allLiveTrains.find(x => String(x.train_number) === selectedTrainNumber);
         if (t) {
           const typeId = t.type_id || 3;
+          const baseSize = getMarkerSize();
           trainMarkers[selectedTrainNumber].setIcon(L.divIcon({
             html: createChevronSvg(t.heading, getTrainColor(typeId), false),
             className: 'train-chevron-marker',
-            iconSize: [18, 18],
-            iconAnchor: [9, 9]
+            iconSize: [baseSize, baseSize],
+            iconAnchor: [baseSize / 2, baseSize / 2]
           }));
         }
       }

@@ -19,6 +19,9 @@
     .led-green { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
     .led-cyan { color: #00e5ff; text-shadow: 0 0 10px rgba(0, 229, 255, 0.6); }
     .led-red { color: #ff1744; text-shadow: 0 0 10px rgba(255, 23, 68, 0.6); }
+    /* Hide scrollbars cleanly */
+    .no-scrollbar::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+    .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col p-4 md:p-6">
@@ -34,7 +37,7 @@
           <h1 class="font-black text-xl tracking-wider text-white">GATI-SETU : PASSENGER INFORMATION DISPLAY SYSTEM (PIDS) LED BOARD</h1>
           <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold mono">PS 26028 CONCOURSE FEED</span>
         </div>
-        <p class="text-xs text-slate-400">PASSENGER INFORMATION DISPLAY SYSTEM | Dual-Clock Transparency (STA vs Dynamic ETA) & Platform Conflict Guard Across 10,083 Indian Stations</p>
+        <p class="text-xs text-slate-400">PASSENGER INFORMATION DISPLAY SYSTEM | Dual-Clock Transparency (STA vs Dynamic ETA) & Platform Conflict Guard Across 7,349 Operating Stations (10,083 Halts Indexed) | 22,593 Daily IR Trains</p>
       </div>
     </div>
 
@@ -95,7 +98,7 @@
   </header>
 
   <!-- Popular Major Railway Hubs Bar across all Zones -->
-  <div class="max-w-[1720px] w-full mx-auto mt-2 flex items-center gap-2 overflow-x-auto pb-1 text-[11px] mono text-slate-400">
+  <div class="max-w-[1720px] w-full mx-auto mt-2 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 text-[11px] mono text-slate-400">
     <span class="text-slate-500 font-bold uppercase text-[10px] shrink-0">MAJOR HUBS:</span>
     <button onclick="selectStation('NDLS')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 shrink-0">NDLS (New Delhi)</button>
     <button onclick="selectStation('HWH')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">HWH (Howrah)</button>
