@@ -406,6 +406,8 @@ def get_train_live_status(train_number: str):
     return res
 
 
+_route_geom_cache: Dict[str, Any] = {}
+
 @app.get("/api/v1/radar/route-track/{train_number}")
 def get_train_route_track(train_number: str):
     """
@@ -413,16 +415,21 @@ def get_train_route_track(train_number: str):
     for rendering exact railway lines on the Section Controller Radar.
     """
     clean_no = str(train_number).strip().lstrip("0") or str(train_number).strip()
+    if clean_no in _route_geom_cache:
+        return _route_geom_cache[clean_no]
+
     route = rr_client.get_route_geometry(clean_no)
     if not route.get("success"):
         raise HTTPException(status_code=404, detail=f"Track geometry not found for train {clean_no}")
     
     geom = route.get("data", {}).get("geojson", {}).get("geometry", {})
-    return {
+    res = {
         "train_number": clean_no,
         "geometry_type": geom.get("type", "LineString"),
         "coordinates": geom.get("coordinates", [])
     }
+    _route_geom_cache[clean_no] = res
+    return res
 
 
 _radar_tile_cache = {"timestamp_epoch": 0.0, "template": ""}

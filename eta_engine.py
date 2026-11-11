@@ -349,6 +349,20 @@ class DynamicETAEngine:
         upcoming_forecasts = []
         cumulative_dynamic_delay = cur_delay_min
 
+        # High-Speed Batch Prefetch: fetch weather for all upcoming stops in a single batched HTTP call
+        try:
+            from wimt_core.weather_engine import WeatherSafetyEngine, OpenMeteoClient
+            stn_coords = []
+            for stn in route_schedule:
+                if stn.get("status") != "departed" and bool(stn.get("isHalt", True)):
+                    c = WeatherSafetyEngine.get_coordinates_for_station(stn.get("stationCode", ""))
+                    if c:
+                        stn_coords.append(c)
+            if stn_coords:
+                OpenMeteoClient.batch_prefetch_weather(stn_coords, timeout_seconds=2.0)
+        except Exception:
+            pass
+
         for stn in route_schedule:
             stn_code = stn.get("stationCode", "")
             stn_name = stn.get("stationName", "")
