@@ -74,18 +74,18 @@
 
     /* Selected Train Pulsating Ring matching RailRadar */
     @keyframes rr-pulse-ring {
-      0% { transform: scale(0.75); opacity: 1; border-color: #ffffff; }
-      50% { transform: scale(1.35); opacity: 0.85; border-color: #00f0ff; }
-      100% { transform: scale(1.9); opacity: 0; border-color: #ffffff; }
+      0% { transform: translate(-50%, -50%) scale(0.75); opacity: 1; border-color: #ffffff; }
+      50% { transform: translate(-50%, -50%) scale(1.35); opacity: 0.85; border-color: #00f0ff; }
+      100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; border-color: #ffffff; }
     }
     .rr-pulsing-halo {
       position: absolute;
-      width: 40px;
-      height: 40px;
-      margin-left: -20px;
-      margin-top: -20px;
+      top: 50%;
+      left: 50%;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      border: 2px dashed #ffffff;
+      border: 2px dashed rgba(255, 255, 255, 0.9);
       animation: rr-pulse-ring 2.2s infinite ease-out;
       pointer-events: none;
     }
@@ -329,39 +329,59 @@
         </button>
 
         <!-- Layer Dropdown Menu (3 Options with maxNativeZoom support) -->
-        <div id="layerDropdown" class="hidden absolute right-0 top-11 w-72 rr-card rounded-2xl p-4 shadow-2xl z-30 space-y-3 text-xs">
-          <div class="font-black text-slate-400 mono text-[10px] tracking-wider uppercase">Map Base Layer</div>
+        <div id="layerDropdown" class="hidden absolute right-0 top-11 w-80 rr-card rounded-2xl p-4 shadow-2xl z-30 space-y-3.5 text-xs">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+            <span class="font-black text-white text-xs uppercase tracking-wider mono">Map Base Layer</span>
+            <span class="text-[10px] text-cyan-400 mono">Gov &amp; GIS Feeds</span>
+          </div>
           
           <div class="grid grid-cols-3 gap-2">
-            <!-- Satellite Option -->
-            <button onclick="setBaseLayer('satellite')" id="btnLayerSat" class="p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition">
-              <div class="w-full h-11 rounded-lg bg-[url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/28/45')] bg-cover bg-center border border-slate-700 relative">
+            <!-- Transit Option (First, matching Railradar) -->
+            <button onclick="setBaseLayer('transit')" id="btnLayerTrans" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition">
+              <div class="w-full h-12 rounded-lg bg-[#0b0f19] border border-slate-700 relative overflow-hidden flex items-center justify-center">
+                <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:8px_8px]"></div>
+                <i class="fa-solid fa-route text-cyan-400 text-base z-10"></i>
+                <span id="checkTrans" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px] z-20"><i class="fa-solid fa-check"></i></span>
+              </div>
+              <span class="text-[11px] font-semibold">Transit</span>
+            </button>
+
+            <!-- Satellite Option (Second, matching Railradar) -->
+            <button onclick="setBaseLayer('satellite')" id="btnLayerSat" class="p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition">
+              <div class="w-full h-12 rounded-lg bg-[url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/28/45')] bg-cover bg-center border border-slate-700 relative">
                 <span id="checkSat" class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
               </div>
-              <span class="text-[10px]">Satellite</span>
+              <span class="text-[11px] font-semibold">Satellite</span>
             </button>
 
-            <!-- Transit Option -->
-            <button onclick="setBaseLayer('transit')" id="btnLayerTrans" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition">
-              <div class="w-full h-11 rounded-lg bg-[#0b0f19] border border-slate-700 relative flex items-center justify-center">
-                <i class="fa-solid fa-route text-cyan-400 text-sm"></i>
-                <span id="checkTrans" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
+            <!-- Weather (Black & White) Option (NASA GIBS & IMD Radar) -->
+            <button onclick="setBaseLayer('weather')" id="btnLayerWeather" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition">
+              <div class="w-full h-12 rounded-lg bg-black border border-slate-700 relative flex items-center justify-center overflow-hidden">
+                <i class="fa-solid fa-cloud-bolt text-slate-200 text-base z-10"></i>
+                <span id="checkWeather" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px] z-20"><i class="fa-solid fa-check"></i></span>
               </div>
-              <span class="text-[10px]">Transit</span>
-            </button>
-
-            <!-- Weather (Black & White) Option -->
-            <button onclick="setBaseLayer('weather')" id="btnLayerWeather" class="p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition">
-              <div class="w-full h-11 rounded-lg bg-black border border-slate-600 relative flex items-center justify-center">
-                <i class="fa-solid fa-cloud-bolt text-slate-200 text-sm"></i>
-                <span id="checkWeather" class="hidden absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px]"><i class="fa-solid fa-check"></i></span>
-              </div>
-              <span class="text-[10px]">Weather B&W</span>
+              <span class="text-[11px] font-semibold">Weather B&amp;W</span>
             </button>
           </div>
 
+          <!-- Appearance Selector (Exact Match to Railradar) -->
+          <div class="pt-2 border-t border-slate-800">
+            <div class="font-black text-slate-400 mono text-[10px] tracking-wider uppercase mb-2">Appearance</div>
+            <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center justify-between gap-1">
+              <button onclick="setAppearance('light')" id="btnAppLight" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1.5 font-medium transition text-[11px]">
+                <i class="fa-regular fa-sun text-xs"></i> <span>Light</span>
+              </button>
+              <button onclick="setAppearance('dark')" id="btnAppDark" class="flex-1 py-1.5 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 font-bold transition text-[11px] shadow-sm">
+                <i class="fa-regular fa-moon text-xs"></i> <span>Dark</span>
+              </button>
+              <button onclick="setAppearance('auto')" id="btnAppAuto" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1.5 font-medium transition text-[11px]">
+                <i class="fa-solid fa-laptop text-xs"></i> <span>Auto</span>
+              </button>
+            </div>
+          </div>
+
           <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 leading-relaxed">
-            <strong>Government Weather &amp; GIS Feeds:</strong> Official NASA GIBS Earth Observation Satellite clouds, live meteorological Doppler radar sweeps, and ESRI World Dark Canvas with zero rate limits.
+            <strong>Government Weather &amp; GIS Feeds:</strong> Official NASA GIBS Earth Observation Satellite clouds, dynamic real-time Doppler radar sweeps, and ESRI World Vector Canvas with zero rate limits.
           </div>
         </div>
       </div>
@@ -476,13 +496,24 @@
           maxNativeZoom: 18
         })
       ]),
-      transit: L.layerGroup([
+      transitDark: L.layerGroup([
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
           maxNativeZoom: 18,
           attribution: '&copy; Esri, HERE, Garmin'
         }),
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          maxNativeZoom: 18
+        })
+      ]),
+      transitLight: L.layerGroup([
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          maxNativeZoom: 18,
+          attribution: '&copy; Esri, HERE, Garmin'
+        }),
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
           maxNativeZoom: 18
         })
@@ -563,17 +594,49 @@
     ]);
 
     let currentBase = 'satellite';
+    let currentAppearance = 'dark';
     tileLayers.satellite.addTo(map);
+
+    function setAppearance(mode) {
+      currentAppearance = mode;
+      const btnLight = document.getElementById('btnAppLight');
+      const btnDark = document.getElementById('btnAppDark');
+      const btnAuto = document.getElementById('btnAppAuto');
+
+      if (btnLight && btnDark && btnAuto) {
+        [btnLight, btnDark, btnAuto].forEach(b => {
+          b.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1.5 font-medium transition text-[11px]";
+        });
+
+        let effectiveDark = true;
+        if (mode === 'light') {
+          btnLight.className = "flex-1 py-1.5 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 font-bold transition text-[11px] shadow-sm";
+          effectiveDark = false;
+        } else if (mode === 'dark') {
+          btnDark.className = "flex-1 py-1.5 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 font-bold transition text-[11px] shadow-sm";
+          effectiveDark = true;
+        } else {
+          btnAuto.className = "flex-1 py-1.5 rounded-lg bg-slate-800 text-white flex items-center justify-center gap-1.5 font-bold transition text-[11px] shadow-sm";
+          effectiveDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+
+        if (currentBase === 'transit') {
+          map.removeLayer(tileLayers.transitDark);
+          map.removeLayer(tileLayers.transitLight);
+          if (effectiveDark) {
+            tileLayers.transitDark.addTo(map);
+          } else {
+            tileLayers.transitLight.addTo(map);
+          }
+        }
+      }
+    }
 
     function setBaseLayer(layerName) {
       Object.values(tileLayers).forEach(l => map.removeLayer(l));
       map.removeLayer(imdWeatherHazardLayer);
 
-      if (tileLayers[layerName]) {
-        tileLayers[layerName].addTo(map);
-        currentBase = layerName;
-      }
-
+      currentBase = layerName;
       const adv = document.getElementById('mapWeatherAdvisory');
       
       const checkSat = document.getElementById('checkSat');
@@ -586,22 +649,30 @@
       checkSat.classList.add('hidden');
       checkTrans.classList.add('hidden');
       checkWeather.classList.add('hidden');
-      btnSat.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
-      btnTrans.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
-      btnWeather.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1 transition";
+      btnSat.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition";
+      btnTrans.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition";
+      btnWeather.className = "p-1.5 rounded-xl border border-slate-700/80 hover:bg-slate-800/60 text-slate-300 font-medium flex flex-col items-center gap-1.5 transition";
 
       if (layerName === 'satellite') {
+        tileLayers.satellite.addTo(map);
         checkSat.classList.remove('hidden');
-        btnSat.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
+        btnSat.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition";
         if (adv) adv.textContent = "ESRI Photorealistic Satellite Imagery (National Live Rail Radar)";
       } else if (layerName === 'transit') {
+        const isDark = (currentAppearance === 'dark') || (currentAppearance === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+          tileLayers.transitDark.addTo(map);
+        } else {
+          tileLayers.transitLight.addTo(map);
+        }
         checkTrans.classList.remove('hidden');
-        btnTrans.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
-        if (adv) adv.textContent = "ESRI World Dark Vector GIS Basemap (Zero Rate Limits, Unmetered)";
+        btnTrans.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition";
+        if (adv) adv.textContent = "ESRI World Vector GIS Basemap (Zero Rate Limits, Unmetered)";
       } else if (layerName === 'weather') {
-        checkWeather.classList.remove('hidden');
-        btnWeather.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1 transition";
+        tileLayers.weather.addTo(map);
         imdWeatherHazardLayer.addTo(map);
+        checkWeather.classList.remove('hidden');
+        btnWeather.className = "p-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-bold flex flex-col items-center gap-1.5 transition";
         if (adv) adv.textContent = "NASA GIBS Earth Observation Satellite Clouds + Live Doppler Radar + IMD G&SR Speed Caps";
       }
       document.getElementById('layerDropdown').classList.add('hidden');
