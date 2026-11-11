@@ -3,55 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GATI-SETU | Passenger Information Display System (PIDS)</title>
+  <title>GATI-SETU | Public Station Concourse PIDS LED Display</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #050811; }
+    body { font-family: 'Inter', sans-serif; background-color: #060911; color: #f8fafc; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     .led-board {
       background: radial-gradient(circle at 50% 0%, #111827 0%, #030712 100%);
-      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 20px 40px rgba(0,0,0,0.6);
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85), 0 20px 40px rgba(0,0,0,0.6);
+      border: 2px solid #1e293b;
     }
-    .led-amber { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-    .led-green { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-    .led-red { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-    .led-cyan { color: #06b6d4; text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+    .led-amber { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+    .led-green { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+    .led-cyan { color: #00e5ff; text-shadow: 0 0 10px rgba(0, 229, 255, 0.6); }
+    .led-red { color: #ff1744; text-shadow: 0 0 10px rgba(255, 23, 68, 0.6); }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col p-4 md:p-6">
+<body class="min-h-screen flex flex-col p-4 md:p-6">
 
   <!-- Header Bar -->
   <header class="max-w-[1720px] w-full mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-800">
     <div class="flex items-center gap-3">
-      <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-extrabold text-xl">
+      <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-extrabold text-xl shadow-lg shadow-amber-500/10">
         <i class="fa-solid fa-train-subway"></i>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="font-black text-xl tracking-wider text-white">GATI-SETU : PASSENGER INFORMATION DISPLAY SYSTEM</h1>
-          <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold mono">PIDS TERMINAL</span>
+          <h1 class="font-black text-xl tracking-wider text-white">GATI-SETU : PASSENGER INFORMATION DISPLAY SYSTEM (PIDS) LED BOARD</h1>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold mono">PS 26028 CONCOURSE FEED</span>
         </div>
-        <p class="text-xs text-slate-400">Problem Statement 26028 | Live Station Concourse & Platform Display with Conflict Detection</p>
+        <p class="text-xs text-slate-400">PASSENGER INFORMATION DISPLAY SYSTEM | Dual-Clock Transparency (STA vs Dynamic ETA) & Platform Conflict Guard</p>
       </div>
     </div>
 
     <!-- Station Selector & Clock -->
     <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-      <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 gap-2">
+      <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 gap-2 shadow-inner">
         <span class="text-xs text-slate-400 font-semibold">STATION:</span>
-        <select id="stationSelect" onchange="fetchPIDSData()" class="bg-transparent border-0 text-sm font-black text-amber-400 focus:outline-none mono cursor-pointer">
-          <option value="NDLS" class="bg-slate-900 text-white">NDLS - New Delhi</option>
-          <option value="MMCT" class="bg-slate-900 text-white">MMCT - Mumbai Central</option>
+        <select id="stationSelect" onchange="switchStation()" class="bg-transparent border-0 text-sm font-black text-amber-400 focus:outline-none mono cursor-pointer">
+          <option value="NDLS" class="bg-slate-900 text-white">NDLS - New Delhi Junction</option>
           <option value="CNB" class="bg-slate-900 text-white">CNB - Kanpur Central</option>
+          <option value="MMCT" class="bg-slate-900 text-white">MMCT - Mumbai Central</option>
           <option value="HWH" class="bg-slate-900 text-white">HWH - Howrah Junction</option>
-          <option value="BVI" class="bg-slate-900 text-white">BVI - Borivali</option>
-          <option value="BRC" class="bg-slate-900 text-white">BRC - Vadodara Junction</option>
-          <option value="PRYJ" class="bg-slate-900 text-white">PRYJ - Prayagraj Junction</option>
-          <option value="GZB" class="bg-slate-900 text-white">GZB - Ghaziabad Junction</option>
-          <option value="DDU" class="bg-slate-900 text-white">DDU - Pt. DD Upadhyaya</option>
           <option value="BZA" class="bg-slate-900 text-white">BZA - Vijayawada Junction</option>
+          <option value="GZB" class="bg-slate-900 text-white">GZB - Ghaziabad Junction</option>
+          <option value="DDU" class="bg-slate-900 text-white">DDU - Pt. DD Upadhyaya Junction</option>
+          <option value="PRYJ" class="bg-slate-900 text-white">PRYJ - Prayagraj Junction</option>
+          <option value="BRC" class="bg-slate-900 text-white">BRC - Vadodara Junction</option>
+          <option value="BVI" class="bg-slate-900 text-white">BVI - Borivali</option>
         </select>
       </div>
 
@@ -60,54 +61,70 @@
         <div id="liveClock" class="text-sm font-black mono text-white">12:00:00 IST</div>
       </div>
 
-      <a href="/dashboard" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700">
-        <i class="fa-solid fa-radar text-emerald-400"></i>
-        <span class="hidden sm:inline">Control Room</span>
+      <a href="/dashboard" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-blue-500/20">
+        <i class="fa-solid fa-radar"></i>
+        <span>Section Radar</span>
       </a>
     </div>
   </header>
 
-  <!-- Weather & Operational Announcement Strip -->
-  <div id="announcementStrip" class="max-w-[1720px] w-full mx-auto my-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 text-xs">
-    <div class="flex items-center gap-2">
-      <span class="px-2 py-0.5 rounded bg-amber-500 text-black font-extrabold text-[10px] tracking-wider mono uppercase">Live Advisory</span>
-      <span id="announcementText" class="text-slate-200 font-medium">Automatic Block Signaling operational. Dynamic ETAs account for downstream congestion and junction bottlenecks.</span>
+  <!-- Educational Purpose Banner explaining Functions & Use -->
+  <div class="max-w-[1720px] w-full mx-auto my-3 p-3.5 rounded-xl bg-blue-950/30 border border-blue-500/30 text-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+    <div class="flex items-start gap-2.5">
+      <span class="px-2 py-0.5 rounded bg-blue-500 text-white font-extrabold text-[10px] mono uppercase tracking-wider mt-0.5">What is PIDS?</span>
+      <p class="text-slate-300 leading-relaxed text-[11px]">
+        Mounted on railway station concourses and over platform overbridges, the <strong>Passenger Information Display System (PIDS)</strong> fulfills Problem Statement 26028 by providing <strong>dual-clock arrival transparency</strong>: it compares the static timetable <span class="text-slate-200 font-bold">Scheduled Arrival (STA)</span> against GatiSetu's physics-informed <span class="text-cyan-400 font-bold">Dynamic Expected Arrival (ETA)</span>, assigns real platform berths, and broadcasts automated 15-minute platform starvation/conflict alerts.
+      </p>
     </div>
-    <div class="flex items-center gap-2 shrink-0 mono text-amber-400">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span>G&SR SPEED REGULATED</span>
+    <div class="flex items-center gap-2 shrink-0 text-[11px] mono">
+      <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700"><strong class="text-white">STA:</strong> Timetable Nominal</span>
+      <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-cyan-500/30"><strong class="text-cyan-400">ETA:</strong> Dynamic AI Forecast</span>
     </div>
   </div>
 
-  <!-- Main PIDS LED Board -->
-  <main class="max-w-[1720px] w-full mx-auto flex-1 flex flex-col led-board rounded-2xl border border-slate-800/80 p-4 md:p-6 overflow-hidden">
+  <!-- Operational Advisory Strip -->
+  <div id="announcementStrip" class="max-w-[1720px] w-full mx-auto mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 text-xs">
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded bg-amber-500 text-black font-extrabold text-[10px] tracking-wider mono uppercase">Live Concourse Advisory</span>
+      <span id="announcementText" class="text-slate-200 font-medium truncate">Fetching live operational advisory from Section Controller radar...</span>
+    </div>
+    <div class="text-[11px] mono text-amber-400 font-bold flex items-center gap-1.5 shrink-0">
+      <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+      <span>LIVE DISPATCH FEED</span>
+    </div>
+  </div>
+
+  <!-- Main High-Contrast LED Board -->
+  <main class="max-w-[1720px] w-full mx-auto flex-1 led-board rounded-2xl p-4 md:p-6 flex flex-col overflow-hidden">
     
-    <!-- Table Header -->
-    <div class="grid grid-cols-12 gap-2 text-[11px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-3 px-3 mono">
-      <div class="col-span-2 sm:col-span-1">Train No</div>
-      <div class="col-span-3 sm:col-span-4">Train Name & Route</div>
-      <div class="col-span-2 text-center">Scheduled (STA)</div>
-      <div class="col-span-2 text-center">Dynamic ETA</div>
-      <div class="col-span-1 text-center">Platform</div>
-      <div class="col-span-2 text-right">Running Status</div>
+    <!-- LED Column Headers -->
+    <div class="grid grid-cols-12 gap-2 pb-3 mb-2 border-b border-slate-800 text-[11px] font-black tracking-wider mono uppercase text-slate-400 px-3">
+      <div class="col-span-1 text-amber-400">TRAIN #</div>
+      <div class="col-span-3 text-white">TRAIN NAME & SERVICE CATEGORY</div>
+      <div class="col-span-2 text-slate-300">DESTINATION</div>
+      <div class="col-span-1 text-center text-slate-300">SCHEDULED (STA)</div>
+      <div class="col-span-1 text-center text-cyan-400">DYNAMIC ETA (AI)</div>
+      <div class="col-span-1 text-center text-amber-300">DELAY</div>
+      <div class="col-span-1 text-center text-white">PF #</div>
+      <div class="col-span-2 text-right text-emerald-400">BERTH & CONFLICT STATUS</div>
     </div>
 
     <!-- Live Rows Container -->
     <div id="pidsRowsContainer" class="flex-1 divide-y divide-slate-800/60 overflow-y-auto">
-      <div class="py-12 text-center text-slate-500 mono text-xs animate-pulse">
+      <div class="py-16 text-center text-slate-500 mono text-xs animate-pulse">
         CONNECTING TO NATIONAL RAILWAY RADAR & PIDS DISPATCH ENGINE...
       </div>
     </div>
 
     <!-- Board Footer Summary -->
-    <div class="border-t border-slate-800 pt-3 mt-2 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-400 mono gap-2">
-      <div class="flex items-center gap-4">
-        <span>TOTAL INBOUND: <strong id="totalInboundCount" class="text-white">0</strong></span>
-        <span>PLATFORM CONFLICTS: <strong id="totalConflictsCount" class="text-emerald-400">0</strong></span>
-        <span>SECTION CONGESTION: <strong id="sectionCongestionStatus" class="text-emerald-400">NORMAL</strong></span>
+    <div class="border-t border-slate-800 pt-3 mt-3 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-400 mono gap-2">
+      <div class="flex items-center gap-5">
+        <span>TOTAL INBOUND: <strong id="totalInboundCount" class="text-white font-bold">0</strong></span>
+        <span>PLATFORM CONFLICTS: <strong id="totalConflictsCount" class="text-emerald-400 font-bold">0</strong></span>
+        <span>STATION STATUS: <strong id="stationOperationalStatus" class="text-emerald-400 font-bold">NORMAL FLOW</strong></span>
       </div>
       <div>
-        <span>POWERED BY GATI-SETU DYNAMIC ML ENGINE (PS 26028)</span>
+        <span>POWERED BY GATI-SETU DYNAMIC ML FORECASTING ENGINE (PS ID: 26028)</span>
       </div>
     </div>
   </main>
@@ -123,6 +140,25 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    // Check station from URL path
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    if (pathParts.length >= 2 && pathParts[0] === 'pids') {
+      const urlStn = pathParts[1].toUpperCase();
+      const select = document.getElementById('stationSelect');
+      if (select) {
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === urlStn) {
+            select.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    function switchStation() {
+      fetchPIDSData();
+    }
+
     async function fetchPIDSData() {
       const stn = document.getElementById('stationSelect').value;
       const container = document.getElementById('pidsRowsContainer');
@@ -132,41 +168,63 @@
         if (!res.ok) throw new Error("PIDS service unavailable");
         const data = await res.json();
 
-        document.getElementById('totalInboundCount').textContent = data.total_inbound_trains;
-        document.getElementById('totalConflictsCount').textContent = data.platform_conflicts_count;
-        document.getElementById('totalConflictsCount').className = data.platform_conflicts_count > 0 ? "text-red-400 animate-pulse font-black" : "text-emerald-400 font-bold";
+        document.getElementById('totalInboundCount').textContent = data.total_inbound_trains || (data.trains ? data.trains.length : 0);
+        document.getElementById('totalConflictsCount').textContent = data.platform_conflicts_count || 0;
+        document.getElementById('totalConflictsCount').className = (data.platform_conflicts_count > 0) ? "text-red-400 animate-pulse font-black" : "text-emerald-400 font-bold";
 
         if (data.announcement) {
           document.getElementById('announcementText').textContent = data.announcement;
         }
 
         if (!data.trains || data.trains.length === 0) {
-          container.innerHTML = `<div class="py-12 text-center text-slate-500 mono text-xs">NO INBOUND TRAINS SCHEDULED IN CURRENT DISPATCH WINDOW FOR ${stn}</div>`;
+          container.innerHTML = `<div class="py-16 text-center text-slate-500 mono text-xs">NO INBOUND TRAINS SCHEDULED IN CURRENT 4-HOUR DISPATCH WINDOW FOR ${stn}</div>`;
           return;
         }
 
         container.innerHTML = data.trains.map((t, idx) => {
-          const isDelayed = t.dynamic_delay_min > 5;
-          const isConflict = t.platform_conflict_detected;
-          const statusBg = isConflict ? "bg-red-500/20 text-red-400 border border-red-500/40" : (isDelayed ? "bg-amber-500/10 text-amber-400 border border-amber-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30");
-          const statusLabel = isConflict ? `CONFLICT: PF #${t.assigned_platform}` : (isDelayed ? `EXP +${t.dynamic_delay_min}m` : "ON TIME");
+          const delayMin = Math.round(t.dynamic_delay_min || t.static_delay_min || 0);
+          const isDelayed = delayMin > 3;
+          const isConflict = Boolean(t.platform_conflict_detected);
+          
+          let statusBg = "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+          let statusLabel = "BERTH CONFIRMED";
+          
+          if (isConflict) {
+            statusBg = "bg-red-500/20 text-red-400 border border-red-500/50 animate-pulse";
+            statusLabel = `CONFLICT: PF #${t.assigned_platform}`;
+          } else if (isDelayed) {
+            statusBg = "bg-amber-500/15 text-amber-400 border border-amber-500/30";
+            statusLabel = `DELAYED +${delayMin}m`;
+          }
+
+          const delayBadge = isDelayed 
+            ? `<span class="text-amber-400 font-bold">+${delayMin}m</span>` 
+            : `<span class="text-emerald-400 font-bold">ON TIME</span>`;
+
+          const pfClass = isConflict 
+            ? "bg-red-500 text-white font-black animate-bounce shadow-lg shadow-red-500/30" 
+            : "bg-slate-800 text-amber-400 font-black border border-amber-500/30 shadow-inner";
 
           return `
-            <div class="grid grid-cols-12 gap-2 items-center py-3 px-3 hover:bg-slate-900/40 transition text-xs mono ${idx % 2 === 0 ? 'bg-slate-950/40' : ''}">
-              <div class="col-span-2 sm:col-span-1 font-black text-amber-400 text-sm">${t.train_number}</div>
-              <div class="col-span-3 sm:col-span-4">
-                <div class="font-bold text-white text-sm truncate">${t.train_name}</div>
-                <div class="text-[10px] text-slate-400 truncate">${t.service_category || 'Express Service'}</div>
+            <div class="grid grid-cols-12 gap-2 items-center py-3 px-3 hover:bg-slate-900/50 transition text-xs mono ${idx % 2 === 0 ? 'bg-slate-950/50' : 'bg-transparent'}">
+              <div class="col-span-1 font-black text-amber-400 text-sm led-amber">${t.train_number || 'N/A'}</div>
+              <div class="col-span-3">
+                <div class="font-bold text-white text-sm truncate">${t.train_name || 'Express Service'}</div>
+                <div class="text-[10px] text-slate-400 truncate">${t.service_category || 'Coaching Service'}</div>
               </div>
-              <div class="col-span-2 text-center text-slate-400 text-sm">${t.scheduled_time}</div>
-              <div class="col-span-2 text-center font-black ${isDelayed ? 'text-amber-400' : 'text-emerald-400'} text-sm">${t.dynamic_eta_time}</div>
+              <div class="col-span-2 text-slate-300 text-xs truncate">
+                <span class="text-[10px] text-slate-500 uppercase">To:</span> ${t.destination || 'TERMINUS'}
+              </div>
+              <div class="col-span-1 text-center font-bold text-slate-300 text-sm">${t.scheduled_time || '--:--'}</div>
+              <div class="col-span-1 text-center font-black text-cyan-400 text-sm led-cyan">${t.dynamic_eta_time || t.scheduled_time}</div>
+              <div class="col-span-1 text-center text-xs">${delayBadge}</div>
               <div class="col-span-1 text-center">
-                <span class="inline-block px-2.5 py-0.5 rounded font-black text-sm ${isConflict ? 'bg-red-500 text-white animate-bounce' : 'bg-slate-800 text-white border border-slate-700'}">
-                  ${t.assigned_platform}
+                <span class="inline-block px-3 py-1 rounded-md text-sm ${pfClass}">
+                  PF ${t.assigned_platform || '1'}
                 </span>
               </div>
               <div class="col-span-2 text-right">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${statusBg}">
+                <span class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-wider uppercase ${statusBg}">
                   ${statusLabel}
                 </span>
               </div>
@@ -175,14 +233,13 @@
         }).join('');
 
       } catch (err) {
-        container.innerHTML = `<div class="py-12 text-center text-red-400 mono text-xs">PIDS CONNECTION FAILED: ${err.message}</div>`;
+        container.innerHTML = `<div class="py-16 text-center text-red-400 mono text-xs">PIDS CONNECTION FAILED: ${err.message}</div>`;
       }
     }
 
-    // Auto-refresh every 15 seconds
+    // Initial fetch and auto-refresh every 15 seconds
     fetchPIDSData();
     setInterval(fetchPIDSData, 15000);
   </script>
 </body>
 </html>
-
