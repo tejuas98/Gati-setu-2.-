@@ -12,7 +12,8 @@ import os
 import sys
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 
@@ -24,6 +25,12 @@ from railradar_client import RailRadarClient
 from railjournal_client import RailJournalClient
 from whereismytrain_extractor import WhereIsMyTrainExtractor
 from wimt_engine_adapter import WIMTEngineAdapter
+from edge_location_engine import (
+    edge_engine,
+    EdgeLocationReport,
+    MotionSensorData,
+    CALIBRATED_CELL_TOWERS
+)
 
 app = FastAPI(
     title="GATI-SETU: Dynamic Railway ETA Engine",
@@ -314,6 +321,190 @@ def get_wimt_relay_status(trainNo: str = Query("12951")):
     if res.get("status") != "success":
         raise HTTPException(status_code=404, detail=res.get("message", "Train not found"))
     return res
+
+
+class MotionSensorIn(BaseModel):
+    linear_z_variance: float = Field(0.0, description="m/s^2 vertical harmonic rail vibration variance")
+    angular_speed_rad_s: float = Field(0.0, description="rad/s turn rate from gyroscope")
+    step_frequency_hz: float = Field(0.0, description="Hz pedestrian cadence")
+
+
+class EdgeReportIn(BaseModel):
+    device_id: str = Field(..., description="Unique client installation ID")
+    train_number: str = Field(..., description="Indian Railways train number (e.g. 12951 or 22946)")
+    timestamp_utc: Optional[str] = Field(None, description="ISO 8601 UTC timestamp")
+    source_type: str = Field("SATELLITE_GPS", description="SATELLITE_GPS, CELL_TRIANGULATION, or HYBRID_FUSED")
+    latitude: float = Field(0.0, description="WGS84 Latitude")
+    longitude: float = Field(0.0, description="WGS84 Longitude")
+    accuracy_m: float = Field(15.0, description="Estimated accuracy radius in meters")
+    speed_kmh: float = Field(0.0, description="Current speed in km/h")
+    bearing_deg: float = Field(0.0, description="Course heading in degrees")
+    cell_id: Optional[str] = Field(None, description="Compound cellular key {MCC}_{MNC}_{LAC}_{CID}")
+    signal_strength_dbm: int = Field(-85, description="Cellular signal strength in dBm")
+    sensors: Optional[MotionSensorIn] = None
+
+
+class EdgeBatchIn(BaseModel):
+    train_number: str = Field(..., description="Train number for buffered reports")
+    reports: List[EdgeReportIn] = Field(..., description="List of chronologically ordered edge reports")
+
+
+@app.post("/api/v1/telemetry/edge_ingest")
+def ingest_edge_telemetry(payload: EdgeReportIn):
+    """
+    Edge Location Data Collection Endpoint (Problem Statement 26028).
+    Ingests live GPS, Cell Tower ({MCC}_{MNC}_{LAC}_{CID}), and sensor fusion
+    data from passenger mobile clients, snaps coordinates to the rail centerline,
+    and updates the dynamic train running state.
+    """
+    ts = payload.timestamp_utc or datetime.utcnow().isoformat()
+    sens = MotionSensorData()
+    if payload.sensors:
+        sens = MotionSensorData(
+            linear_z_variance=payload.sensors.linear_z_variance,
+            angular_speed_rad_s=payload.sensors.angular_speed_rad_s,
+            step_frequency_hz=payload.sensors.step_frequency_hz
+        )
+
+    report = EdgeLocationReport(
+        device_id=payload.device_id,
+        train_number=payload.train_number,
+        timestamp_utc=ts,
+        source_type=payload.source_type,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        accuracy_m=payload.accuracy_m,
+        speed_kmh=payload.speed_kmh,
+        bearing_deg=payload.bearing_deg,
+        cell_id=payload.cell_id,
+        signal_strength_dbm=payload.signal_strength_dbm,
+        sensors=sens
+    )
+
+    consensus = edge_engine.ingest_edge_report(report)
+    return {
+        "status": "success",
+        "train_number": consensus.train_number,
+        "last_updated_utc": consensus.last_updated_utc,
+        "consensus_coordinates": {
+            "latitude": consensus.consensus_lat,
+            "longitude": consensus.consensus_lng
+        },
+        "consensus_speed_kmh": consensus.consensus_speed_kmh,
+        "track_chainage_km": consensus.track_chainage_km,
+        "nearest_station": consensus.nearest_station,
+        "distance_to_station_km": consensus.distance_to_station_km,
+        "cross_track_error_m": consensus.cross_track_error_m,
+        "in_train_confidence_pct": consensus.in_train_confidence_pct,
+        "motion_classification": consensus.motion_classification,
+        "active_edge_devices": consensus.active_edge_devices_count,
+        "matched_corridor": consensus.matched_corridor,
+        "is_halted": consensus.is_halted
+    }
+
+
+@app.post("/api/v1/telemetry/edge_batch_ingest")
+def ingest_edge_batch_telemetry(batch: EdgeBatchIn):
+    """
+    Offline Edge Buffer Synchronization Endpoint.
+    Ingests buffered location reports collected while passing through cellular
+    dead zones once network connectivity is re-established.
+    """
+    processed = 0
+    latest_status = None
+    for r in batch.reports:
+        ts = r.timestamp_utc or datetime.utcnow().isoformat()
+        sens = MotionSensorData()
+        if r.sensors:
+            sens = MotionSensorData(
+                linear_z_variance=r.sensors.linear_z_variance,
+                angular_speed_rad_s=r.sensors.angular_speed_rad_s,
+                step_frequency_hz=r.sensors.step_frequency_hz
+            )
+        report = EdgeLocationReport(
+            device_id=r.device_id,
+            train_number=r.train_number,
+            timestamp_utc=ts,
+            source_type=r.source_type,
+            latitude=r.latitude,
+            longitude=r.longitude,
+            accuracy_m=r.accuracy_m,
+            speed_kmh=r.speed_kmh,
+            bearing_deg=r.bearing_deg,
+            cell_id=r.cell_id,
+            signal_strength_dbm=r.signal_strength_dbm,
+            sensors=sens
+        )
+        latest_status = edge_engine.ingest_edge_report(report)
+        processed += 1
+
+    return {
+        "status": "success",
+        "processed_reports_count": processed,
+        "train_number": batch.train_number,
+        "latest_consensus_status": {
+            "track_chainage_km": latest_status.track_chainage_km if latest_status else 0.0,
+            "nearest_station": latest_status.nearest_station if latest_status else "UNKNOWN",
+            "distance_to_station_km": latest_status.distance_to_station_km if latest_status else 0.0,
+            "consensus_speed_kmh": latest_status.consensus_speed_kmh if latest_status else 0.0,
+            "in_train_confidence_pct": latest_status.in_train_confidence_pct if latest_status else 0.0
+        }
+    }
+
+
+@app.get("/api/v1/telemetry/edge_status/{train_number}")
+def get_edge_train_status(train_number: str):
+    """
+    Returns live crowdsourced edge location consensus for a specific train service.
+    """
+    clean_no = str(train_number).strip().lstrip("0")
+    consensus = edge_engine.compute_train_consensus(clean_no)
+    return {
+        "status": "success",
+        "train_number": consensus.train_number,
+        "last_updated_utc": consensus.last_updated_utc,
+        "consensus_coordinates": {
+            "latitude": consensus.consensus_lat,
+            "longitude": consensus.consensus_lng
+        },
+        "consensus_speed_kmh": consensus.consensus_speed_kmh,
+        "track_chainage_km": consensus.track_chainage_km,
+        "nearest_station": consensus.nearest_station,
+        "distance_to_station_km": consensus.distance_to_station_km,
+        "cross_track_error_m": consensus.cross_track_error_m,
+        "in_train_confidence_pct": consensus.in_train_confidence_pct,
+        "motion_classification": consensus.motion_classification,
+        "active_edge_devices": consensus.active_edge_devices_count,
+        "primary_location_source": consensus.primary_location_source,
+        "matched_corridor": consensus.matched_corridor,
+        "is_halted": consensus.is_halted
+    }
+
+
+@app.get("/api/v1/telemetry/cell_towers")
+def list_calibrated_cell_towers(corridor: Optional[str] = None):
+    """
+    Returns the master catalog of calibrated railway cellular base stations
+    for client offline synchronization.
+    """
+    towers = []
+    for cell_id, info in CALIBRATED_CELL_TOWERS.items():
+        if corridor and info.get("zone") != corridor.upper():
+            continue
+        towers.append({
+            "cell_id": cell_id,
+            "latitude": info["lat"],
+            "longitude": info["lng"],
+            "station_code": info["station"],
+            "description": info["description"],
+            "accuracy_radius_meters": info["accuracy_m"],
+            "operational_zone": info["zone"]
+        })
+    return {
+        "status": "success",
+        "total_calibrated_towers": len(towers),
+        "towers": towers
+    }
 
 
 if __name__ == "__main__":
