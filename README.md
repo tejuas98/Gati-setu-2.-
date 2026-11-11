@@ -21,6 +21,16 @@
 
 ---
 
+## Problem Statement 26028: Ground Reality vs. Legacy Systems vs. GatiSetu AI
+
+| Problem Statement 26028 Pillar | Legacy Static System (WIMT / Google) | GatiSetu AI Solution | Fulfillment | Audit & Verification Proof |
+|---|---|---|:---:|:---:|
+| **1. Passenger Real-Time Delivery & Visualization** | Naive linear formula ($\text{ETA} = \text{STA} + \text{Delay}$), single ambiguous arrival time, no operational delay reasons, static platform alerts. | Live dual STA vs. dynamic ETA side-by-side view, platform allocation, passing loops, coach berth layouts, destination alarms, and offline SQLite timetable sync. | **100% Fulfilled** | [12 Live Android Screenshots & Audit](docs/passenger_visualization/) |
+| **2. Edge Location Data Collection** | Unverified GPS fixes susceptible to parallel road vehicle spoofing; complete failure in tunnels and rural dead zones. | On-device cellular base station triangulation ({MCC}_{MNC}_{LAC}_{CID}), 3-axis accelerometer rail joint harmonic vibration fusion, track centerline snapping, and FIFO dead-zone buffers. | **100% Fulfilled** | [Edge Engine Specification & Ingestion APIs](docs/edge_location_collection/) |
+| **3. Dynamic ML & Statistical Forecasting Engine** | Flat delay propagation ignoring train physics, block signals, and weather; underpredicts adverse weather delays by up to 77 minutes. | WAP-7 / WAP-4 Davis resistance physics, 4-aspect spatial headway signaling, live Open-Meteo G&SR weather speed caps, WTT slack recovery, and tri-horizon quantile bounds [P10, P50, P90]. | **100% Fulfilled** | [78.2% MAE Reduction & Quantile Engine](docs/dynamic_ml_forecasting_engine/) |
+
+---
+
 ## 1. System Architecture Overview
 
 Where Is My Train's core technological innovation is **completely offline train tracking without active satellite GPS or an internet connection**. 

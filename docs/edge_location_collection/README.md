@@ -17,7 +17,20 @@ Under Problem Statement 26028, real-time data ingestion forms the physical found
 
 ---
 
-## 2. The 5 Core Pillars of GatiSetu Edge Collection
+## 2. Problem Statement 26028 Mandate vs. Legacy Systems vs. GatiSetu AI
+
+| Problem Statement 26028 Mandate | Legacy Static System (WIMT / Google) | GatiSetu Edge Location Engine | Status |
+|---|---|---|:---:|
+| **Continuous Real-Time Feeds**<br>Dynamically forecast ETA using live location data feeds across diverse geographies. | Dependent on third-party manual crowdsourcing or periodic cellular checks with no validation. | Dual-mode edge telemetry: Satellite GNSS + offline cellular base station triangulation ({MCC}_{MNC}_{LAC}_{CID}) querying calibrated railway database. | **100% Fulfilled** |
+| **Offline Resilience in Dead Zones**<br>Continuous tracking in tunnels, remote cuts, and weak coverage belts. | Location completely freezes; app displays "Searching for GPS" and provides no tracking data. | On-device zero-internet cell tower resolution against local SQLite database + FIFO dead-zone telemetry buffer uploaded upon reconnection. | **100% Fulfilled** |
+| **Vehicle Disambiguation (Anti-Spoofing)**<br>Ensure location feeds reflect actual train running conditions rather than parallel road traffic. | Accepts raw smartphone GPS fixes indiscriminately; automobiles on parallel highways pollute train location data. | 3-axis accelerometer vertical rail joint harmonic vibration ($\sigma^2_z \in [1.0, 6.5]\text{ m/s}^2$) + gyroscope curvature limit ($\omega < 0.22\text{ rad/s}$) to filter out road vehicles. | **100% Fulfilled** |
+| **Track Centerline Snapping & Chainage**<br>Project location data onto railway network geometry and sectional running times. | Raw drifting coordinates plotted off-track on adjacent farmland or highways. | Great-circle orthogonal Haversine projection snapping coordinates to track centerlines, computing cross-track error $e_{\text{xt}}$ and linear Kilometer Post (KP). | **100% Fulfilled** |
+| **Multi-Passenger Crowdsourced Consensus**<br>Scalable system to cover thousands of trains simultaneously. | Individual phone errors directly corrupt train markers. | Inverse-variance weighted Kalman consensus fusing multiple passenger reports per train while rejecting spatial outliers ($> 3\text{ MAD}$). | **100% Fulfilled** |
+| **High-Throughput Ingestion Infrastructure**<br>Feature APIs for integration with mobile apps, displays, and control rooms. | Proprietary closed APIs with no standardized REST or batch upload mechanisms. | High-throughput FastAPI endpoints: `POST /api/v1/telemetry/edge_ingest`, `POST /api/v1/telemetry/edge_batch_ingest`, and `GET /api/v1/telemetry/edge_status/{train_no}`. | **100% Fulfilled** |
+
+---
+
+## 3. The 5 Core Pillars of GatiSetu Edge Collection
 
 ```mermaid
 flowchart TD
@@ -59,7 +72,7 @@ flowchart TD
 
 ---
 
-## 3. Mathematical & Algorithmic Formulation
+## 4. Mathematical & Algorithmic Formulation
 
 ### 3.1 Compound Cellular Key Resolution
 In cellular dead zones or tunnels where satellite GPS signals cannot penetrate steel coaches, the client queries Android's `TelephonyManager.getAllCellInfo()` to inspect visible Base Transceiver Stations (BTS) without opening a data socket:
@@ -105,7 +118,7 @@ Where $\sigma_{\text{acc}, i}$ is the reported accuracy radius in meters and $C_
 
 ---
 
-## 4. Production API Specification
+## 5. Production API Specification
 
 The edge location collection subsystem exposes four RESTful endpoints in [`api_server.py`](file:///Users/toru/Projects/rail-reverse-engine/api_server.py):
 
@@ -168,7 +181,7 @@ Serves the national catalog of railway-mapped cellular base stations for client-
 
 ---
 
-## 5. Verification & Test Suite Execution
+## 6. Verification & Test Suite Execution
 
 The edge collection subsystem is backed by an automated test suite ([`test_edge_location_pipeline.py`](file:///Users/toru/Projects/rail-reverse-engine/test_edge_location_pipeline.py)):
 
@@ -193,7 +206,7 @@ OK
 
 ---
 
-## 6. Conclusion: Requirement 2 Status
+## 7. Conclusion: Requirement 2 Status
 
 **Requirement 2: Edge Location Data Collection** is **100% fulfilled**. 
 

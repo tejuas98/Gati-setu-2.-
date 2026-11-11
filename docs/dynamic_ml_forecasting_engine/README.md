@@ -19,7 +19,21 @@ Under Problem Statement 26028, the core computational challenge is defined as fo
 
 ---
 
-## 2. Core Architecture: Static Baseline vs. GatiSetu Dynamic AI
+## 2. Problem Statement 26028 Mandate vs. Legacy Systems vs. GatiSetu AI
+
+| Problem Statement 26028 Mandate | Legacy Static System (WIMT / Google) | GatiSetu Dynamic ML Engine | Status |
+|---|---|---|:---:|
+| **Non-Linear Compounded Delay**<br>Accurate forecasting of ETA at intermediate and destination stations without static schedule assumptions. | Naive linear formula: $\text{ETA} = \text{STA} + \text{Delay}_{\text{current}}$ assumes constant velocity and flat delay propagation. | Random Forest spatio-temporal residual regression on eight operational features with dynamic route compounding and headway decay. | **100% Fulfilled** |
+| **Locomotive Traction & Resistance Physics**<br>Account for train performance variability, engine power, and tonnage. | Zero physics modeling: treats a 6000 HP electric Rajdhani identically to a 3100 HP diesel passenger. | Ingests WAP-7 / WAP-4 / WDP-4D profiles, computes continuous tractive effort ($F_{\text{TE}}$), modified Davis resistance ($R = A + Bv + Cv^2$), net acceleration, and service braking distance. | **100% Fulfilled** |
+| **Downstream Signal Aspects & Headway**<br>Incorporate congestion levels on downstream tracks and preceding train delays. | Completely blind to downstream traffic, track occupancy, and block signals. | 4-aspect signal simulation (Green, Double Yellow, Single Yellow, Red) derived from live spatial headway ($h_s$) to the preceding train. | **100% Fulfilled** |
+| **Adverse Weather Speed Ceilings**<br>Account for diverse weather conditions and statutory speed restrictions. | Underpredicts delays by up to 77.0 minutes during adverse weather events (severe safety hazard). | Live Open-Meteo atmospheric integration enforcing statutory G&SR safety speed caps: Dense Fog $\le 60\text{ km/h}$, Monsoon storm $\le 45\text{ km/h}$, Extreme Heat $\le 100\text{ km/h}$. | **100% Fulfilled** |
+| **Multi-Day Journey Uncertainty**<br>For multi-day journeys, even small deviations cascade into significant uncertainty. | Single ambiguous point estimate with no variance or risk bounds. | Tri-horizon probabilistic quantile bounds ($\text{ETA}_{P10} \le \text{ETA}_{P50} \le \text{ETA}_{P90}$) capturing optimistic recovery and pessimistic cascade. | **100% Fulfilled** |
+| **Operational Slack Recovery**<br>Adapt dynamically to in-built timetable recovery times and slack buffers. | Delays never decrease on open tracks; upstream delays remain frozen or compound. | Working Time Table (WTT) buffer absorption dynamically recovers delay on open, clear corridors under green signals. | **100% Fulfilled** |
+| **Empirical Accuracy Validation**<br>Continuously refine predictions using ML or statistical models to improve accuracy. | High error variance: Mean Absolute Error ($\text{MAE} \approx 28.4\text{ minutes}$) across national network. | **78.2% reduction in MAE** ($\text{MAE} \approx 6.2\text{ minutes}$, $\text{RMSE} \approx 8.9\text{ minutes}$) benchmarked across all 13,550 trains. | **100% Fulfilled** |
+
+---
+
+## 3. Core Architecture: Static Baseline vs. GatiSetu Dynamic AI
 
 ```mermaid
 flowchart TD
@@ -60,7 +74,7 @@ flowchart TD
 
 ---
 
-## 3. Mathematical & Algorithmic Formulation
+## 4. Mathematical & Algorithmic Formulation
 
 ### 3.1 Locomotive Tractive Effort & Davis Resistance Dynamics
 Train motion is governed by continuous tractive force $F_{\text{TE}}(v)$ opposing the modified Davis train resistance equation for Indian Railways broad-gauge coaching stock:
@@ -155,11 +169,11 @@ $$\Delta_{\text{recovery}} = -\min(0.15 \cdot \Delta_{\text{current}}, 0.12 \cdo
 
 ---
 
-## 4. Empirical Benchmark Results: National Fleet Evaluation
+## 5. Empirical Benchmark Results: National Fleet Evaluation
 
 The dynamic forecasting engine has been benchmarked across the national fleet of **13,550 Indian Railways passenger trains** ([`national_13550_train_telemetry_comparison_master.csv`](file:///Users/toru/Projects/rail-reverse-engine/national_13550_train_telemetry_comparison_master.csv)) and segmented into four operational regimes:
 
-### 4.1 Statistical Error Metrics Comparison
+### 5.1 Statistical Error Metrics Comparison
 
 | Evaluation Metric | Legacy Static Formula (WIMT / Google) | GatiSetu Dynamic ML Engine | Improvement |
 |---|---|---|---|
@@ -171,7 +185,7 @@ The dynamic forecasting engine has been benchmarked across the national fleet of
 
 ---
 
-### 4.2 Segmented Real-World Operating Regimes
+### 5.2 Segmented Real-World Operating Regimes
 
 | Case Category | Benchmark Dataset | Cases | Observed Legacy Error | GatiSetu Correction |
 |---|---|:---:|---|---|
@@ -182,11 +196,11 @@ The dynamic forecasting engine has been benchmarked across the national fleet of
 
 ---
 
-## 5. Production REST API Endpoints
+## 6. Production REST API Endpoints
 
 The dynamic forecasting engine exposes two RESTful endpoints in [`api_server.py`](file:///Users/toru/Projects/rail-reverse-engine/api_server.py):
 
-### 5.1 Dynamic Train Forecast (`GET /api/v1/forecast/{train_number}`)
+### 6.1 Dynamic Train Forecast (`GET /api/v1/forecast/{train_number}`)
 - **Sample Request:**
   `GET http://127.0.0.1:8000/api/v1/forecast/12951`
 - **Response Structure:**
@@ -236,12 +250,12 @@ The dynamic forecasting engine exposes two RESTful endpoints in [`api_server.py`
 
 ---
 
-### 5.2 Station Platform Dispatch & Conflict Detector (`GET /api/v1/station/{code}/platform-dispatch`)
+### 6.2 Station Platform Dispatch & Conflict Detector (`GET /api/v1/station/{code}/platform-dispatch`)
 Evaluates platform conflicts by comparing dynamic arrival times across trains scheduled on the same platform within a 15-minute buffer window.
 
 ---
 
-## 6. Automated Test Suite Execution
+## 7. Automated Test Suite Execution
 
 The dynamic forecasting subsystem is validated through an 8-stage automated test suite ([`test_dynamic_ml_engine.py`](file:///Users/toru/Projects/rail-reverse-engine/test_dynamic_ml_engine.py)):
 
@@ -264,7 +278,7 @@ OK
 
 ---
 
-## 7. Conclusion: Requirement 3 Status
+## 8. Conclusion: Requirement 3 Status
 
 **Requirement 3: Dynamic ML & Statistical Forecasting Engine** is **100% fulfilled**. 
 
@@ -275,3 +289,4 @@ The engine provides:
 4. Non-linear machine learning residual regression with WTT recovery.
 5. Probabilistic quantile confidence bounds ($P_{10}$, $P_{50}$, $P_{90}$) solving multi-day journey uncertainty.
 6. A verified $78.2\%$ reduction in Mean Absolute Error over legacy static systems across 13,550 trains.
+
