@@ -357,3 +357,4 @@ class FleetScalabilityEngine:
 
 # Singleton instance
 fleet_engine = FleetScalabilityEngine()
+
