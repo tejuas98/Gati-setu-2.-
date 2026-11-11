@@ -425,6 +425,49 @@ def get_train_route_track(train_number: str):
     }
 
 
+_radar_tile_cache = {"timestamp_epoch": 0.0, "template": ""}
+
+
+@app.get("/api/v1/weather/radar-tile")
+def get_weather_radar_tile_template():
+    """
+    Returns active real-time Doppler radar tile template from meteorological network.
+    Dynamically caches the latest 10-minute timestamp to prevent 404 tile errors.
+    """
+    global _radar_tile_cache
+    now = time.time()
+    if (now - _radar_tile_cache["timestamp_epoch"]) < 300.0 and _radar_tile_cache["template"]:
+        return {
+            "status": "cached",
+            "tile_template": _radar_tile_cache["template"]
+        }
+
+    try:
+        import urllib.request, json
+        req = urllib.request.Request("https://api.rainviewer.com/public/weather-maps.json", headers={"User-Agent": "GatiSetu/1.0"})
+        with urllib.request.urlopen(req, timeout=3.5) as res:
+            data = json.loads(res.read().decode())
+            past = data.get("radar", {}).get("past", [])
+            if past:
+                host = data.get("host", "https://tilecache.rainviewer.com")
+                path = past[-1]["path"]
+                template = f"{host}{path}/256/{{z}}/{{x}}/{{y}}/2/1_1.png"
+                _radar_tile_cache = {"timestamp_epoch": now, "template": template}
+                return {
+                    "status": "success",
+                    "tile_template": template,
+                    "timestamp": past[-1].get("time")
+                }
+    except Exception:
+        pass
+
+    fallback_template = "https://tilecache.rainviewer.com/v2/radar/9dc50f8b55ef/256/{z}/{x}/{y}/2/1_1.png"
+    return {
+        "status": "fallback",
+        "tile_template": _radar_tile_cache.get("template") or fallback_template
+    }
+
+
 @app.get("/api/v1/weather/zones")
 def get_active_weather_zones():
     """
